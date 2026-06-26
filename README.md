@@ -144,11 +144,11 @@ Build AI-powered software that solves meaningful real-world problems while conti
 
 ### GitHub
 
-https://github.com/YOUR_USERNAME
+https://github.com/ayushkumargupta21082005-max
 
 ### LinkedIn
 
-https://linkedin.com/in/YOUR_USERNAME
+https://www.linkedin.com/in/ayush-kumar-gupta-a9b5a8344/
 
 ---
 
