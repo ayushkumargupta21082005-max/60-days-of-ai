@@ -62,8 +62,9 @@ This repository documents my **60 Days of AI Challenge**, where I'll share my da
 # 📅 Challenge Progress
 
 | Day | Topic | Status |
-|-----|-------|--------|
-| Day 1 | AI Personality Profile & Portfolio Setup | ✅ Completed |
+|-----|----------------------------|--------|
+| Day 1 | AI Personality Profile | ✅ Completed |
+| Day 2 | Prompt Engineering | ✅ Completed |
 
 ---
 
@@ -73,16 +74,26 @@ This repository documents my **60 Days of AI Challenge**, where I'll share my da
 60-days-of-ai/
 │
 ├── README.md
+├── LICENSE
+├── .gitignore
+│
 ├── assets/
-│   └── day-01-ai-profile.png
+│   ├── day-01-ai-profile.png
+│   └── day-02-prompt-engineering.png
 │
 ├── day-01/
+│   ├── README.md
 │   ├── notes.md
+│   ├── prompts.md
 │   └── screenshots/
 │
-├── projects/
+├── day-02/
+│   ├── README.md
+│   ├── notes.md
+│   ├── prompts.md
+│   └── screenshots/
 │
-└── resources/
+└── .git/
 ```
 
 ---
