@@ -2,7 +2,7 @@
 
 ## Prompt 1 – Without Role
 
-```
+```text
 How can I improve customer retention for my SaaS product?
 ```
 
@@ -10,7 +10,7 @@ How can I improve customer retention for my SaaS product?
 
 ## Prompt 2 – Founder Role
 
-```
+```text
 You are a successful SaaS Founder.
 
 How can I improve customer retention for my SaaS product?
@@ -20,7 +20,7 @@ How can I improve customer retention for my SaaS product?
 
 ## Prompt 3 – Developer Role
 
-```
+```text
 You are a Senior Software Engineer.
 
 How can I improve customer retention for my SaaS product?
@@ -30,7 +30,7 @@ How can I improve customer retention for my SaaS product?
 
 ## Bonus Educational Prompt
 
-```
+```text
 You are an AI educator teaching complete beginners.
 
 Explain Role-Based Prompting in simple language.
@@ -67,6 +67,6 @@ Image Requirements:
 
 # Key Learning
 
-* The same question can produce very different answers depending on the role assigned to Claude.
-* Role-Based Prompting improves response quality, relevance, and depth.
-* Assigning a persona helps Claude think from an expert's perspective.
+- The same question can produce very different answers depending on the role assigned to Claude.
+- Role-Based Prompting improves response quality, relevance, and depth.
+- Assigning a persona helps Claude think from an expert's perspective.s Claude think from an expert's perspective.
