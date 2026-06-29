@@ -62,9 +62,11 @@ This repository documents my **60 Days of AI Challenge**, where I'll share my da
 # 📅 Challenge Progress
 
 | Day | Topic | Status |
-|-----|----------------------------|--------|
-| Day 1 | AI Personality Profile | ✅ Completed |
+|-----|-------------------------------------------|--------|
+| Day 1 | AI Personality Profile & Portfolio Setup | ✅ Completed |
 | Day 2 | Prompt Engineering | ✅ Completed |
+| Day 3 | Role-Based Prompting | ✅ Completed |
+| Day 4 | AI Career Roadmap | ✅ Completed |
 
 ---
 
