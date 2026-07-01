@@ -68,6 +68,7 @@ This repository documents my **60 Days of AI Challenge**, where I'll share my da
 | Day 3 | Role-Based Prompting | ✅ |
 | Day 4 | AI Career Roadmap | ✅ |
 | Day 5 | Context Engineering | ✅ |
+| Day 6 | Resume Optimization with Claude AI | ✅ Completed |
 
 ---
 
@@ -133,14 +134,64 @@ Build AI-powered software that solves meaningful real-world problems while conti
 
 # 📌 Daily Progress
 
-## ✅ Day 1
+## ✅ Day 1 — AI Personality Profile & Portfolio Setup
 
 - Created my AI Personality Profile
 - Designed my AI Portfolio Poster
 - Started the 60 Days of AI Challenge
-- Created this GitHub repository
-- Shared my journey publicly
+- Created the GitHub repository
+- Shared my learning journey publicly
 
+---
+
+## ✅ Day 2 — Prompt Engineering
+
+- Learned the fundamentals of Prompt Engineering
+- Compared weak prompts with engineered prompts
+- Understood how structured prompts improve AI responses
+- Created a LinkedIn infographic on Prompt Engineering
+- Documented learnings and prompts on GitHub
+
+---
+
+## ✅ Day 3 — Role-Based Prompting
+
+- Learned the concept of Role-Based Prompting
+- Compared responses with and without assigned roles
+- Explored how personas improve AI-generated outputs
+- Created a LinkedIn infographic on Role-Based Prompting
+- Documented prompts, outputs, and key learnings
+
+---
+
+## ✅ Day 4 — AI Career Roadmap
+
+- Created a personalized AI career roadmap using Claude
+- Identified strengths, skill gaps, and learning priorities
+- Built a structured roadmap toward becoming an AI Engineer
+- Designed a LinkedIn-ready career roadmap poster
+- Documented roadmap, prompts, and learnings on GitHub
+
+---
+
+## ✅ Day 5 — Context Engineering
+
+- Learned the importance of Context Engineering
+- Compared generic vs personalized AI outputs
+- Understood how context improves AI responses
+- Explored Sider AI browser extension
+- Created a visual comparison infographic
+- Documented prompts, outputs, and learnings
+
+---
+
+## ✅ Day 6 — Resume Optimization with Claude AI
+
+- Optimized my resume for ATS compatibility
+- Improved recruiter readability and resume structure
+- Enhanced project descriptions and technical skills section
+- Compared original and optimized resumes
+- Documented resume optimization workflow on GitHub
 ---
 
 # 📈 Future Goals
