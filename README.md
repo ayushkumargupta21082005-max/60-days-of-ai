@@ -69,6 +69,7 @@ This repository documents my **60 Days of AI Challenge**, where I'll share my da
 | Day 4 | AI Career Roadmap | ✅ |
 | Day 5 | Context Engineering | ✅ |
 | Day 6 | Resume Optimization with Claude AI | ✅ Completed |
+| Day 7 | Choosing the Right Claude Model & Effort Level | ✅ Completed |
 
 ---
 
@@ -193,6 +194,18 @@ Build AI-powered software that solves meaningful real-world problems while conti
 - Compared original and optimized resumes
 - Documented resume optimization workflow on GitHub
 ---
+
+## ✅ Day 7 — Become a Better Software Engineer
+
+ - Not every task needs max AI power.
+ - Sonnet handles most daily coding tasks well.
+ - Opus reserved for high-stakes, complex decisions.
+ - Effort level matters as much as model.
+ - Standard effort keeps everyday work fast.
+ - Escalate depth only when mistakes cost more.
+ - Match the tool to the actual task.
+
+#60DaysOfAI #PromptEngineering #ClaudeAI #LearningInPublic #AIEngineer
 
 # 📈 Future Goals
 
