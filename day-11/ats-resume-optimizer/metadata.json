@@ -1,0 +1,6 @@
+{
+  "name": "ATS Resume Optimizer",
+  "description": "Analyze your resume against a target job description, identify gaps, optimize keywords, and generate a customized high-impact resume draft tailored to modern ATS platforms.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

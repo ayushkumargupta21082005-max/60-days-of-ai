@@ -49,9 +49,8 @@
     border-radius:17px;
     padding:1px;
     background:linear-gradient(135deg, rgba(45,212,191,.35), rgba(167,139,250,0) 40%);
-    -webkit-mask-complete: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
+     - webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+     - webkit-mask-composite:xor; mask-composite:exclude;
     pointer-events:none;
   }
   .metric-card{ transition:transform .25s ease, border-color .25s ease; }
