@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../cryptography/crypto-prj"
+		},
+		{
+			"path": "../damage-claim-verification-project"
 		}
 	],
 	"settings": {
