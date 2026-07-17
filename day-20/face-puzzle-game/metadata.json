@@ -1,0 +1,6 @@
+{
+  "name": "Face Puzzle Game",
+  "description": "An interactive, camera-powered slide puzzle game where you solve a puzzle of your own face in real-time.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

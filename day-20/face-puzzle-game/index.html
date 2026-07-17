@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Face Puzzle - AI Camera Slide & Swap Puzzle</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+            mono: ['Fira Code', 'monospace'],
+          },
+          boxShadow: {
+            'glow-indigo': '0 0 20px rgba(242, 125, 38, 0.3)',
+            'glow-emerald': '0 0 20px rgba(74, 222, 128, 0.3)',
+            'glow-rose': '0 0 20px rgba(239, 68, 68, 0.3)',
+          },
+          colors: {
+            brand: {
+              DEFAULT: '#F27D26',
+              glow: 'rgba(242, 125, 38, 0.3)',
+              hover: '#FF4E00',
+            },
+            indigo: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdbb74',
+              400: '#F27D26',
+              500: '#F27D26',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+              950: '#431407',
+            },
+            slate: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#111111',
+              950: '#050505',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Styles -->
+  <style>
+    /* Premium Glassmorphism */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .glass-input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+    }
+    .glass-input:focus {
+      border-color: rgba(242, 125, 38, 0.5);
+      box-shadow: 0 0 0 2px rgba(242, 125, 38, 0.2);
+      outline: none;
+    }
+
+    /* Ambient animated background bubbles */
+    @keyframes float-slow {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-30px) scale(1.1); }
+    }
+    @keyframes float-delayed {
+      0%, 100% { transform: translateY(0px) scale(1.1); }
+      50% { transform: translateY(30px) scale(0.95); }
+    }
+    .bg-bubble-1 {
+      animation: float-slow 15s ease-in-out infinite;
+    }
+    .bg-bubble-2 {
+      animation: float-delayed 18s ease-in-out infinite;
+    }
+
+    /* Shutter animation */
+    @keyframes shutter-flash {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    .camera-shutter {
+      animation: shutter-flash 0.4s ease-out forwards;
+    }
+
+    /* Scanner effect on webcam preview */
+    .scanner-line {
+      background: linear-gradient(to bottom, transparent, rgba(242, 125, 38, 0.5), transparent);
+      animation: scan 3s linear infinite;
+    }
+    @keyframes scan {
+      0% { top: 0%; }
+      50% { top: 100%; }
+      100% { top: 0%; }
+    }
+
+    /* Custom Scrollbar for Leaderboard */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(242, 125, 38, 0.3);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(242, 125, 38, 0.6);
+    }
+
+    /* Custom pulse for recording indicator */
+    .pulse-record {
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      animation: pulse-red 1.5s infinite;
+    }
+    @keyframes pulse-red {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      border-top-color: #F27D26;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Hide standard cursor when on dragging tile if needed */
+    .canvas-grab {
+      cursor: grab;
+    }
+    .canvas-grabbing {
+      cursor: grabbing;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans overflow-x-hidden relative flex flex-col justify-between">
+
+  <!-- Ambient glowing spheres in background -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+    <div class="bg-bubble-1 absolute -top-40 -left-40 w-96 h-96 rounded-full bg-[#F27D26]/5 blur-[120px]"></div>
+    <div class="bg-bubble-2 absolute top-1/2 -right-40 w-[450px] h-[450px] rounded-full bg-[#FF4E00]/5 blur-[150px]"></div>
+    <div class="absolute bottom-10 left-1/3 w-80 h-80 rounded-full bg-[#F27D26]/3 blur-[100px]"></div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="container mx-auto px-4 py-6 md:py-10 max-w-6xl relative z-10 flex-grow flex flex-col justify-center">
+    
+    <!-- Title Header -->
+    <header id="app-header" class="text-center mb-8 flex flex-col items-center">
+      <div class="flex items-center gap-3 mb-1">
+        <div class="p-2 bg-[#F27D26]/10 rounded-xl border border-[#F27D26]/20 shadow-glow-indigo">
+          <i data-lucide="camera" class="w-6 h-6 text-[#F27D26]"></i>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-light font-display tracking-tighter uppercase text-white">
+          Face Puzzle <span class="text-[#F27D26] font-bold">Pro</span>
+        </h1>
+      </div>
+      <p class="text-[10px] tracking-[0.3em] opacity-40 uppercase mb-3 text-slate-400">Computer Vision Engine Active</p>
+      <p class="text-slate-400 font-medium text-xs md:text-sm max-w-md">
+        Take a picture of your face, scramble it, and reconstruct your reflection in a premium interactive canvas.
+      </p>
+    </header>
+
+    <!-- Content Sections -->
+    <div class="w-full flex justify-center items-center">
+      
+      <!-- STATE 1: Camera Capture & Image Selection -->
+      <section id="state-capture" class="w-full max-w-xl glass-panel rounded-3xl p-6 md:p-8 flex flex-col gap-6">
+        
+        <!-- Live Camera View / Fallback Preview -->
+        <div class="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-900/80 border border-slate-800 flex flex-col items-center justify-center shadow-inner group">
+          
+          <!-- Loading Overlay -->
+          <div id="camera-loading" class="absolute inset-0 z-30 bg-slate-950/90 flex flex-col items-center justify-center gap-4 transition-opacity duration-300 hidden">
+            <div class="spinner"></div>
+            <p class="text-indigo-400 font-semibold text-sm tracking-wide font-display">STARTING CAMERA ENGINE...</p>
+          </div>
+
+          <!-- Video Element for Camera Stream -->
+          <video id="webcam-preview" autoplay playsinline muted class="w-full h-full object-cover transform -scale-x-100 hidden"></video>
+          
+          <!-- Scanner overlay line -->
+          <div id="camera-scanner" class="absolute left-0 w-full h-20 scanner-line pointer-events-none z-10 hidden"></div>
+
+          <!-- Static Frame Overlay for Face Alignment -->
+          <div id="camera-frame" class="absolute inset-0 border-2 border-dashed border-indigo-500/30 rounded-2xl pointer-events-none m-8 flex items-center justify-center transition-all duration-300 opacity-0">
+            <div class="w-12 h-12 border-t-2 border-l-2 border-indigo-400 absolute top-0 left-0"></div>
+            <div class="w-12 h-12 border-t-2 border-r-2 border-indigo-400 absolute top-0 right-0"></div>
+            <div class="w-12 h-12 border-b-2 border-l-2 border-indigo-400 absolute bottom-0 left-0"></div>
+            <div class="w-12 h-12 border-b-2 border-r-2 border-indigo-400 absolute bottom-0 right-0"></div>
+            <div class="w-full h-[1px] bg-indigo-500/10 absolute"></div>
+            <div class="h-full w-[1px] bg-indigo-500/10 absolute"></div>
+          </div>
+
+          <!-- Placeholder view (when no camera permission or stream yet) -->
+          <div id="camera-placeholder" class="text-center p-6 flex flex-col items-center gap-4">
+            <div class="w-20 h-20 rounded-full bg-slate-800/80 flex items-center justify-center border border-slate-700/50 text-slate-400 shadow-lg">
+              <i data-lucide="user-square" class="w-10 h-10"></i>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-slate-200">No Face Captured Yet</h3>
+              <p class="text-xs text-slate-400 mt-1 max-w-[280px]">
+                Allow camera permissions to take a live selfie, or drop an image file below to get started.
+              </p>
+            </div>
+          </div>
+
+          <!-- Camera Status Indicator Badges -->
+          <div class="absolute top-4 left-4 z-20 flex gap-2">
+            <span id="badge-camera-status" class="px-2.5 py-1 bg-slate-900/90 text-[11px] font-semibold tracking-wider uppercase rounded-full border border-slate-700/50 flex items-center gap-1.5 shadow-md">
+              <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+              Offline
+            </span>
+          </div>
+
+          <!-- Quick Actions Overlay when camera running -->
+          <div id="camera-overlay-actions" class="absolute bottom-4 right-4 z-20 hidden">
+            <button id="btn-toggle-camera-facing" class="p-2.5 bg-slate-900/90 hover:bg-indigo-600 border border-slate-700/50 text-slate-200 hover:text-white rounded-xl transition-all duration-200 shadow-lg" title="Switch Camera">
+              <i data-lucide="switch-camera" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Camera Permissions Error Fallback Panel -->
+        <div id="camera-error-panel" class="hidden p-4 bg-rose-950/30 border border-rose-900/40 rounded-2xl flex items-start gap-3">
+          <i data-lucide="alert-circle" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5"></i>
+          <div class="text-xs">
+            <h4 class="font-bold text-rose-300">Camera Access Denied or Unavailable</h4>
+            <p class="text-rose-400/80 mt-1">
+              To play, please grant camera permissions in your browser or select an image file from your device below.
+            </p>
+          </div>
+        </div>
+
+        <!-- Setup Controls -->
+        <div class="flex flex-col gap-5">
+          <!-- Step 1: Select Difficulty -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2.5">
+              1. Select Puzzle Layout
+            </label>
+            <div class="grid grid-cols-3 gap-3">
+              <button data-size="3" class="btn-grid-size p-3.5 bg-white/5 hover:bg-[#F27D26]/10 border border-white/10 rounded-xl flex flex-col items-center justify-center gap-1 transition-all duration-200 group relative overflow-hidden active-grid">
+                <span class="text-base font-bold font-display group-hover:scale-105 transition-transform">3 × 3</span>
+                <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">9 Pieces (Easy)</span>
+                <div class="absolute bottom-0 left-0 w-full h-1 bg-[#F27D26] scale-x-0 transition-transform duration-200 grid-indicator"></div>
+              </button>
+              <button data-size="4" class="btn-grid-size p-3.5 bg-white/5 hover:bg-[#F27D26]/10 border border-white/10 rounded-xl flex flex-col items-center justify-center gap-1 transition-all duration-200 group relative overflow-hidden">
+                <span class="text-base font-bold font-display group-hover:scale-105 transition-transform">4 × 4</span>
+                <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">16 Pieces (Normal)</span>
+                <div class="absolute bottom-0 left-0 w-full h-1 bg-[#F27D26] scale-x-0 transition-transform duration-200 grid-indicator"></div>
+              </button>
+              <button data-size="5" class="btn-grid-size p-3.5 bg-white/5 hover:bg-[#F27D26]/10 border border-white/10 rounded-xl flex flex-col items-center justify-center gap-1 transition-all duration-200 group relative overflow-hidden">
+                <span class="text-base font-bold font-display group-hover:scale-105 transition-transform">5 × 5</span>
+                <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">25 Pieces (Hard)</span>
+                <div class="absolute bottom-0 left-0 w-full h-1 bg-[#F27D26] scale-x-0 transition-transform duration-200 grid-indicator"></div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: Select Game Mode -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2.5">
+              2. Select Mechanics Mode
+            </label>
+            <div class="grid grid-cols-2 gap-3">
+              <button id="mode-swap" class="btn-game-mode p-3 bg-[#F27D26]/10 border border-[#F27D26]/30 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 font-medium text-sm text-[#F27D26]">
+                <i data-lucide="arrow-left-right" class="w-4 h-4 text-[#F27D26]"></i>
+                Swap Tiles (Free Drag)
+              </button>
+              <button id="mode-slide" class="btn-game-mode p-3 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 font-medium text-sm text-slate-400">
+                <i data-lucide="layers" class="w-4 h-4"></i>
+                Classic Sliding Grid
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Trigger Capture or Upload -->
+          <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            
+            <!-- Main Live Camera Capture Trigger -->
+            <button id="btn-camera-trigger" class="flex-grow flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-[#F27D26] to-[#FF4E00] hover:brightness-110 text-white font-bold rounded-xl transition-all duration-200 shadow-glow-indigo group relative overflow-hidden transform hover:-translate-y-0.5 active:translate-y-0 uppercase tracking-widest text-xs">
+              <i data-lucide="aperture" class="w-5 h-5 group-hover:rotate-45 transition-transform duration-300"></i>
+              <span id="btn-camera-text">Launch Face Camera</span>
+            </button>
+
+            <!-- File Upload alternative -->
+            <div class="relative shrink-0 flex">
+              <input type="file" id="input-file-upload" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+              <button class="w-full flex items-center justify-center gap-2.5 px-5 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold rounded-xl transition-all duration-200 uppercase tracking-widest text-xs">
+                <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                <span>Use File Instead</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- STATE 2: Puzzle Active Play Space -->
+      <section id="state-game" class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch hidden">
+        
+        <!-- Left Side: Interactive Canvas Container -->
+        <div class="lg:col-span-7 flex flex-col gap-4">
+          
+          <!-- Canvas Frame Wrapper -->
+          <div class="relative w-full aspect-square bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl p-2.5 overflow-hidden flex items-center justify-center">
+            
+            <!-- Offscreen image canvas reference and Main Game Canvas -->
+            <canvas id="game-canvas" class="w-full h-full rounded-2xl block touch-none transition-shadow duration-300 shadow-inner" style="max-width: 500px; max-height: 500px;"></canvas>
+
+            <!-- Canvas Grid Overlay Grid Help Lines (Drawn directly on canvas or HTML) -->
+            <div id="grid-help-overlay" class="absolute inset-2.5 pointer-events-none rounded-2xl border border-white/5 hidden"></div>
+
+            <!-- Puzzle Completed Banner Fade -->
+            <div id="game-win-scrim" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center z-20 opacity-0 pointer-events-none transition-all duration-500">
+              <div class="text-center scale-90 transition-transform duration-500" id="win-banner-content">
+                <div class="w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4 shadow-glow-emerald">
+                  <i data-lucide="trophy" class="w-10 h-10 text-emerald-400"></i>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-extrabold font-display text-white tracking-tight">SOLVED!</h2>
+                <p class="text-emerald-400 font-medium mt-1">Excellent face reconstruct!</p>
+              </div>
+            </div>
+            
+          </div>
+
+          <!-- Bottom bar of canvas: Mode specific guides -->
+          <div class="flex justify-between items-center px-2 text-xs text-slate-400">
+            <span class="flex items-center gap-1.5 font-medium">
+              <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+              <span id="canvas-status-desc">Drag any tile to swap positions</span>
+            </span>
+            <button id="btn-toggle-grid" class="flex items-center gap-1 hover:text-slate-200 transition-colors">
+              <i data-lucide="grid" class="w-3.5 h-3.5"></i>
+              <span>Toggle Grid Borders</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Right Side: Game Statistics & Control Center -->
+        <div class="lg:col-span-5 flex flex-col gap-5">
+          
+          <!-- Statistics Card -->
+          <div class="glass-panel rounded-3xl p-6 flex flex-col gap-5">
+            
+            <div class="flex justify-between items-center pb-3 border-b border-white/10">
+              <span class="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Game Statistics</span>
+              <span id="badge-difficulty-mode" class="px-2.5 py-0.5 bg-[#F27D26]/10 text-[#F27D26] border border-[#F27D26]/20 text-[10px] rounded-full font-bold font-display uppercase tracking-wider">
+                3×3 NORMAL
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <!-- Timer -->
+              <div class="glass-card rounded-2xl p-4 flex flex-col gap-1 relative overflow-hidden">
+                <span class="text-[9px] uppercase tracking-widest text-slate-400 font-bold">Active Timer</span>
+                <span id="stat-timer" class="text-3xl font-bold text-[#F27D26] font-mono tracking-tight flex items-center gap-2">
+                  00:00.0
+                </span>
+                <i data-lucide="timer" class="absolute right-3 bottom-3 w-10 h-10 text-white/5 pointer-events-none"></i>
+              </div>
+
+              <!-- Moves -->
+              <div class="glass-card rounded-2xl p-4 flex flex-col gap-1 relative overflow-hidden">
+                <span class="text-[9px] uppercase tracking-widest text-slate-400 font-bold">Total Moves</span>
+                <span id="stat-moves" class="text-3xl font-bold text-white font-mono tracking-tight">
+                  000
+                </span>
+                <i data-lucide="arrow-left-right" class="absolute right-3 bottom-3 w-10 h-10 text-white/5 pointer-events-none"></i>
+              </div>
+            </div>
+
+            <!-- Correct Pieces Progress -->
+            <div class="flex flex-col gap-2">
+              <div class="flex justify-between text-[10px] font-bold">
+                <span class="text-slate-400 uppercase tracking-wider">Correct Tile Alignment</span>
+                <span id="stat-correct-ratio" class="text-[#4ADE80]">0 / 9 Pieces (0%)</span>
+              </div>
+              <div class="w-full h-3 bg-black/60 rounded-full overflow-hidden border border-white/5 p-0.5">
+                <div id="stat-progress-bar" class="h-full bg-gradient-to-r from-[#F27D26] to-[#FF4E00] rounded-full transition-all duration-300 w-0"></div>
+              </div>
+            </div>
+
+            <!-- Best Personal Record indicator -->
+            <div class="text-xs bg-black/40 p-3 rounded-xl border border-white/5 flex items-center justify-between">
+              <span class="text-slate-400 flex items-center gap-1.5 font-medium uppercase tracking-wider text-[10px]">
+                <i data-lucide="zap" class="w-4 h-4 text-[#F27D26]"></i>
+                Personal Record (PR):
+              </span>
+              <span id="stat-best-record" class="font-mono font-bold text-slate-200">No score yet</span>
+            </div>
+
+          </div>
+
+          <!-- Controls panel Card -->
+          <div class="glass-panel rounded-3xl p-6 flex-grow flex flex-col gap-4 justify-between">
+            
+            <div class="flex flex-col gap-3">
+              <span class="text-[10px] font-semibold uppercase tracking-widest text-slate-400 block mb-1">Game Controls</span>
+              
+              <!-- Preview thumbnail panel -->
+              <div class="relative bg-black/40 border border-white/5 rounded-2xl overflow-hidden p-2.5 flex items-center gap-3">
+                <div class="relative aspect-square w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-white/10">
+                  <canvas id="thumbnail-canvas" class="w-full h-full object-cover transform -scale-x-100"></canvas>
+                  <div class="absolute inset-0 bg-[#F27D26]/10 pointer-events-none"></div>
+                </div>
+                <div class="flex-grow">
+                  <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Reference Face</h4>
+                  <p class="text-[10px] text-slate-400 mt-0.5">Toggle preview panel to peek at the original photo anytime.</p>
+                </div>
+                <button id="btn-toggle-preview" class="p-2 bg-white/5 hover:bg-[#F27D26]/20 border border-white/10 text-slate-200 hover:text-white rounded-xl transition-colors duration-200 shrink-0">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Primary actions stack -->
+            <div class="flex flex-col gap-2 pt-2">
+              <div class="grid grid-cols-2 gap-2">
+                <!-- Shuffle again -->
+                <button id="btn-shuffle" class="flex items-center justify-center gap-2 py-3 bg-white hover:scale-95 text-black font-bold uppercase tracking-widest text-xs rounded-xl transition-all duration-200">
+                  <i data-lucide="shuffle" class="w-4 h-4"></i>
+                  <span>Shuffle</span>
+                </button>
+                <!-- Retake photo -->
+                <button id="btn-retake" class="flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold uppercase tracking-widest text-xs rounded-xl transition-all duration-200">
+                  <i data-lucide="camera" class="w-4 h-4"></i>
+                  <span>Retake</span>
+                </button>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2">
+                <!-- Sound toggle -->
+                <button id="btn-toggle-sound" class="flex flex-col items-center justify-center py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-400 hover:text-white rounded-xl transition-colors duration-200 gap-1">
+                  <i data-lucide="volume-2" class="w-4 h-4 text-[#F27D26] btn-sound-icon"></i>
+                  <span class="text-[9px] font-semibold tracking-wide uppercase">Sound: On</span>
+                </button>
+                <!-- Pause toggle -->
+                <button id="btn-pause-game" class="flex flex-col items-center justify-center py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-400 hover:text-white rounded-xl transition-colors duration-200 gap-1">
+                  <i data-lucide="pause" class="w-4 h-4 text-[#F27D26] btn-pause-icon"></i>
+                  <span class="text-[9px] font-semibold tracking-wide uppercase btn-pause-text">Pause</span>
+                </button>
+                <!-- Fullscreen -->
+                <button id="btn-fullscreen" class="flex flex-col items-center justify-center py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-400 hover:text-white rounded-xl transition-colors duration-200 gap-1">
+                  <i data-lucide="maximize" class="w-4 h-4 text-[#F27D26]"></i>
+                  <span class="text-[9px] font-semibold tracking-wide uppercase">Fullscr</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- LEADERBOARD / HISTORY SLIDE DOWN -->
+    <section id="section-leaderboard" class="w-full max-w-4xl mx-auto mt-12 glass-panel rounded-3xl p-6 md:p-8 flex flex-col gap-6">
+      <div class="flex justify-between items-center pb-3 border-b border-white/10">
+        <div class="flex items-center gap-2">
+          <i data-lucide="medal" class="w-5 h-5 text-[#F27D26]"></i>
+          <h2 class="text-xl font-light font-display text-slate-100 uppercase tracking-wider">Global Leaderboard</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <select id="leaderboard-filter-size" class="bg-slate-900/80 border border-slate-800 text-slate-300 text-xs px-3 py-1.5 rounded-xl outline-none focus:border-indigo-500 font-medium cursor-pointer">
+            <option value="3">3×3 Grid</option>
+            <option value="4">4×4 Grid</option>
+            <option value="5">5×5 Grid</option>
+          </select>
+          <select id="leaderboard-filter-mode" class="bg-slate-900/80 border border-slate-800 text-slate-300 text-xs px-3 py-1.5 rounded-xl outline-none focus:border-indigo-500 font-medium cursor-pointer">
+            <option value="Swap">Swap Mode</option>
+            <option value="Slide">Slide Mode</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto w-full">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="text-slate-400 border-b border-slate-800/60 font-semibold tracking-wider uppercase text-[10px]">
+              <th class="py-3 px-4">Rank</th>
+              <th class="py-3 px-4">Player</th>
+              <th class="py-3 px-4">Difficulty</th>
+              <th class="py-3 px-4">Moves</th>
+              <th class="py-3 px-4">Time</th>
+              <th class="py-3 px-4 text-right">Date Completed</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-rows" class="divide-y divide-slate-900 font-medium">
+            <!-- Dynamic Leaderboard Entries go here -->
+          </tbody>
+        </table>
+        <div id="leaderboard-empty" class="text-center py-10 text-slate-500 text-xs hidden">
+          No records submitted yet for this difficulty! Be the first to secure a spot.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- WIN OVERLAY MODAL -->
+  <div id="win-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+    <div class="w-full max-w-md glass-panel rounded-3xl p-6 md:p-8 flex flex-col gap-6 shadow-glow-indigo transform scale-95 transition-transform duration-300" id="win-modal-card">
+      
+      <!-- Crown / Celebration header -->
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-full bg-[#F27D26]/10 border border-[#F27D26]/20 flex items-center justify-center mx-auto mb-4 animate-bounce">
+          <i data-lucide="crown" class="w-8 h-8 text-[#F27D26]"></i>
+        </div>
+        <h2 class="text-2xl md:text-3xl font-light font-display text-white uppercase tracking-tighter">
+          CONGRATULATIONS!
+        </h2>
+        <p class="text-slate-400 text-xs mt-1">You solved the puzzle of your face.</p>
+      </div>
+
+      <!-- Game Summary stats box -->
+      <div class="grid grid-cols-3 gap-3 bg-black/40 p-4 rounded-2xl border border-white/5 text-center">
+        <div>
+          <span class="text-[9px] text-slate-400 uppercase tracking-widest font-semibold block mb-0.5">Total Time</span>
+          <span id="win-stat-time" class="font-mono text-base font-bold text-[#F27D26]">00:00.0</span>
+        </div>
+        <div>
+          <span class="text-[9px] text-slate-400 uppercase tracking-widest font-semibold block mb-0.5">Total Moves</span>
+          <span id="win-stat-moves" class="font-mono text-base font-bold text-white">000</span>
+        </div>
+        <div>
+          <span class="text-[9px] text-slate-400 uppercase tracking-widest font-semibold block mb-0.5">Layout</span>
+          <span id="win-stat-diff" class="font-display text-sm font-bold text-white">3×3 Grid</span>
+        </div>
+      </div>
+
+      <!-- Leaderboard submission box -->
+      <div class="flex flex-col gap-2">
+        <label for="input-player-name" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+          Enter Your Name for Leaderboard
+        </label>
+        <div class="flex gap-2">
+          <input type="text" id="input-player-name" maxlength="15" placeholder="Player Name..." class="flex-grow glass-input rounded-xl px-4 py-2.5 text-sm text-slate-200 bg-white/5 border border-white/10" />
+          <button id="btn-submit-score" class="px-5 py-2.5 bg-gradient-to-r from-[#F27D26] to-[#FF4E00] hover:brightness-110 text-white font-bold rounded-xl text-sm transition-all duration-200 uppercase tracking-wider text-xs">
+            Submit
+          </button>
+        </div>
+        <p id="leaderboard-submit-message" class="text-[10px] text-[#4ADE80] font-semibold hidden">Score successfully submitted!</p>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="flex flex-col sm:flex-row gap-2 pt-2 border-t border-white/10">
+        <button id="btn-win-replay" class="flex-grow py-3 bg-white hover:scale-95 text-black font-bold rounded-xl text-sm transition-all duration-200 uppercase tracking-wider text-xs">
+          Play Scramble Again
+        </button>
+        <button id="btn-win-new" class="flex-grow py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold rounded-xl text-sm transition-all duration-200 uppercase tracking-wider text-xs">
+          Capture New Photo
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Global Footer -->
+  <footer class="w-full text-center py-6 text-slate-500 text-xs border-t border-slate-900/60 z-10 relative">
+    <div class="container mx-auto px-4">
+      <p class="font-medium">
+        Face Puzzle Game © 2026. Made with high performance HTML5 Canvas.
+      </p>
+      <p class="text-[10px] text-slate-600 mt-1 uppercase tracking-wider">
+        No face data ever leaves your device. Entirely processed locally in sandbox.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ==================== GAME CONTROLLER AND JAVASCRIPT ENGINE ==================== -->
+  <script>
+    // --- 1. SOUND GENERATION SYSTEM (Web Audio API Synthesizer) ---
+    class SoundEffectsEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      setMuted(muted) {
+        this.muted = muted;
+      }
+
+      playClick() {
+        if (this.muted) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.08);
+
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.08);
+      }
+
+      playCamera() {
+        if (this.muted) return;
+        this.init();
+        
+        // White noise for shutter camera sound
+        const bufferSize = this.ctx.sampleRate * 0.15;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1000, this.ctx.currentTime);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        // Add a secondary beep accent
+        const osc = this.ctx.createOscillator();
+        const oscGain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(2000, this.ctx.currentTime);
+        oscGain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+        
+        osc.connect(oscGain);
+        oscGain.connect(this.ctx.destination);
+
+        noise.start();
+        osc.start();
+        noise.stop(this.ctx.currentTime + 0.15);
+        osc.stop(this.ctx.currentTime + 0.1);
+      }
+
+      playShuffle() {
+        if (this.muted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const notes = [200, 300, 450, 600, 800];
+        
+        notes.forEach((freq, index) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + index * 0.05);
+          gain.gain.setValueAtTime(0.05, now + index * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.05 + 0.06);
+
+          osc.start(now + index * 0.05);
+          osc.stop(now + index * 0.05 + 0.06);
+        });
+      }
+
+      playSwap() {
+        if (this.muted) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.12);
+
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.12);
+      }
+
+      playCorrect() {
+        if (this.muted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        
+        // Happy perfect fourth/fifth interval bleeps
+        const scale = [523.25, 659.25, 783.99]; // C5, E5, G5
+        scale.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+          gain.gain.setValueAtTime(0.04, now + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.15);
+
+          osc.start(now + idx * 0.06);
+          osc.stop(now + idx * 0.06 + 0.15);
+        });
+      }
+
+      playWin() {
+        if (this.muted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        
+        // Uplifting arpeggio (Major chord)
+        const chord = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50]; // C4 to C6 arpeggio
+        chord.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.08, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.5);
+
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.5);
+        });
+      }
+    }
+
+    const soundEngine = new SoundEffectsEngine();
+
+    // --- 2. STATE MANAGER & CONFIGURATIONS ---
+    const CONFIG = {
+      canvasBaseSize: 450, // virtual canvas dimensions
+      dpi: window.devicePixelRatio || 1,
+      animationSpeed: 0.12, // simple exponential lerping factor
+    };
+
+    const STATE = {
+      // Game Grid Options
+      gridSize: 3, // 3, 4, 5
+      gameMode: 'Swap', // 'Swap' or 'Slide'
+      soundEnabled: true,
+      
+      // Image States
+      rawImage: null, // Image element loaded
+      croppedImageCanvas: null, // Canvas holding the square alignment face
+      
+      // Game Running Stats
+      gameActive: false,
+      isPaused: false,
+      startTime: 0,
+      elapsedTime: 0, // ms
+      movesCount: 0,
+      correctCount: 0,
+      totalPieces: 9,
+      
+      // Canvas interaction variables
+      tiles: [], // list of Tile elements
+      selectedTileIndex: -1, // currently grabbed tile
+      hoveredTileIndex: -1, // tile under cursor
+      emptyTileId: null, // ID of the empty tile for sliding mode
+      
+      // Touch/Mouse positions on canvas (virtual coords)
+      pointer: {
+        x: 0,
+        y: 0,
+        offsetX: 0, // offset from grabbed piece top-left
+        offsetY: 0,
+        isDown: false,
+      },
+
+      // Front or back camera facing mode
+      cameraFacingMode: "user",
+      cameraStream: null,
+    };
+
+    // --- 3. DOM ELEMENT REFERENCES ---
+    const DOM = {
+      // Views
+      stateCapture: document.getElementById('state-capture'),
+      stateGame: document.getElementById('state-game'),
+      appHeader: document.getElementById('app-header'),
+
+      // Camera Components
+      webcamPreview: document.getElementById('webcam-preview'),
+      cameraLoading: document.getElementById('camera-loading'),
+      cameraScanner: document.getElementById('camera-scanner'),
+      cameraFrame: document.getElementById('camera-frame'),
+      cameraPlaceholder: document.getElementById('camera-placeholder'),
+      badgeCameraStatus: document.getElementById('badge-camera-status'),
+      cameraOverlayActions: document.getElementById('camera-overlay-actions'),
+      cameraErrorPanel: document.getElementById('camera-error-panel'),
+
+      // Canvas Nodes
+      gameCanvas: document.getElementById('game-canvas'),
+      thumbnailCanvas: document.getElementById('thumbnail-canvas'),
+      canvasStatusDesc: document.getElementById('canvas-status-desc'),
+
+      // Buttons
+      btnCameraTrigger: document.getElementById('btn-camera-trigger'),
+      btnCameraText: document.getElementById('btn-camera-text'),
+      btnToggleCameraFacing: document.getElementById('btn-toggle-camera-facing'),
+      inputFileUpload: document.getElementById('input-file-upload'),
+      btnShuffle: document.getElementById('btn-shuffle'),
+      btnRetake: document.getElementById('btn-retake'),
+      btnToggleSound: document.getElementById('btn-toggle-sound'),
+      btnPauseGame: document.getElementById('btn-pause-game'),
+      btnFullscreen: document.getElementById('btn-fullscreen'),
+      btnToggleGrid: document.getElementById('btn-toggle-grid'),
+
+      // Game Stats displays
+      badgeDifficultyMode: document.getElementById('badge-difficulty-mode'),
+      statTimer: document.getElementById('stat-timer'),
+      statMoves: document.getElementById('stat-moves'),
+      statCorrectRatio: document.getElementById('stat-correct-ratio'),
+      statProgressBar: document.getElementById('stat-progress-bar'),
+      statBestRecord: document.getElementById('stat-best-record'),
+
+      // Win Modal & Overlay
+      winModal: document.getElementById('win-modal'),
+      winModalCard: document.getElementById('win-modal-card'),
+      winStatTime: document.getElementById('win-stat-time'),
+      winStatMoves: document.getElementById('win-stat-moves'),
+      winStatDiff: document.getElementById('win-stat-diff'),
+      inputPlayerName: document.getElementById('input-player-name'),
+      btnSubmitScore: document.getElementById('btn-submit-score'),
+      btnWinReplay: document.getElementById('btn-win-replay'),
+      btnWinNew: document.getElementById('btn-win-new'),
+      leaderboardSubmitMessage: document.getElementById('leaderboard-submit-message'),
+
+      // Leaderboard
+      leaderboardFilterSize: document.getElementById('leaderboard-filter-size'),
+      leaderboardFilterMode: document.getElementById('leaderboard-filter-mode'),
+      leaderboardRows: document.getElementById('leaderboard-rows'),
+      leaderboardEmpty: document.getElementById('leaderboard-empty')
+    };
+
+    // --- 4. WEBCAM & MEDIA INTERFACE CONTROLS ---
+    async function startCamera() {
+      DOM.cameraLoading.classList.remove('hidden');
+      DOM.cameraPlaceholder.classList.add('hidden');
+      DOM.cameraErrorPanel.classList.add('hidden');
+
+      if (STATE.cameraStream) {
+        stopCamera();
+      }
+
+      const constraints = {
+        video: {
+          facingMode: STATE.cameraFacingMode,
+          width: { ideal: 600 },
+          height: { ideal: 600 },
+          aspectRatio: { ideal: 1.0 }
+        },
+        audio: false
+      };
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        STATE.cameraStream = stream;
+        DOM.webcamPreview.srcObject = stream;
+        DOM.webcamPreview.classList.remove('hidden');
+        DOM.cameraScanner.classList.remove('hidden');
+        DOM.cameraFrame.classList.remove('opacity-0');
+        DOM.cameraFrame.classList.add('opacity-100');
+        DOM.cameraOverlayActions.classList.remove('hidden');
+
+        // Status Badge
+        DOM.badgeCameraStatus.innerHTML = `
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse pulse-record"></span>
+          Camera Live
+        `;
+        DOM.badgeCameraStatus.className = "px-2.5 py-1 bg-slate-900/90 text-[11px] font-semibold tracking-wider uppercase rounded-full border border-emerald-500/30 flex items-center gap-1.5 shadow-md text-emerald-400";
+        DOM.btnCameraText.innerText = "Snap Face Photo";
+
+      } catch (err) {
+        console.error("Camera permissions failed: ", err);
+        DOM.cameraErrorPanel.classList.remove('hidden');
+        DOM.cameraPlaceholder.classList.remove('hidden');
+        DOM.webcamPreview.classList.add('hidden');
+        DOM.cameraScanner.classList.add('hidden');
+        DOM.cameraFrame.classList.remove('opacity-100');
+        DOM.cameraFrame.classList.add('opacity-0');
+        DOM.badgeCameraStatus.innerHTML = `
+          <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+          Camera Denied
+        `;
+        DOM.badgeCameraStatus.className = "px-2.5 py-1 bg-slate-900/90 text-[11px] font-semibold tracking-wider uppercase rounded-full border border-rose-500/30 flex items-center gap-1.5 shadow-md text-rose-400";
+        DOM.btnCameraText.innerText = "Launch Face Camera";
+      } finally {
+        DOM.cameraLoading.classList.add('hidden');
+      }
+    }
+
+    function stopCamera() {
+      if (STATE.cameraStream) {
+        STATE.cameraStream.getTracks().forEach(track => track.stop());
+        STATE.cameraStream = null;
+      }
+      DOM.webcamPreview.srcObject = null;
+    }
+
+    function capturePhoto() {
+      if (!STATE.cameraStream) return;
+
+      soundEngine.playCamera();
+
+      // Simple screen flash visual
+      const flash = document.createElement('div');
+      flash.className = "absolute inset-0 bg-white z-40 camera-shutter";
+      DOM.webcamPreview.parentElement.appendChild(flash);
+      setTimeout(() => flash.remove(), 400);
+
+      // Create cropped canvas for face frame
+      const canvas = document.createElement('canvas');
+      const size = Math.min(DOM.webcamPreview.videoWidth, DOM.webcamPreview.videoHeight);
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      // Mirror the context so selfie camera isn't inverted during puzzle!
+      ctx.translate(size, 0);
+      ctx.scale(-1, 1);
+
+      // Crop the center square out of video
+      const sx = (DOM.webcamPreview.videoWidth - size) / 2;
+      const sy = (DOM.webcamPreview.videoHeight - size) / 2;
+      ctx.drawImage(DOM.webcamPreview, sx, sy, size, size, 0, 0, size, size);
+
+      const image = new Image();
+      image.src = canvas.toDataURL('image/jpeg', 0.95);
+      image.onload = () => {
+        setupGameImage(image);
+      };
+    }
+
+    // Process loaded or uploaded image
+    function setupGameImage(img) {
+      STATE.rawImage = img;
+      
+      // Render to square cropped canvas
+      const cropCanvas = document.createElement('canvas');
+      const size = Math.min(img.width, img.height);
+      cropCanvas.width = 600; // standard high-res puzzle square source
+      cropCanvas.height = 600;
+      const ctx = cropCanvas.getContext('2d');
+      
+      // Draw centered image square
+      const sx = (img.width - size) / 2;
+      const sy = (img.height - size) / 2;
+      ctx.drawImage(img, sx, sy, size, size, 0, 0, 600, 600);
+      
+      STATE.croppedImageCanvas = cropCanvas;
+
+      // Draw the thumbnail preview
+      const thumbCtx = DOM.thumbnailCanvas.getContext('2d');
+      DOM.thumbnailCanvas.width = 120;
+      DOM.thumbnailCanvas.height = 120;
+      // Keep mirrored preview correct
+      thumbCtx.clearRect(0, 0, 120, 120);
+      thumbCtx.drawImage(cropCanvas, 0, 0, 120, 120);
+
+      stopCamera();
+      initPuzzleGame();
+    }
+
+    // --- 5. PUZZLE GENERATION & MATH MODEL ---
+    class Tile {
+      constructor(id, correctCol, correctRow, size, imageSrcCanvas) {
+        this.id = id;
+        this.correctCol = correctCol;
+        this.correctRow = correctRow;
+        this.currentCol = correctCol;
+        this.currentRow = correctRow;
+        this.size = size;
+
+        // Extract and cache sliced canvas fragment for maximum performance
+        this.canvasPiece = document.createElement('canvas');
+        this.canvasPiece.width = size;
+        this.canvasPiece.height = size;
+        const ctx = this.canvasPiece.getContext('2d');
+        
+        // slice from the high-res 600x600 cropped source
+        const srcSize = 600 / STATE.gridSize;
+        ctx.drawImage(
+          imageSrcCanvas, 
+          correctCol * srcSize, correctRow * srcSize, srcSize, srcSize, 
+          0, 0, size, size
+        );
+
+        // Grid spacing coords
+        this.resetCoordinates();
+      }
+
+      resetCoordinates() {
+        this.x = this.currentCol * this.size;
+        this.y = this.currentRow * this.size;
+        this.targetX = this.x;
+        this.targetY = this.y;
+        this.isDragging = false;
+        this.isAnimating = false;
+      }
+
+      setGridPosition(col, row) {
+        this.currentCol = col;
+        this.currentRow = row;
+        this.targetX = col * this.size;
+        this.targetY = row * this.size;
+        this.isAnimating = true;
+      }
+
+      update() {
+        if (this.isDragging) return;
+
+        // Linear interpolation towards grid positions (ease out)
+        const dx = this.targetX - this.x;
+        const dy = this.targetY - this.y;
+
+        if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) {
+          this.x += dx * CONFIG.animationSpeed;
+          this.y += dy * CONFIG.animationSpeed;
+          this.isAnimating = true;
+        } else {
+          this.x = this.targetX;
+          this.y = this.targetY;
+          this.isAnimating = false;
+        }
+      }
+
+      draw(ctx, isHovered, drawBorder) {
+        // Draw the sliced face segment
+        ctx.drawImage(this.canvasPiece, this.x, this.y, this.size, this.size);
+
+        const isCorrect = this.currentCol === this.correctCol && this.currentRow === this.correctRow;
+
+        // Custom Tile Outline Border Styles
+        if (drawBorder) {
+          if (isCorrect && STATE.gameActive) {
+            // Radiant emerald borders for properly placed slots
+            ctx.strokeStyle = 'rgba(16, 185, 129, 0.75)';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(this.x + 1.5, this.y + 1.5, this.size - 3, this.size - 3);
+          } else {
+            // Soft slate separator borders
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(this.x + 0.5, this.y + 0.5, this.size - 1, this.size - 1);
+          }
+        }
+
+        // Highlight Hover States
+        if (isHovered && STATE.gameActive && !this.isDragging) {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+          ctx.fillRect(this.x, this.y, this.size, this.size);
+          ctx.strokeStyle = '#F27D26';
+          ctx.lineWidth = 2.5;
+          ctx.strokeRect(this.x + 1.25, this.y + 1.25, this.size - 2.5, this.size - 2.5);
+        }
+      }
+    }
+
+    // --- 6. PUZZLE GAME CONTROLLER & LOGIC ---
+    let gameLoopId = null;
+    let timerIntervalId = null;
+
+    function initPuzzleGame() {
+      // Clear any running states
+      if (gameLoopId) cancelAnimationFrame(gameLoopId);
+      if (timerIntervalId) clearInterval(timerIntervalId);
+
+      STATE.gameActive = false;
+      STATE.isPaused = false;
+      STATE.movesCount = 0;
+      STATE.elapsedTime = 0;
+      STATE.tiles = [];
+      STATE.selectedTileIndex = -1;
+      STATE.hoveredTileIndex = -1;
+
+      // Update HUD stats
+      DOM.statMoves.innerText = "000";
+      DOM.statTimer.innerText = "00:00.0";
+      DOM.statProgressBar.style.width = "0%";
+      DOM.statCorrectRatio.innerText = `0 / ${STATE.gridSize * STATE.gridSize} Pieces (0%)`;
+      DOM.badgeDifficultyMode.innerText = `${STATE.gridSize}×3 ${STATE.gameMode.toUpperCase()}`;
+
+      // Update PR display
+      updatePersonalRecordDisplay();
+
+      // Configure Canvas Dimensions
+      resizeCanvasToContainer();
+
+      // Generate Tiles
+      const N = STATE.gridSize;
+      const tileSize = CONFIG.canvasBaseSize / N;
+      const total = N * N;
+      STATE.totalPieces = total;
+
+      for (let i = 0; i < total; i++) {
+        const correctCol = i % N;
+        const correctRow = Math.floor(i / N);
+        const tile = new Tile(i, correctCol, correctRow, tileSize, STATE.croppedImageCanvas);
+        STATE.tiles.push(tile);
+      }
+
+      // In Classic Slide Mode, define the empty tile as the bottom-right tile (id = N*N - 1)
+      if (STATE.gameMode === 'Slide') {
+        STATE.emptyTileId = total - 1;
+        DOM.canvasStatusDesc.innerText = "Tap/Drag adjacent tiles into the empty space";
+      } else {
+        STATE.emptyTileId = null;
+        DOM.canvasStatusDesc.innerText = "Drag and drop any tiles to swap positions";
+      }
+
+      // Shuffle tiles and make sure it's solvable
+      shufflePuzzle();
+
+      // Setup State Views
+      DOM.stateCapture.classList.add('hidden');
+      DOM.stateGame.classList.remove('hidden');
+      DOM.appHeader.classList.add('hidden');
+
+      // Start running
+      STATE.gameActive = true;
+      STATE.startTime = Date.now();
+      startTimer();
+
+      // Start rendering loop
+      gameLoop();
+
+      soundEngine.playShuffle();
+    }
+
+    // Solvability and Shuffle system
+    function shufflePuzzle() {
+      const N = STATE.gridSize;
+      
+      if (STATE.gameMode === 'Swap') {
+        // In Swap Mode, any random permutation is fully solvable!
+        // We perform a Fisher-Yates shuffle on the grid positions.
+        let positions = Array.from({ length: N * N }, (_, idx) => idx);
+        
+        // Loop to ensure we don't accidentally start with a fully completed puzzle
+        let isSolved = true;
+        while (isSolved) {
+          for (let i = positions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [positions[i], positions[j]] = [positions[j], positions[i]];
+          }
+          // Check if at least some tiles are scrambled
+          isSolved = positions.every((pos, idx) => pos === idx);
+        }
+
+        // Apply grid positions
+        STATE.tiles.forEach((tile, index) => {
+          const pos = positions[index];
+          const col = pos % N;
+          const row = Math.floor(pos / N);
+          tile.setGridPosition(col, row);
+          tile.resetCoordinates();
+        });
+
+      } else {
+        // Classic Slide Mode Shuffling
+        // Start from solved state, then perform 150 random valid slides.
+        // This mathematically guarantees a 100% solvable puzzle!
+        let emptyCol = N - 1;
+        let emptyRow = N - 1;
+
+        // Reset positions first
+        STATE.tiles.forEach((tile, index) => {
+          tile.setGridPosition(tile.correctCol, tile.correctRow);
+          tile.resetCoordinates();
+        });
+
+        const moves = 150 + Math.floor(Math.random() * 50);
+        for (let m = 0; m < moves; m++) {
+          const validMoves = [];
+          
+          // Check directions around the empty slot
+          const dirs = [
+            { dCol: -1, dRow: 0 }, // left
+            { dCol: 1, dRow: 0 },  // right
+            { dCol: 0, dRow: -1 }, // up
+            { dCol: 0, dRow: 1 }   // down
+          ];
+
+          dirs.forEach(d => {
+            const newCol = emptyCol + d.dCol;
+            const newRow = emptyRow + d.dRow;
+            if (newCol >= 0 && newCol < N && newRow >= 0 && newRow < N) {
+              validMoves.push({ col: newCol, row: newRow });
+            }
+          });
+
+          // Select random adjacent tile and swap with empty
+          const target = validMoves[Math.floor(Math.random() * validMoves.length)];
+          
+          // Find the tile residing at (target.col, target.row)
+          const tileToMove = STATE.tiles.find(t => t.currentCol === target.col && t.currentRow === target.row);
+          const emptyTile = STATE.tiles.find(t => t.id === STATE.emptyTileId);
+
+          if (tileToMove && emptyTile) {
+            tileToMove.currentCol = emptyCol;
+            tileToMove.currentRow = emptyRow;
+            emptyTile.currentCol = target.col;
+            emptyTile.currentRow = target.row;
+            
+            emptyCol = target.col;
+            emptyRow = target.row;
+          }
+        }
+
+        // Finalise physical coordinates after shuffle finishes
+        STATE.tiles.forEach(tile => {
+          tile.resetCoordinates();
+        });
+      }
+
+      recalculateAccuracy();
+    }
+
+    // --- 7. DYNAMIC PHYSICS & RENDER PIPELINE ---
+    function gameLoop() {
+      if (!STATE.croppedImageCanvas) return;
+
+      const ctx = DOM.gameCanvas.getContext('2d');
+      const N = STATE.gridSize;
+      const tileSize = CONFIG.canvasBaseSize / N;
+
+      // Clear Canvas
+      ctx.clearRect(0, 0, CONFIG.canvasBaseSize, CONFIG.canvasBaseSize);
+
+      // 1. Draw subtle background target cell guidelines
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+      ctx.fillRect(0, 0, CONFIG.canvasBaseSize, CONFIG.canvasBaseSize);
+
+      // 2. Update and draw all static pieces
+      let draggingTile = null;
+
+      STATE.tiles.forEach((tile, index) => {
+        tile.update();
+
+        // In Slide Mode, we do NOT render the empty tile!
+        if (STATE.gameMode === 'Slide' && tile.id === STATE.emptyTileId) {
+          // Draw a beautiful dark glass slot for empty space
+          ctx.fillStyle = 'rgba(8, 11, 19, 0.75)';
+          ctx.fillRect(tile.x, tile.y, tileSize, tileSize);
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(tile.x + 0.5, tile.y + 0.5, tileSize - 1, tileSize - 1);
+          return;
+        }
+
+        if (tile.isDragging) {
+          draggingTile = tile;
+        } else {
+          const isHovered = (index === STATE.hoveredTileIndex);
+          const drawGridBorders = !DOM.gameCanvas.classList.contains('hide-grid');
+          tile.draw(ctx, isHovered, drawGridBorders);
+        }
+      });
+
+      // 3. Draw target dropping slot highlight if dragging
+      if (draggingTile && STATE.pointer.isDown) {
+        let hoverCol = Math.floor(STATE.pointer.x / tileSize);
+        let hoverRow = Math.floor(STATE.pointer.y / tileSize);
+        
+        // Clamp hover bounds
+        hoverCol = Math.max(0, Math.min(N - 1, hoverCol));
+        hoverRow = Math.max(0, Math.min(N - 1, hoverRow));
+
+        if (STATE.gameMode === 'Swap') {
+          // Highlight target swap grid slot
+          ctx.fillStyle = 'rgba(99, 102, 241, 0.2)';
+          ctx.fillRect(hoverCol * tileSize, hoverRow * tileSize, tileSize, tileSize);
+          ctx.strokeStyle = '#6366f1';
+          ctx.lineWidth = 2.5;
+          ctx.strokeRect(hoverCol * tileSize + 1.25, hoverRow * tileSize + 1.25, tileSize - 2.5, tileSize - 2.5);
+        } else {
+          // Slide mode dragging slot guide (only highlight if empty tile)
+          const emptyTile = STATE.tiles.find(t => t.id === STATE.emptyTileId);
+          if (hoverCol === emptyTile.currentCol && hoverRow === emptyTile.currentRow) {
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+            ctx.fillRect(hoverCol * tileSize, hoverRow * tileSize, tileSize, tileSize);
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(hoverCol * tileSize + 1, hoverRow * tileSize + 1, tileSize - 2, tileSize - 2);
+          }
+        }
+      }
+
+      // 4. Draw currently dragging piece on top of all others with shadow and scale effect
+      if (draggingTile) {
+        ctx.save();
+        // Add glowing neon dropshadow
+        ctx.shadowColor = '#6366f1';
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetX = 4;
+        ctx.shadowOffsetY = 4;
+        
+        // Draw tile slightly scaled up and centered on grab point
+        draggingTile.draw(ctx, false, true);
+        ctx.restore();
+      }
+
+      // Continue frame iteration
+      gameLoopId = requestAnimationFrame(gameLoop);
+    }
+
+    // --- 8. MOUSE & TOUCH EVENT CONTROLLERS ---
+    function getCanvasCoordinates(e) {
+      const rect = DOM.gameCanvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      // Map raw coordinates to virtual 450x450 grid coordinate space
+      const x = (clientX - rect.left) * (CONFIG.canvasBaseSize / rect.width);
+      const y = (clientY - rect.top) * (CONFIG.canvasBaseSize / rect.height);
+      
+      return { x, y };
+    }
+
+    function onPointerDown(e) {
+      if (!STATE.gameActive || STATE.isPaused) return;
+
+      const coords = getCanvasCoordinates(e);
+      STATE.pointer.x = coords.x;
+      STATE.pointer.y = coords.y;
+      STATE.pointer.isDown = true;
+
+      const N = STATE.gridSize;
+      const tileSize = CONFIG.canvasBaseSize / N;
+      const col = Math.floor(coords.x / tileSize);
+      const row = Math.floor(coords.y / tileSize);
+
+      // Find which tile resides at clicked slot
+      const clickedTileIdx = STATE.tiles.findIndex(t => t.currentCol === col && t.currentRow === row);
+      if (clickedTileIdx === -1) return;
+
+      const tile = STATE.tiles[clickedTileIdx];
+
+      // Block picking up the empty tile in sliding mode
+      if (STATE.gameMode === 'Slide' && tile.id === STATE.emptyTileId) return;
+
+      if (STATE.gameMode === 'Slide') {
+        // In Slide Mode, only allow dragging if the tile is adjacent to empty tile
+        const emptyTile = STATE.tiles.find(t => t.id === STATE.emptyTileId);
+        const colDiff = Math.abs(tile.currentCol - emptyTile.currentCol);
+        const rowDiff = Math.abs(tile.currentRow - emptyTile.currentRow);
+        const isAdjacent = (colDiff + rowDiff === 1);
+
+        if (!isAdjacent) {
+          // Play buzzer or small click indicating invalid
+          soundEngine.playClick();
+          return;
+        }
+      }
+
+      // Pickup tile successfully
+      STATE.selectedTileIndex = clickedTileIdx;
+      tile.isDragging = true;
+      DOM.gameCanvas.classList.remove('canvas-grab');
+      DOM.gameCanvas.classList.add('canvas-grabbing');
+
+      // Record grabbed offset point from piece top-left
+      STATE.pointer.offsetX = coords.x - tile.x;
+      STATE.pointer.offsetY = coords.y - tile.y;
+
+      soundEngine.playClick();
+    }
+
+    function onPointerMove(e) {
+      if (!STATE.gameActive || STATE.isPaused) return;
+
+      const coords = getCanvasCoordinates(e);
+      STATE.pointer.x = coords.x;
+      STATE.pointer.y = coords.y;
+
+      const N = STATE.gridSize;
+      const tileSize = CONFIG.canvasBaseSize / N;
+
+      // Update hovered index if no dragging tile
+      if (STATE.selectedTileIndex === -1) {
+        const col = Math.floor(coords.x / tileSize);
+        const row = Math.floor(coords.y / tileSize);
+        STATE.hoveredTileIndex = STATE.tiles.findIndex(t => t.currentCol === col && t.currentRow === row);
+        
+        // set pointer cursor on hover
+        if (STATE.hoveredTileIndex !== -1) {
+          const hoverTile = STATE.tiles[STATE.hoveredTileIndex];
+          if (STATE.gameMode === 'Slide' && hoverTile.id === STATE.emptyTileId) {
+            DOM.gameCanvas.classList.remove('canvas-grab');
+          } else {
+            DOM.gameCanvas.classList.add('canvas-grab');
+          }
+        } else {
+          DOM.gameCanvas.classList.remove('canvas-grab');
+        }
+      }
+
+      // Drag constraint mechanics
+      if (STATE.selectedTileIndex !== -1 && STATE.pointer.isDown) {
+        const tile = STATE.tiles[STATE.selectedTileIndex];
+
+        if (STATE.gameMode === 'Swap') {
+          // Free Drag anywhere inside canvas
+          tile.x = coords.x - STATE.pointer.offsetX;
+          tile.y = coords.y - STATE.pointer.offsetY;
+
+          // Clamping limits
+          tile.x = Math.max(0 - tileSize/3, Math.min(CONFIG.canvasBaseSize - tileSize * (2/3), tile.x));
+          tile.y = Math.max(0 - tileSize/3, Math.min(CONFIG.canvasBaseSize - tileSize * (2/3), tile.y));
+
+        } else {
+          // Slide mode constrained dragging physics
+          const emptyTile = STATE.tiles.find(t => t.id === STATE.emptyTileId);
+          
+          const origX = tile.currentCol * tileSize;
+          const origY = tile.currentRow * tileSize;
+          const emptyX = emptyTile.currentCol * tileSize;
+          const emptyY = emptyTile.currentRow * tileSize;
+
+          // Drag direction relative to empty space
+          if (tile.currentRow === emptyTile.currentRow) {
+            // Horizontal slide dragging constraint
+            tile.y = origY; // lock y-axis
+            const targetDragX = coords.x - STATE.pointer.offsetX;
+            
+            if (emptyTile.currentCol > tile.currentCol) {
+              // Empty space is on the RIGHT
+              tile.x = Math.max(origX, Math.min(emptyX, targetDragX));
+            } else {
+              // Empty space is on the LEFT
+              tile.x = Math.max(emptyX, Math.min(origX, targetDragX));
+            }
+          } else if (tile.currentCol === emptyTile.currentCol) {
+            // Vertical slide dragging constraint
+            tile.x = origX; // lock x-axis
+            const targetDragY = coords.y - STATE.pointer.offsetY;
+
+            if (emptyTile.currentRow > tile.currentRow) {
+              // Empty space is BELOW
+              tile.y = Math.max(origY, Math.min(emptyY, targetDragY));
+            } else {
+              // Empty space is ABOVE
+              tile.y = Math.max(emptyY, Math.min(origY, targetDragY));
+            }
+          }
+        }
+      }
+    }
+
+    function onPointerUp() {
+      STATE.pointer.isDown = false;
+      DOM.gameCanvas.classList.remove('canvas-grabbing');
+      DOM.gameCanvas.classList.add('canvas-grab');
+
+      if (STATE.selectedTileIndex === -1) return;
+
+      const tile = STATE.tiles[STATE.selectedTileIndex];
+      tile.isDragging = false;
+
+      const N = STATE.gridSize;
+      const tileSize = CONFIG.canvasBaseSize / N;
+
+      // Determine cell centroid center where tile was dropped
+      const centerX = tile.x + tileSize / 2;
+      const centerY = tile.y + tileSize / 2;
+
+      let dropCol = Math.floor(centerX / tileSize);
+      let dropRow = Math.floor(centerY / tileSize);
+
+      // Clamp dropped cell
+      dropCol = Math.max(0, Math.min(N - 1, dropCol));
+      dropRow = Math.max(0, Math.min(N - 1, dropRow));
+
+      if (STATE.gameMode === 'Swap') {
+        // Swap mechanics
+        const targetTileIdx = STATE.tiles.findIndex(t => t.currentCol === dropCol && t.currentRow === dropRow);
+
+        if (targetTileIdx !== -1 && targetTileIdx !== STATE.selectedTileIndex) {
+          const targetTile = STATE.tiles[targetTileIdx];
+
+          // Swap grid references
+          const origCol = tile.currentCol;
+          const origRow = tile.currentRow;
+
+          tile.setGridPosition(dropCol, dropRow);
+          targetTile.setGridPosition(origCol, origRow);
+
+          STATE.movesCount++;
+          soundEngine.playSwap();
+
+        } else {
+          // Snap back to same grid cell
+          tile.setGridPosition(tile.currentCol, tile.currentRow);
+        }
+
+      } else {
+        // Slide mechanics
+        const emptyTile = STATE.tiles.find(t => t.id === STATE.emptyTileId);
+        
+        // Calculate drag offset distance from original cell
+        const origX = tile.currentCol * tileSize;
+        const origY = tile.currentRow * tileSize;
+        const dragDist = Math.sqrt(Math.pow(tile.x - origX, 2) + Math.pow(tile.y - origY, 2));
+
+        // If dragged more than 30% of cell width or dropped directly on empty grid
+        const droppedOnEmpty = (dropCol === emptyTile.currentCol && dropRow === emptyTile.currentRow);
+        
+        if (dragDist > tileSize * 0.3 || droppedOnEmpty) {
+          // Perform slide swap with empty tile space
+          const origCol = tile.currentCol;
+          const origRow = tile.currentRow;
+
+          tile.setGridPosition(emptyTile.currentCol, emptyTile.currentRow);
+          emptyTile.setGridPosition(origCol, origRow);
+
+          STATE.movesCount++;
+          soundEngine.playSwap();
+        } else {
+          // Slide back
+          tile.setGridPosition(tile.currentCol, tile.currentRow);
+        }
+      }
+
+      // Clear selection
+      STATE.selectedTileIndex = -1;
+      
+      // Update Move Counter
+      DOM.statMoves.innerText = String(STATE.movesCount).padStart(3, '0');
+
+      // Check accuracies and completed state
+      recalculateAccuracy();
+      checkWinCondition();
+    }
+
+    function recalculateAccuracy() {
+      let correct = 0;
+      STATE.tiles.forEach(tile => {
+        if (tile.currentCol === tile.correctCol && tile.currentRow === tile.correctRow) {
+          correct++;
+        }
+      });
+
+      STATE.correctCount = correct;
+      const ratio = (correct / STATE.totalPieces);
+      const percentage = Math.round(ratio * 100);
+
+      // Slide Mode adjustment (since empty space is also a tile, but player doesn't care about it)
+      DOM.statCorrectRatio.innerText = `${correct} / ${STATE.totalPieces} Pieces (${percentage}%)`;
+      DOM.statProgressBar.style.width = `${percentage}%`;
+
+      // Visual feedback: slide progress bar color transition
+      if (percentage < 35) {
+        DOM.statProgressBar.className = "h-full bg-indigo-500 rounded-full transition-all duration-300";
+      } else if (percentage < 75) {
+        DOM.statProgressBar.className = "h-full bg-gradient-to-r from-indigo-500 to-amber-500 rounded-full transition-all duration-300";
+      } else {
+        DOM.statProgressBar.className = "h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full transition-all duration-300";
+      }
+
+      return percentage;
+    }
+
+    function checkWinCondition() {
+      // Game solves when accuracy reaches 100%
+      const isCompleted = STATE.tiles.every(t => t.currentCol === t.correctCol && t.currentRow === t.correctRow);
+
+      if (isCompleted && STATE.gameActive) {
+        STATE.gameActive = false;
+        
+        // Stop timer stopwatch
+        stopTimer();
+
+        // Play glorious triumph chords
+        soundEngine.playWin();
+
+        // Visual scrim display inside canvas area
+        DOM.gameCanvas.style.boxShadow = "0 0 40px rgba(16, 185, 129, 0.4)";
+        const scrim = document.getElementById('game-win-scrim');
+        const scrimContent = document.getElementById('win-banner-content');
+        scrim.classList.remove('opacity-0', 'pointer-events-none');
+        scrim.classList.add('opacity-100');
+        scrimContent.classList.remove('scale-90');
+        scrimContent.classList.add('scale-100');
+
+        // Confetti Fireworks!
+        triggerConfettiBoom();
+
+        // Open beautiful summary Leaderboard win dialog
+        setTimeout(() => {
+          openWinModal();
+        }, 1500);
+      }
+    }
+
+    function triggerConfettiBoom() {
+      if (typeof confetti === 'function') {
+        const duration = 3 * 1000;
+        const end = Date.now() + duration;
+
+        (function frame() {
+          confetti({
+            particleCount: 4,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            colors: ['#6366f1', '#10b981', '#fbbf24']
+          });
+          confetti({
+            particleCount: 4,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            colors: ['#6366f1', '#10b981', '#fbbf24']
+          });
+
+          if (Date.now() < end) {
+            requestAnimationFrame(frame);
+          }
+        }());
+      }
+    }
+
+    // --- 9. STOPWATCH TIMER CONTROLLERS ---
+    function formatTime(ms) {
+      const totalSeconds = ms / 1000;
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = Math.floor(totalSeconds % 60);
+      const tenths = Math.floor((ms % 1000) / 100);
+      return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${tenths}`;
+    }
+
+    function startTimer() {
+      if (timerIntervalId) clearInterval(timerIntervalId);
+      
+      const startMark = Date.now() - STATE.elapsedTime;
+      timerIntervalId = setInterval(() => {
+        if (!STATE.isPaused && STATE.gameActive) {
+          STATE.elapsedTime = Date.now() - startMark;
+          DOM.statTimer.innerText = formatTime(STATE.elapsedTime);
+        }
+      }, 100);
+    }
+
+    function stopTimer() {
+      if (timerIntervalId) {
+        clearInterval(timerIntervalId);
+        timerIntervalId = null;
+      }
+    }
+
+    // --- 10. CANVAS RESPONSIVENESS AND SCALE SETUP ---
+    function resizeCanvasToContainer() {
+      const canvas = DOM.gameCanvas;
+      const dpr = CONFIG.dpi;
+      
+      canvas.width = CONFIG.canvasBaseSize * dpr;
+      canvas.height = CONFIG.canvasBaseSize * dpr;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+    }
+
+    // --- 11. LOCAL STORAGE LEADERBOARD DATABASE ---
+    function updatePersonalRecordDisplay() {
+      const keyPR = `face_puzzle_best_${STATE.gridSize}_${STATE.gameMode}`;
+      const best = localStorage.getItem(keyPR);
+      
+      if (best) {
+        DOM.statBestRecord.innerText = formatTime(parseInt(best));
+      } else {
+        DOM.statBestRecord.innerText = "No score yet";
+      }
+    }
+
+    function saveScoreToLeaderboard(playerName) {
+      const records = JSON.parse(localStorage.getItem('face_puzzle_leaderboards') || '[]');
+      
+      const newRecord = {
+        name: playerName || 'Player One',
+        time: STATE.elapsedTime,
+        formattedTime: formatTime(STATE.elapsedTime),
+        moves: STATE.movesCount,
+        difficulty: `${STATE.gridSize}×${STATE.gridSize}`,
+        gridSize: STATE.gridSize,
+        mode: STATE.gameMode,
+        date: new Date().toLocaleDateString(),
+        timestamp: Date.now()
+      };
+
+      records.push(newRecord);
+      localStorage.setItem('face_puzzle_leaderboards', JSON.stringify(records));
+
+      // Check and update best record specifically
+      const keyPR = `face_puzzle_best_${STATE.gridSize}_${STATE.gameMode}`;
+      const existingPR = localStorage.getItem(keyPR);
+      if (!existingPR || STATE.elapsedTime < parseInt(existingPR)) {
+        localStorage.setItem(keyPR, STATE.elapsedTime.toString());
+      }
+
+      updatePersonalRecordDisplay();
+      renderLeaderboardTable();
+    }
+
+    function renderLeaderboardTable() {
+      const records = JSON.parse(localStorage.getItem('face_puzzle_leaderboards') || '[]');
+      
+      // Filter based on currently selected UI difficulty and mode
+      const selectedSize = parseInt(DOM.leaderboardFilterSize.value);
+      const selectedMode = DOM.leaderboardFilterMode.value;
+
+      const filtered = records.filter(r => r.gridSize === selectedSize && r.mode === selectedMode);
+
+      // Sort: least moves first, then least time first
+      filtered.sort((a, b) => {
+        if (a.moves !== b.moves) {
+          return a.moves - b.moves;
+        }
+        return a.time - b.time;
+      });
+
+      // Take top 5
+      const top5 = filtered.slice(0, 5);
+
+      DOM.leaderboardRows.innerHTML = '';
+
+      if (top5.length === 0) {
+        DOM.leaderboardEmpty.classList.remove('hidden');
+        return;
+      }
+
+      DOM.leaderboardEmpty.classList.add('hidden');
+
+      top5.forEach((record, index) => {
+        const row = document.createElement('tr');
+        row.className = "hover:bg-slate-900/40 transition-colors border-b border-slate-900/40";
+        
+        let rankBadge = `${index + 1}`;
+        if (index === 0) rankBadge = `🥇 <span class="text-amber-400">1st</span>`;
+        else if (index === 1) rankBadge = `🥈 <span class="text-slate-300">2nd</span>`;
+        else if (index === 2) rankBadge = `🥉 <span class="text-amber-600">3rd</span>`;
+
+        row.innerHTML = `
+          <td class="py-3 px-4 font-bold font-display">${rankBadge}</td>
+          <td class="py-3 px-4 text-slate-200">${escapeHTML(record.name)}</td>
+          <td class="py-3 px-4 font-mono text-slate-400">${record.difficulty}</td>
+          <td class="py-3 px-4 font-mono font-bold text-slate-200">${record.moves}</td>
+          <td class="py-3 px-4 font-mono text-indigo-300 font-semibold">${record.formattedTime}</td>
+          <td class="py-3 px-4 text-right text-slate-500 text-[11px]">${record.date}</td>
+        `;
+        DOM.leaderboardRows.appendChild(row);
+      });
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag)
+      );
+    }
+
+    // --- 12. WINDOW MODALS & DIALOGS ---
+    function openWinModal() {
+      DOM.winStatTime.innerText = formatTime(STATE.elapsedTime);
+      DOM.winStatMoves.innerText = STATE.movesCount;
+      DOM.winStatDiff.innerText = `${STATE.gridSize}×${STATE.gridSize} ${STATE.gameMode}`;
+      
+      // pre-populate last entered name
+      const lastPlayer = localStorage.getItem('face_puzzle_last_player_name') || '';
+      DOM.inputPlayerName.value = lastPlayer;
+      
+      DOM.leaderboardSubmitMessage.classList.add('hidden');
+      DOM.btnSubmitScore.disabled = false;
+      DOM.btnSubmitScore.classList.remove('opacity-50');
+
+      DOM.winModal.classList.remove('opacity-0', 'pointer-events-none');
+      DOM.winModalCard.classList.remove('scale-95');
+      DOM.winModalCard.classList.add('scale-100');
+    }
+
+    function closeWinModal() {
+      DOM.winModal.classList.add('opacity-0', 'pointer-events-none');
+      DOM.winModalCard.classList.remove('scale-100');
+      DOM.winModalCard.classList.add('scale-95');
+    }
+
+    // --- 13. GLOBAL EVENT LISTENERS & DOM HOOKS ---
+    function togglePauseGame() {
+      if (!STATE.gameActive) return;
+
+      STATE.isPaused = !STATE.isPaused;
+      
+      const pauseIcon = DOM.btnPauseGame.querySelector('.btn-pause-icon');
+      const pauseText = DOM.btnPauseGame.querySelector('.btn-pause-text');
+
+      if (STATE.isPaused) {
+        pauseIcon.setAttribute('data-lucide', 'play');
+        pauseText.innerText = 'Resume';
+        
+        // Draw Pause overlay on canvas
+        const ctx = DOM.gameCanvas.getContext('2d');
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+        ctx.fillRect(0, 0, CONFIG.canvasBaseSize, CONFIG.canvasBaseSize);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 24px "Space Grotesk"';
+        ctx.textAlign = 'center';
+        ctx.fillText('PUZZLE PAUSED', CONFIG.canvasBaseSize / 2, CONFIG.canvasBaseSize / 2 - 10);
+        ctx.font = '13px "Inter"';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.fillText('Tap Resume to continue playing', CONFIG.canvasBaseSize / 2, CONFIG.canvasBaseSize / 2 + 20);
+
+      } else {
+        pauseIcon.setAttribute('data-lucide', 'pause');
+        pauseText.innerText = 'Pause';
+        
+        // Resume timer anchor points
+        STATE.startTime = Date.now() - STATE.elapsedTime;
+        startTimer();
+      }
+      lucide.createIcons();
+    }
+
+    function setupEventListeners() {
+      
+      // Interactive Grid Size Selector buttons
+      document.querySelectorAll('.btn-grid-size').forEach(btn => {
+        btn.addEventListener('click', () => {
+          soundEngine.playClick();
+          document.querySelectorAll('.btn-grid-size').forEach(b => b.classList.remove('bg-indigo-600/20', 'border-indigo-500/30', 'active-grid'));
+          btn.classList.add('bg-indigo-600/20', 'border-indigo-500/30', 'active-grid');
+          STATE.gridSize = parseInt(btn.getAttribute('data-size'));
+        });
+      });
+
+      // Interactive Mechanics Mode buttons
+      document.getElementById('mode-swap').addEventListener('click', (e) => {
+        soundEngine.playClick();
+        STATE.gameMode = 'Swap';
+        document.getElementById('mode-swap').className = "btn-game-mode p-3 bg-indigo-600/20 border border-indigo-500/30 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 font-medium text-sm text-indigo-200";
+        document.getElementById('mode-slide').className = "btn-game-mode p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 font-medium text-sm text-slate-400";
+      });
+
+      document.getElementById('mode-slide').addEventListener('click', (e) => {
+        soundEngine.playClick();
+        STATE.gameMode = 'Slide';
+        document.getElementById('mode-slide').className = "btn-game-mode p-3 bg-indigo-600/20 border border-indigo-500/30 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 font-medium text-sm text-indigo-200";
+        document.getElementById('mode-swap').className = "btn-game-mode p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 font-medium text-sm text-slate-400";
+      });
+
+      // Main camera capture launch trigger
+      DOM.btnCameraTrigger.addEventListener('click', () => {
+        if (!STATE.cameraStream) {
+          startCamera();
+        } else {
+          capturePhoto();
+        }
+      });
+
+      // Front/back webcam flip trigger
+      DOM.btnToggleCameraFacing.addEventListener('click', () => {
+        soundEngine.playClick();
+        STATE.cameraFacingMode = STATE.cameraFacingMode === "user" ? "environment" : "user";
+        startCamera();
+      });
+
+      // Local File upload fallback trigger
+      DOM.inputFileUpload.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          soundEngine.playClick();
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const image = new Image();
+            image.src = event.target.result;
+            image.onload = () => {
+              setupGameImage(image);
+            };
+          };
+          reader.readAsDataURL(e.target.files[0]);
+        }
+      });
+
+      // Drag and Drop Canvas Events (Universal Mouse / Touch Pointer events)
+      DOM.gameCanvas.addEventListener('mousedown', onPointerDown);
+      window.addEventListener('mousemove', onPointerMove);
+      window.addEventListener('mouseup', onPointerUp);
+
+      DOM.gameCanvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        onPointerDown(e);
+      });
+      window.addEventListener('touchmove', (e) => {
+        onPointerMove(e);
+      });
+      window.addEventListener('touchend', (e) => {
+        onPointerUp();
+      });
+
+      // Control Buttons - Shuffle
+      DOM.btnShuffle.addEventListener('click', () => {
+        soundEngine.playShuffle();
+        STATE.movesCount = 0;
+        STATE.elapsedTime = 0;
+        DOM.statMoves.innerText = "000";
+        DOM.statTimer.innerText = "00:00.0";
+        STATE.startTime = Date.now();
+        
+        // Remove completion scrim if visible
+        document.getElementById('game-win-scrim').classList.add('opacity-0', 'pointer-events-none');
+        DOM.gameCanvas.style.boxShadow = "none";
+
+        shufflePuzzle();
+        startTimer();
+      });
+
+      // Control Buttons - Retake / Capture New
+      DOM.btnRetake.addEventListener('click', () => {
+        soundEngine.playClick();
+        stopTimer();
+        if (gameLoopId) cancelAnimationFrame(gameLoopId);
+        
+        DOM.stateGame.classList.add('hidden');
+        DOM.stateCapture.classList.remove('hidden');
+        DOM.appHeader.classList.remove('hidden');
+
+        document.getElementById('game-win-scrim').classList.add('opacity-0', 'pointer-events-none');
+        DOM.gameCanvas.style.boxShadow = "none";
+
+        startCamera();
+      });
+
+      // Control Buttons - Sound Mute toggle
+      DOM.btnToggleSound.addEventListener('click', () => {
+        STATE.soundEnabled = !STATE.soundEnabled;
+        soundEngine.setMuted(!STATE.soundEnabled);
+        
+        const soundIcon = DOM.btnToggleSound.querySelector('.btn-sound-icon');
+        const soundLabel = DOM.btnToggleSound.querySelector('span');
+
+        if (STATE.soundEnabled) {
+          soundIcon.setAttribute('data-lucide', 'volume-2');
+          soundIcon.className = 'w-4 h-4 text-indigo-400 btn-sound-icon';
+          soundLabel.innerText = "Sound: On";
+          soundEngine.playClick();
+        } else {
+          soundIcon.setAttribute('data-lucide', 'volume-x');
+          soundIcon.className = 'w-4 h-4 text-slate-500 btn-sound-icon';
+          soundLabel.innerText = "Sound: Off";
+        }
+        lucide.createIcons();
+      });
+
+      // Control Buttons - Pause Toggle
+      DOM.btnPauseGame.addEventListener('click', () => {
+        soundEngine.playClick();
+        togglePauseGame();
+      });
+
+      // Control Buttons - Fullscreen Frame triggers
+      DOM.btnFullscreen.addEventListener('click', () => {
+        soundEngine.playClick();
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(err => {
+            console.error(`Error attempting to enable fullscreen: ${err.message}`);
+          });
+        } else {
+          document.exitFullscreen();
+        }
+      });
+
+      // Control Buttons - Grid Overlay guidelines Toggle
+      DOM.btnToggleGrid.addEventListener('click', () => {
+        soundEngine.playClick();
+        DOM.gameCanvas.classList.toggle('hide-grid');
+      });
+
+      // Reference Face Preview Eye Toggle button
+      DOM.btnTogglePreview.addEventListener('click', () => {
+        soundEngine.playClick();
+        const icon = DOM.btnTogglePreview.querySelector('i');
+        const thumbCanvas = DOM.thumbnailCanvas;
+
+        if (thumbCanvas.classList.contains('opacity-0')) {
+          thumbCanvas.classList.remove('opacity-0');
+          icon.setAttribute('data-lucide', 'eye');
+        } else {
+          thumbCanvas.classList.add('opacity-0');
+          icon.setAttribute('data-lucide', 'eye-off');
+        }
+        lucide.createIcons();
+      });
+
+      // Leaderboard select filters
+      DOM.leaderboardFilterSize.addEventListener('change', renderLeaderboardTable);
+      DOM.leaderboardFilterMode.addEventListener('change', renderLeaderboardTable);
+
+      // Win Modal Actions - Submit Score to board
+      DOM.btnSubmitScore.addEventListener('click', () => {
+        const name = DOM.inputPlayerName.value.trim();
+        if (!name) return;
+
+        soundEngine.playClick();
+        saveScoreToLeaderboard(name);
+        localStorage.setItem('face_puzzle_last_player_name', name);
+
+        DOM.btnSubmitScore.disabled = true;
+        DOM.btnSubmitScore.classList.add('opacity-50');
+        DOM.leaderboardSubmitMessage.classList.remove('hidden');
+      });
+
+      // Win Modal Actions - Play Replay Scramble
+      DOM.btnWinReplay.addEventListener('click', () => {
+        soundEngine.playClick();
+        closeWinModal();
+        DOM.btnShuffle.click();
+      });
+
+      // Win Modal Actions - Capture New Selfie
+      DOM.btnWinNew.addEventListener('click', () => {
+        soundEngine.playClick();
+        closeWinModal();
+        DOM.btnRetake.click();
+      });
+
+      // Pause the stopwatch dynamically when tab changes (to satisfy audit requirements)
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && STATE.gameActive && !STATE.isPaused) {
+          togglePauseGame();
+        }
+      });
+    }
+
+    // --- 14. INITIALIZATION LOADER ON DOMREADY ---
+    window.addEventListener('DOMContentLoaded', () => {
+      // Create Lucide system vector icons
+      lucide.createIcons();
+
+      // Configure Event bindings
+      setupEventListeners();
+
+      // Ensure leaderboard matches select choices
+      renderLeaderboardTable();
+
+      // Pre-request Camera Stream automatically
+      startCamera();
+    });
+
+  </script>
+</body>
+</html>
+
+
