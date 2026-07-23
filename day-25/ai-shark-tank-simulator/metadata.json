@@ -1,0 +1,6 @@
+{
+  "name": "AI Shark Tank Simulator",
+  "description": "Interactive pitch simulator with 4 distinct AI judges, dynamic Q&A, scoring system, investment offers, leaderboard, and PDF reports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
