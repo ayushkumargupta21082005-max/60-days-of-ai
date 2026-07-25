@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prior Authorization Story Simulator</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+    background:#eef6fb;
+    font-family:Inter,system-ui,sans-serif;
+}
+.chat-scroll::-webkit-scrollbar{
+    width:8px;
+}
+.chat-scroll::-webkit-scrollbar-thumb{
+    background:#bfd8e8;
+    border-radius:20px;
+}
+.fade{
+    animation:fade .35s ease;
+}
+@keyframes fade{
+from{opacity:0;transform:translateY(12px);}
+to{opacity:1;transform:translateY(0);}
+}
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="max-w-5xl mx-auto p-6">
+
+<div class="bg-white rounded-3xl shadow-xl overflow-hidden">
+
+<div class="bg-cyan-700 text-white p-6">
+<h1 class="text-3xl font-bold">
+Prior Authorization Story Simulator
+</h1>
+<p class="opacity-90 mt-2">
+Interactive Healthcare Education • Illustrative Example
+</p>
+
+<div class="mt-5">
+<div class="flex justify-between text-sm mb-2">
+<span id="sceneLabel">Scene 1 of 8</span>
+<span id="percent">12%</span>
+</div>
+
+<div class="w-full h-3 rounded-full bg-cyan-900/30">
+<div id="progressBar"
+class="h-3 rounded-full bg-emerald-400 transition-all duration-500"
+style="width:12.5%">
+</div>
+</div>
+</div>
+</div>
+
+<div id="chat"
+class="chat-scroll h-[520px] overflow-y-auto bg-slate-50 p-6 space-y-4">
+</div>
+
+<div id="choices"
+class="border-t bg-white p-5 flex flex-col gap-3">
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const scenes=[
+
+{
+title:"Doctor Visit",
+doctor:"Rahul visits City Medical Center. Dr. Patel diagnoses Rheumatoid Arthritis after examination and recommends Humira.",
+messages:[
+{type:"left",speaker:"👦 Rahul",text:"I've been having painful swollen joints for months."},
+{type:"center",text:"Dr. Patel explains that Rheumatoid Arthritis is an autoimmune disease and recommends Humira."},
+{type:"right",speaker:"👧 Priya",text:"Your provider will now request approval before treatment begins. We'll guide you through each step."}
+],
+choices:[
+{
+label:"Why do I need approval?",
+reply:[
+{type:"left",speaker:"👦 Rahul",text:"Why does insurance need to review this medicine first?"},
+{type:"right",speaker:"👧 Priya",text:"Some treatments require Prior Authorization so the payer can confirm medical necessity."}
+]
+},
+{
+label:"Proceed to insurance",
+reply:[
+{type:"left",speaker:"👦 Rahul",text:"Okay, let's move to the next step."}
+]
+}
+]
+},
+
+{
+title:"Insurance Roadblock",
+messages:[
+{type:"center",text:"Illustrative Example: Provider → Prior Authorization Request → StarCare Health (payer)."},
+{type:"right",speaker:"👧 Priya",text:"Dr. Patel's office submits the PA directly to StarCare Health. No pharmacy is involved in this example."},
+{type:"right",speaker:"👧 Priya",text:"Once approved, the authorization is saved on file for this treatment."}
+],
+choices:[
+{
+label:"Who sends the request?",
+reply:[
+{type:"left",speaker:"👦 Rahul",text:"So my doctor's office sends everything?"},
+{type:"right",speaker:"👧 Priya",text:"Exactly. The provider submits the documentation directly to the payer."}
+]
+},
+{
+label:"Continue",
+reply:[
+{type:"left",speaker:"👦 Rahul",text:"Got it."}
+]
+}
+]
+},
+
+{
+title:"What is Prior Authorization?",
+messages:[
+{type:"right",speaker:"👧 Priya",text:"Prior Authorization (PA) is an insurance review before certain treatments are covered."},
+{type:"right",speaker:"👧 Priya",text:"Step therapy isn't just bureaucracy. For aggressive diseases, treatment delays may allow disease progression."},
+{type:"right",speaker:"👧 Priya",text:"AMA 2023 PA Survey: Prior Authorization causes treatment delays in the majority of cases."}
+],
+choices:[
+{
+label:"Why step therapy?",
+reply:[
+{type:"left",speaker:"👦 Rahul",text:"Why does step therapy exist?"},
+{type:"right",speaker:"👧 Priya",text:"It encourages trying certain therapies first, but providers can appeal when a different treatment is medically necessary."}
+]
+},
+{
+label:"I understand",
+reply:[
+{type:"left",speaker:"👦 Rahul",text:"Thanks, that makes sense."}
+]
+}
+]
+},
+
+{
+title:"Insurance Review",
+messages:[
+{type:"right",speaker:"👧 Priya",text:"StarCare Health (illustrative example) reviews four main things."},
+{type:"right",speaker:"👧 Priya",text:"• Eligibility: Is your insurance active?"},
+{type:"right",speaker:"👧 Priya",text:"• Clinical documentation: Do the medical notes support the request?"},
+{type:"right",speaker:"👧 Priya",text:"• ICD-10 diagnosis: Does the diagnosis match the requested medicine?"},
+{type:"right",speaker:"👧 Priya",text:"• Step therapy history: Were previous required therapies documented?"}
+],
+choices:[
+{
+label:"Why ICD-10?",
+reply:[
+{type:"left",speaker:"👦 Rahul",text:"Why is ICD-10 important?"},
+{type:"right",speaker:"👧 Priya",text:"It helps confirm the requested treatment matches the documented diagnosis."}
+]
+},
+{
+label:"Continue review",
+reply:[
+{type:"left",speaker:"👦 Rahul",text:"Let's see what happens."}
+]
+}
+]
+},
+
+{
+title:"Denial",
+messages:[
+{type:"center",text:"Review Result: DENIED"},
+{type:"right",speaker:"👧 Priya",text:"Reason: Missing documentation showing previous step therapy."},
+{type:"right",speaker:"👧 Priya",text:"A denial is not permanent. Additional information can often resolve it."},
+{type:"right",speaker:"👧 Priya",text:"System perspective: PA denials cost physician offices more than 2 staff hours to resolve."}
+],
+choices:[
+{
+label:"Can we appeal?",
+reply:[
+{type:"left",speaker:"👦 Rahul",text:"Does this mean I can't get treatment?"},
+{type:"right",speaker:"👧 Priya",text:"No. We can gather supporting documents and submit an appeal."}
+]
+},
+{
+label:"Stay hopeful",
+reply:[
+{type:"left",speaker:"👦 Rahul",text:"Let's fix the missing paperwork."}
+]
+}
+]
+},
+
+{
+title:"Appeal",
+messages:[
+{type:"right",speaker:"👧 Priya",text:"The care team gathers clinical notes."},
+{type:"right",speaker:"👧 Priya",text:"A Letter of Medical Necessity explains why Humira is appropriate."},
+{type:"right",speaker:"👧 Priya",text:"A formal appeal is submitted for another review."}
+],
+choices:[
+{
+label:"What is the letter?",
+reply:[
+{type:"left",speaker:"👦 Rahul",text:"What does the letter explain?"},
+{type:"right",speaker:"👧 Priya",text:"It describes why this treatment is medically necessary for your condition."}
+]
+},
+{
+label:"Submit appeal",
+reply:[
+{type:"left",speaker:"👦 Rahul",text:"Send everything."}
+]
+}
+]
+},
+
+{
+title:"Approval",
+messages:[
+{type:"center",text:"Appeal Outcome: APPROVED"},
+{type:"right",speaker:"👧 Priya",text:"Great news! The Prior Authorization has been approved."},
+{type:"right",speaker:"👧 Priya",text:"Reference Number: SC-PA-482731 (illustrative example)."},
+{type:"right",speaker:"👧 Priya",text:"The approved authorization is saved on file, so another PA is not needed for this Humira approval in this story."}
+],
+choices:[
+{
+label:"Celebrate",
+reply:[
+{type:"left",speaker:"👦 Rahul",text:"That's a relief. Thank you!"}
+]
+},
+{
+label:"Next lesson",
+reply:[
+{type:"left",speaker:"👦 Rahul",text:"What should I remember?"}
+]
+}
+]
+},
+
+{
+title:"Takeaways",
+messages:[
+{type:"right",speaker:"👧 Priya",text:"Patient View: Rahul learned what Prior Authorization is, why documentation matters, and how appeals can change outcomes."},
+{type:"right",speaker:"👧 Priya",text:"Health System View: Organizations monitor denial rate, appeal rate, and average resolution time to improve patient access."},
+{type:"center",text:"End of Simulation — StarCare Health is an illustrative example used for education."}
+],
+choices:[
+{
+label:"Restart Story",
+restart:true
+},
+{
+label:"Finish",
+reply:[
+{type:"center",text:"Thanks for completing the Prior Authorization Story Simulator."}
+]
+}
+]
+}
+
+];
+
+const chat=document.getElementById("chat");
+const choices=document.getElementById("choices");
+
+let current=0;
+
+function bubble(msg){
+
+if(msg.type==="center"){
+const d=document.createElement("div");
+d.className="text-center italic text-slate-500 fade";
+d.textContent=msg.text;
+chat.appendChild(d);
+return;
+}
+
+const wrap=document.createElement("div");
+wrap.className="flex fade";
+
+if(msg.type==="right"){
+wrap.classList.add("justify-end");
+}else{
+wrap.classList.add("justify-start");
+}
+
+const card=document.createElement("div");
+card.className=(msg.type==="right")
+?"bg-cyan-600 text-white rounded-2xl px-4 py-3 max-w-md shadow"
+:"bg-white border rounded-2xl px-4 py-3 max-w-md shadow";
+
+const name=document.createElement("div");
+name.className="font-semibold mb-1";
+name.textContent=msg.speaker;
+
+const txt=document.createElement("div");
+txt.textContent=msg.text;
+
+card.appendChild(name);
+card.appendChild(txt);
+
+wrap.appendChild(card);
+chat.appendChild(wrap);
+
+}
+
+function updateProgress(){
+
+document.getElementById("sceneLabel").textContent="Scene "+(current+1)+" of 8";
+
+let p=((current+1)/8)*100;
+
+document.getElementById("progressBar").style.width=p+"%";
+document.getElementById("percent").textContent=Math.round(p)+"%";
+
+}
+
+function renderScene(){
+
+updateProgress();
+
+const title=document.createElement("div");
+title.className="text-center font-bold text-xl text-cyan-700 mt-2 fade";
+title.textContent=scenes[current].title;
+chat.appendChild(title);
+
+if(scenes[current].doctor){
+
+const d=document.createElement("div");
+d.className="text-center italic text-slate-500 fade";
+d.textContent=scenes[current].doctor;
+chat.appendChild(d);
+
+}
+
+scenes[current].messages.forEach(m=>bubble(m));
+
+renderChoices();
+
+chat.scrollTop=chat.scrollHeight;
+
+}
+
+function renderChoices(){
+
+while(choices.firstChild){
+choices.removeChild(choices.firstChild);
+}
+
+scenes[current].choices.forEach(choice=>{
+
+const btn=document.createElement("button");
+btn.className="bg-cyan-700 hover:bg-cyan-800 text-white rounded-xl px-5 py-3 text-left transition";
+btn.textContent=choice.label;
+
+btn.onclick=function(){
+
+if(choice.restart){
+
+chat.textContent="";
+current=0;
+renderScene();
+return;
+
+}
+
+if(choice.reply){
+
+choice.reply.forEach(r=>bubble(r));
+
+}
+
+chat.scrollTop=chat.scrollHeight;
+
+setTimeout(()=>{
+
+if(current<scenes.length-1){
+current++;
+renderScene();
+}else{
+
+}
+
+},700);
+
+};
+
+choices.appendChild(btn);
+
+});
+
+}
+
+renderScene();
+
+</script>
+
+</body>
+</html>
