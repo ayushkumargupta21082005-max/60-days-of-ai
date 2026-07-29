@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Supply Chain Control Tower</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #0f1332;
+            --bg-tertiary: #141829;
+            --border-color: #1e2749;
+            --text-primary: #e8eaf6;
+            --text-secondary: #9fa8da;
+            --accent-blue: #1e88e5;
+            --accent-cyan: #00bcd4;
+            --accent-red: #ff5252;
+            --accent-green: #4caf50;
+            --accent-orange: #ff9800;
+            --accent-purple: #7c4dff;
+            --glow-blue: 0 0 20px rgba(30, 136, 229, 0.3);
+            --glow-cyan: 0 0 20px rgba(0, 188, 212, 0.3);
+            --glow-red: 0 0 20px rgba(255, 82, 82, 0.3);
+            --glow-green: 0 0 20px rgba(76, 175, 80, 0.3);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow: hidden;
+        }
+
+        /* HEADER & KPI SECTION */
+        .header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .title-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .controls-top {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            cursor: pointer;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-icon:hover {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            box-shadow: var(--glow-blue);
+        }
+
+        .timer {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-shadow: var(--glow-cyan);
+            font-family: 'Courier New', monospace;
+            min-width: 150px;
+            text-align: right;
+        }
+
+        /* KPI GRID */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .kpi-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+            transform: translateY(-2px);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            font-family: 'Courier New', monospace;
+        }
+
+        .kpi-card.positive .kpi-value {
+            color: var(--accent-green);
+        }
+
+        .kpi-card.negative .kpi-value {
+            color: var(--accent-red);
+        }
+
+        .kpi-card.warning .kpi-value {
+            color: var(--accent-orange);
+        }
+
+        /* MAIN CONTAINER */
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 250px;
+            gap: 20px;
+            padding: 20px;
+            height: calc(100vh - 200px);
+            overflow: hidden;
+        }
+
+        /* ALERTS SECTION */
+        .alerts-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .alert-item {
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-blue);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: 8px;
+            padding: 20px;
+            animation: slideIn 0.4s ease;
+            transition: all 0.3s ease;
+        }
+
+        .alert-item:hover {
+            box-shadow: var(--glow-blue);
+            border-color: var(--accent-blue);
+            transform: translateX(5px);
+        }
+
+        .alert-item.critical {
+            border-left-color: var(--accent-red);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .alert-item.critical:hover {
+            box-shadow: var(--glow-red);
+        }
+
+        .alert-item.warning {
+            border-left-color: var(--accent-orange);
+        }
+
+        .alert-item.warning:hover {
+            box-shadow: var(--glow-orange);
+        }
+
+        .alert-item.success {
+            border-left-color: var(--accent-green);
+        }
+
+        .alert-item.success:hover {
+            box-shadow: var(--glow-green);
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .alert-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .alert-priority {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .priority-critical {
+            background: rgba(255, 82, 82, 0.2);
+            color: var(--accent-red);
+        }
+
+        .priority-high {
+            background: rgba(255, 152, 0, 0.2);
+            color: var(--accent-orange);
+        }
+
+        .priority-medium {
+            background: rgba(30, 136, 229, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .priority-low {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--accent-green);
+        }
+
+        .alert-description {
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .alert-impact {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid var(--accent-purple);
+            padding: 10px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .alert-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .alert-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-action {
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action:hover {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            box-shadow: var(--glow-blue);
+            transform: scale(1.05);
+        }
+
+        .btn-action.positive {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .btn-action.positive:hover {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        .btn-action.danger {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .btn-action.danger:hover {
+            background: var(--accent-red);
+            color: var(--bg-primary);
+        }
+
+        .btn-action.warning {
+            border-color: var(--accent-orange);
+            color: var(--accent-orange);
+        }
+
+        .btn-action.warning:hover {
+            background: var(--accent-orange);
+            color: var(--bg-primary);
+        }
+
+        /* EVENT LOG */
+        .event-log {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 100%;
+        }
+
+        .event-log-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .event-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 6px;
+        }
+
+        .event-item {
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 2px solid var(--accent-blue);
+            border-radius: 4px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .event-item.success {
+            border-left-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .event-item.error {
+            border-left-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(0, 188, 212, 0.3);
+            animation: popIn 0.4s ease;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 35px;
+            height: 35px;
+            border: none;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            cursor: pointer;
+            border-radius: 50%;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--accent-red);
+            transform: rotate(90deg);
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--accent-cyan);
+        }
+
+        .modal-section {
+            margin-bottom: 20px;
+        }
+
+        .modal-subtitle {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .modal-text {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            line-height: 1.8;
+        }
+
+        .modal-list {
+            list-style: none;
+            color: var(--text-secondary);
+            margin-left: 10px;
+        }
+
+        .modal-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .modal-list li:before {
+            content: "▹";
+            position: absolute;
+            left: 0;
+            color: var(--accent-cyan);
+        }
+
+        .grade-display {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-align: center;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-shadow: var(--glow-cyan);
+        }
+
+        .grade-display.a-plus {
+            color: var(--accent-green);
+            text-shadow: var(--glow-green);
+        }
+
+        .grade-display.a {
+            color: var(--accent-green);
+            text-shadow: var(--glow-green);
+        }
+
+        .grade-display.b {
+            color: var(--accent-cyan);
+            text-shadow: var(--glow-cyan);
+        }
+
+        .grade-display.c {
+            color: var(--accent-orange);
+            text-shadow: var(--glow-orange);
+        }
+
+        .grade-display.d {
+            color: var(--accent-red);
+            text-shadow: var(--glow-red);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            color: var(--bg-primary);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 20px auto 0;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: var(--glow-cyan);
+        }
+
+        /* ANIMATIONS */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(255, 82, 82, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(255, 82, 82, 0.6);
+            }
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-blue);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-cyan);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .event-log {
+                display: none;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .title {
+                font-size: 22px;
+            }
+
+            .timer {
+                font-size: 28px;
+                min-width: auto;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .alert-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 20px;
+                margin: 20px;
+            }
+        }
+
+        .status-bar {
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border-color);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+        }
+
+        .status-dot.inactive {
+            background: var(--accent-red);
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="title-section">
+            <span class="title">⚙️ SUPPLY CHAIN CONTROL TOWER</span>
+        </div>
+        <div class="controls-top">
+            <button class="btn-icon" id="soundToggle" title="Toggle Sound">🔊</button>
+            <button class="btn-icon" id="pauseBtn" title="Pause Game">⏸</button>
+            <button class="btn-icon" id="helpBtn" title="Help">❓</button>
+            <div class="timer" id="timer">03:00</div>
+        </div>
+    </div>
+
+    <!-- KPI GRID -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Service Level</div>
+            <div class="kpi-value" id="kpi-serviceLevel">95%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Customer Sat.</div>
+            <div class="kpi-value" id="kpi-satisfaction">88%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Inventory</div>
+            <div class="kpi-value" id="kpi-inventory">92%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Transport Eff.</div>
+            <div class="kpi-value" id="kpi-efficiency">87%</div>
+        </div>
+        <div class="kpi-card negative">
+            <div class="kpi-label">Operating Cost</div>
+            <div class="kpi-value" id="kpi-cost">$2.4M</div>
+        </div>
+        <div class="kpi-card positive">
+            <div class="kpi-label">Revenue Protected</div>
+            <div class="kpi-value" id="kpi-revenue">$45.2M</div>
+        </div>
+        <div class="kpi-card positive">
+            <div class="kpi-label">Score</div>
+            <div class="kpi-value" id="kpi-score">0</div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="main-container">
+        <div class="alerts-section" id="alertsContainer"></div>
+        <div class="event-log">
+            <div class="event-log-title">Event Log</div>
+            <div class="event-list" id="eventLog"></div>
+        </div>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar">
+        <div class="status-item">
+            <span class="status-dot"></span>
+            <span id="statusText">System Online</span>
+        </div>
+        <div class="status-item">
+            Alerts Active: <span id="alertCount">0</span>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <!-- Help Modal -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content" style="position: relative;">
+            <button class="modal-close" onclick="closeModal('helpModal')">×</button>
+            <h1 class="modal-title">📖 How to Play</h1>
+            
+            <div class="modal-section">
+                <div class="modal-subtitle">Objective</div>
+                <div class="modal-text">
+                    You are the Head of Operations. Manage supply chain incidents within 3 minutes to maximize your score and operational performance.
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <div class="modal-subtitle">Game Mechanics</div>
+                <ul class="modal-list">
+                    <li><strong>Alerts</strong> - Supply chain incidents appear randomly. Each has a priority level (Critical, High, Medium, Low)</li>
+                    <li><strong>Time Pressure</strong> - You have limited time. Each alert has a countdown timer</li>
+                    <li><strong>Decisions Matter</strong> - Your choices affect KPIs and future risk</li>
+                    <li><strong>Consequences</strong> - Some decisions have delayed effects that appear later</li>
+                </ul>
+            </div>
+
+            <div class="modal-section">
+                <div class="modal-subtitle">KPI Indicators</div>
+                <ul class="modal-list">
+                    <li><strong>Service Level</strong> - On-time delivery %; should stay above 90%</li>
+                    <li><strong>Customer Satisfaction</strong> - Overall satisfaction score</li>
+                    <li><strong>Inventory Health</strong> - Warehouse optimization levels</li>
+                    <li><strong>Transport Efficiency</strong> - Logistics performance</li>
+                    <li><strong>Operating Cost</strong> - Lower is better</li>
+                    <li><strong>Revenue Protected</strong> - Prevented losses from incidents</li>
+                </ul>
+            </div>
+
+            <div class="modal-section">
+                <div class="modal-subtitle">Strategy Tips</div>
+                <ul class="modal-list">
+                    <li>Prioritize <strong>Critical</strong> alerts first</li>
+                    <li>Don't ignore problems - they escalate</li>
+                    <li>Balance speed with cost - expensive solutions may hurt KPIs</li>
+                    <li>Keep inventory healthy to prevent cascading failures</li>
+                    <li>Good decisions = higher score + better grade</li>
+                </ul>
+            </div>
+
+            <button class="btn-primary" onclick="closeModal('helpModal')">Close</button>
+        </div>
+    </div>
+
+    <!-- End Game Modal -->
+    <div class="modal" id="endGameModal">
+        <div class="modal-content" style="position: relative;">
+            <button class="modal-close" onclick="location.reload()">×</button>
+            <h1 class="modal-title">🏁 Operations Complete</h1>
+            
+            <div class="modal-section">
+                <div class="modal-subtitle">Final Score</div>
+                <div class="grade-display" id="finalScore">0</div>
+            </div>
+
+            <div class="modal-section">
+                <div class="modal-subtitle">Performance Grade</div>
+                <div class="grade-display" id="performanceGrade">A+</div>
+            </div>
+
+            <div class="stats-grid" id="statsGrid"></div>
+
+            <div class="modal-section">
+                <div class="modal-subtitle">Operational Summary</div>
+                <div class="modal-text" id="operationalSummary"></div>
+            </div>
+
+            <button class="btn-primary" onclick="location.reload()">🎮 Play Again</button>
+        </div>
+    </div>
+
+    <!-- Pause Modal -->
+    <div class="modal" id="pauseModal">
+        <div class="modal-content" style="position: relative; text-align: center;">
+            <h1 class="modal-title">⏸ Game Paused</h1>
+            <div class="modal-text" style="font-size: 18px; margin: 20px 0;">
+                The control center is on standby.
+            </div>
+            <button class="btn-primary" onclick="togglePause()">Resume</button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // GAME STATE & CONFIG
+        // ============================================
+        
+        const GAME_DURATION = 180; // 3 minutes in seconds
+        const ALERT_TYPES = [
+            { name: 'Port Congestion', icon: '🚢', priority: 'high', baseImpact: { service: -8, satisfaction: -5, cost: 4 } },
+            { name: 'Supplier Delay', icon: '⏳', priority: 'high', baseImpact: { service: -10, satisfaction: -7, inventory: -6, cost: 3 } },
+            { name: 'Truck Breakdown', icon: '🚚', priority: 'critical', baseImpact: { service: -12, efficiency: -8, cost: 5 } },
+            { name: 'Warehouse Stock Out', icon: '📦', priority: 'critical', baseImpact: { service: -15, satisfaction: -10, inventory: -10, cost: 6 } },
+            { name: 'Customs Inspection', icon: '🔍', priority: 'high', baseImpact: { service: -7, efficiency: -6, cost: 3 } },
+            { name: 'Demand Spike', icon: '📈', priority: 'medium', baseImpact: { inventory: -8, efficiency: -4, cost: 2 } },
+            { name: 'Factory Machine Failure', icon: '⚙️', priority: 'critical', baseImpact: { service: -14, efficiency: -10, cost: 7 } },
+            { name: 'Weather Disruption', icon: '🌪️', priority: 'high', baseImpact: { service: -9, efficiency: -8, cost: 4 } },
+            { name: 'Inventory Mismatch', icon: '❌', priority: 'medium', baseImpact: { inventory: -12, satisfaction: -4, cost: 2 } },
+            { name: 'Damaged Shipment', icon: '💥', priority: 'critical', baseImpact: { service: -11, satisfaction: -8, inventory: -7, revenue: -5 } },
+        ];
+
+        const ACTIONS = {
+            expedite: { name: 'Expedite Shipment', impact: { service: 12, cost: 5, revenue: 3 }, correctFor: ['port', 'supplier', 'demand'] },
+            backup: { name: 'Use Backup Supplier', impact: { service: 8, cost: 3, inventory: 5, satisfaction: 4 }, correctFor: ['supplier', 'factory'] },
+            reroute: { name: 'Reroute Trucks', impact: { efficiency: 8, service: 6, cost: 2, inventory: 3 }, correctFor: ['truck', 'weather', 'customs'] },
+            production: { name: 'Increase Production', impact: { inventory: 10, service: 7, cost: 4, efficiency: -3 }, correctFor: ['warehouse', 'demand'] },
+            transfer: { name: 'Transfer Inventory', impact: { inventory: 8, service: 9, cost: 2 }, correctFor: ['warehouse', 'demand', 'mismatch'] },
+            airfreight: { name: 'Approve Air Freight', impact: { service: 15, cost: 8, efficiency: 5 }, correctFor: ['supplier', 'demand', 'weather'] },
+            ignore: { name: 'Ignore', impact: { cost: 0 }, delayed: true },
+            delay: { name: 'Delay Decision', impact: { cost: 1 }, delayed: true },
+        };
+
+        let gameState = {
+            kpis: {
+                serviceLevel: 95,
+                satisfaction: 88,
+                inventory: 92,
+                efficiency: 87,
+                cost: 2400000,
+                revenue: 45200000,
+                score: 0
+            },
+            timeRemaining: GAME_DURATION,
+            gameActive: true,
+            gamePaused: false,
+            alerts: [],
+            alertId: 0,
+            events: [],
+            correctDecisions: 0,
+            wrongDecisions: 0,
+            totalResolved: 0,
+            soundEnabled: false
+        };
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+
+        function init() {
+            updateKPIDisplay();
+            startGameTimer();
+            generateInitialAlerts();
+            addEvent('System initialized', 'System');
+        }
+
+        // ============================================
+        // GAME LOOP & TIMER
+        // ============================================
+
+        function startGameTimer() {
+            setInterval(() => {
+                if (!gameState.gameActive || gameState.gamePaused) return;
+
+                gameState.timeRemaining--;
+                updateTimerDisplay();
+
+                // Increase alert frequency as time progresses
+                if (gameState.timeRemaining % 15 === 0 && gameState.timeRemaining > 0) {
+                    generateAlert();
+                }
+
+                if (gameState.timeRemaining <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(gameState.timeRemaining / 60);
+            const seconds = gameState.timeRemaining % 60;
+            document.getElementById('timer').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            if (gameState.timeRemaining <= 30) {
+                document.getElementById('timer').style.color = '#ff5252';
+                document.getElementById('timer').style.textShadow = '0 0 20px rgba(255, 82, 82, 0.5)';
+            }
+        }
+
+        // ============================================
+        // ALERT MANAGEMENT
+        // ============================================
+
+        function generateInitialAlerts() {
+            for (let i = 0; i < 2; i++) {
+                generateAlert();
+            }
+        }
+
+        function generateAlert() {
+            if (!gameState.gameActive) return;
+
+            const alertType = ALERT_TYPES[Math.floor(Math.random() * ALERT_TYPES.length)];
+            const alert = {
+                id: gameState.alertId++,
+                type: alertType.name,
+                icon: alertType.icon,
+                priority: alertType.priority,
+                description: generateAlertDescription(alertType.name),
+                impact: { ...alertType.baseImpact },
+                timeLimit: alertType.priority === 'critical' ? 45 : alertType.priority === 'high' ? 60 : 90,
+                timeLimitOriginal: alertType.priority === 'critical' ? 45 : alertType.priority === 'high' ? 60 : 90,
+                resolved: false,
+                created: Date.now()
+            };
+
+            gameState.alerts.push(alert);
+            renderAlerts();
+            addEvent(`New alert: ${alert.type}`, 'Alert');
+        }
+
+        function generateAlertDescription(alertType) {
+            const descriptions = {
+                'Port Congestion': 'Major congestion at Port of Shanghai delays outbound shipments by 48 hours',
+                'Supplier Delay': 'Supplier reports 3-week production delay due to raw material shortage',
+                'Truck Breakdown': 'Truck breaks down on Route 5, affecting 200+ orders',
+                'Warehouse Stock Out': 'Warehouse A inventory critically low, cannot fulfill orders',
+                'Customs Inspection': 'Customs holding shipment for additional inspection, 36-hour delay expected',
+                'Demand Spike': 'Unexpected demand surge increases orders by 35%',
+                'Factory Machine Failure': 'Production line 3 offline, reducing output by 40%',
+                'Weather Disruption': 'Severe weather closing transport routes for next 48 hours',
+                'Inventory Mismatch': 'Physical inventory does not match system records in Warehouse B',
+                'Damaged Shipment': 'Container damaged in transit, 500 units marked for replacement'
+            };
+            return descriptions[alertType] || 'Supply chain disruption detected';
+        }
+
+        function renderAlerts() {
+            const container = document.getElementById('alertsContainer');
+            container.innerHTML = '';
+
+            gameState.alerts.forEach(alert => {
+                if (alert.resolved) return;
+
+                const alertElement = document.createElement('div');
+                alertElement.className = `alert-item ${alert.priority}`;
+                alertElement.id = `alert-${alert.id}`;
+
+                const impactText = formatImpactText(alert.impact);
+
+                alertElement.innerHTML = `
+                    <div class="alert-header">
+                        <div class="alert-title">${alert.icon} ${alert.type}</div>
+                        <span class="alert-priority priority-${alert.priority}">${alert.priority}</span>
+                    </div>
+                    <div class="alert-description">${alert.description}</div>
+                    <div class="alert-impact">📊 Impact: ${impactText}</div>
+                    <div class="alert-time">Time Limit: <strong id="time-${alert.id}">${alert.timeLimit}s</strong></div>
+                    <div class="alert-actions">
+                        ${renderAlertActions(alert)}
+                    </div>
+                `;
+
+                container.appendChild(alertElement);
+
+                // Update countdown
+                const countdownInterval = setInterval(() => {
+                    if (!gameState.gameActive || gameState.gamePaused) return;
+
+                    alert.timeLimit--;
+                    const timeElement = document.getElementById(`time-${alert.id}`);
+                    if (timeElement) {
+                        timeElement.textContent = alert.timeLimit + 's';
+                    }
+
+                    if (alert.timeLimit <= 0) {
+                        clearInterval(countdownInterval);
+                        if (!alert.resolved) {
+                            handleAlertTimeout(alert);
+                        }
+                    }
+                }, 1000);
+            });
+
+            document.getElementById('alertCount').textContent = gameState.alerts.filter(a => !a.resolved).length;
+        }
+
+        function renderAlertActions(alert) {
+            const actionKeys = ['expedite', 'backup', 'reroute', 'production', 'transfer', 'airfreight', 'delay', 'ignore'];
+            return actionKeys.map(key => {
+                const action = ACTIONS[key];
+                return `<button class="btn-action" onclick="executeAction(${alert.id}, '${key}')">${action.name}</button>`;
+            }).join('');
+        }
+
+        function handleAlertTimeout(alert) {
+            alert.resolved = true;
+            gameState.wrongDecisions++;
+            gameState.totalResolved++;
+            
+            // Apply penalty
+            modifyKPI('service', -5);
+            modifyKPI('satisfaction', -8);
+            modifyKPI('cost', 3);
+
+            addEvent(`⚠️ ${alert.type} escalated - deadline missed!`, 'Error');
+            renderAlerts();
+        }
+
+        // ============================================
+        // ACTION HANDLING
+        // ============================================
+
+        function executeAction(alertId, actionKey) {
+            const alert = gameState.alerts.find(a => a.id === alertId);
+            if (!alert || alert.resolved) return;
+
+            const action = ACTIONS[actionKey];
+            alert.resolved = true;
+            gameState.totalResolved++;
+
+            // Determine if decision was correct
+            const isCorrect = actionKey !== 'ignore' && actionKey !== 'delay';
+            const typeMatch = isCorrect ? Object.keys(alert.type.toLowerCase()).some(key => {
+                return alert.type.toLowerCase().includes(key);
+            }) : false;
+
+            if (isCorrect) {
+                gameState.correctDecisions++;
+                const scoreIncrease = 50 + (alert.priority === 'critical' ? 50 : alert.priority === 'high' ? 25 : 10);
+                modifyKPI('score', scoreIncrease);
+                addEvent(`✅ ${alert.type} resolved with ${action.name}`, 'Success');
+            } else {
+                gameState.wrongDecisions++;
+                modifyKPI('score', -10);
+                addEvent(`❌ ${alert.type} - ${action.name} had limited effectiveness`, 'Error');
+            }
+
+            // Apply action impact
+            Object.keys(action.impact).forEach(kpi => {
+                modifyKPI(kpi, action.impact[kpi]);
+            });
+
+            // Handle delayed consequences
+            if (action.delayed && actionKey === 'ignore') {
+                setTimeout(() => {
+                    if (gameState.gameActive) {
+                        modifyKPI('service', -10);
+                        modifyKPI('satisfaction', -15);
+                        modifyKPI('cost', 5);
+                        addEvent(`💥 Consequences of ignoring ${alert.type}`, 'Error');
+                    }
+                }, 5000);
+            }
+
+            renderAlerts();
+            updateKPIDisplay();
+        }
+
+        // ============================================
+        // KPI MANAGEMENT
+        // ============================================
+
+        function modifyKPI(kpi, delta) {
+            const kpiMap = {
+                'service': 'serviceLevel',
+                'satisfaction': 'satisfaction',
+                'inventory': 'inventory',
+                'efficiency': 'efficiency',
+                'cost': 'cost',
+                'revenue': 'revenue',
+                'score': 'score'
+            };
+
+            const kpiKey = kpiMap[kpi];
+            if (!kpiKey) return;
+
+            if (kpiKey === 'cost') {
+                gameState.kpis[kpiKey] += delta * 100000;
+                gameState.kpis[kpiKey] = Math.max(gameState.kpis[kpiKey], 1000000);
+            } else if (kpiKey === 'revenue') {
+                gameState.kpis[kpiKey] += delta * 1000000;
+                gameState.kpis[kpiKey] = Math.max(gameState.kpis[kpiKey], 0);
+            } else if (kpiKey === 'score') {
+                gameState.kpis[kpiKey] += delta;
+            } else {
+                gameState.kpis[kpiKey] = Math.max(0, Math.min(100, gameState.kpis[kpiKey] + delta));
+            }
+        }
+
+        function updateKPIDisplay() {
+            document.getElementById('kpi-serviceLevel').textContent = gameState.kpis.serviceLevel + '%';
+            document.getElementById('kpi-satisfaction').textContent = gameState.kpis.satisfaction + '%';
+            document.getElementById('kpi-inventory').textContent = gameState.kpis.inventory + '%';
+            document.getElementById('kpi-efficiency').textContent = gameState.kpis.efficiency + '%';
+            document.getElementById('kpi-cost').textContent = '$' + (gameState.kpis.cost / 1000000).toFixed(1) + 'M';
+            document.getElementById('kpi-revenue').textContent = '$' + (gameState.kpis.revenue / 1000000).toFixed(1) + 'M';
+            document.getElementById('kpi-score').textContent = gameState.kpis.score;
+
+            // Update card styling based on values
+            updateCardStyling();
+        }
+
+        function updateCardStyling() {
+            const cards = document.querySelectorAll('.kpi-card');
+            cards.forEach(card => {
+                card.classList.remove('positive', 'negative', 'warning');
+                const value = card.querySelector('.kpi-value').textContent;
+                
+                if (card.textContent.includes('Cost')) {
+                    if (parseInt(value) < 2000000) card.classList.add('positive');
+                    else if (parseInt(value) > 3000000) card.classList.add('negative');
+                    else card.classList.add('warning');
+                } else if (card.textContent.includes('Revenue')) {
+                    if (parseInt(value) > 50000000) card.classList.add('positive');
+                    else if (parseInt(value) < 40000000) card.classList.add('negative');
+                } else {
+                    const num = parseInt(value);
+                    if (num >= 90) card.classList.add('positive');
+                    else if (num >= 70) card.classList.add('warning');
+                    else card.classList.add('negative');
+                }
+            });
+        }
+
+        // ============================================
+        // EVENT LOG
+        // ============================================
+
+        function addEvent(message, type = 'Info') {
+            const eventLog = document.getElementById('eventLog');
+            const eventItem = document.createElement('div');
+            eventItem.className = `event-item ${type.toLowerCase()}`;
+            eventItem.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            eventLog.appendChild(eventItem);
+
+            gameState.events.push({ message, type, timestamp: new Date() });
+        }
+
+        // ============================================
+        // GAME END
+        // ============================================
+
+        function endGame() {
+            gameState.gameActive = false;
+            
+            // Calculate final grade
+            const avgKPI = (gameState.kpis.serviceLevel + gameState.kpis.satisfaction + 
+                            gameState.kpis.inventory + gameState.kpis.efficiency) / 4;
+            
+            let grade = 'F';
+            if (avgKPI >= 95) grade = 'A+';
+            else if (avgKPI >= 90) grade = 'A';
+            else if (avgKPI >= 80) grade = 'B';
+            else if (avgKPI >= 70) grade = 'C';
+            else grade = 'D';
+
+            // Build summary
+            const decisionAccuracy = gameState.totalResolved > 0 
+                ? Math.round((gameState.correctDecisions / gameState.totalResolved) * 100) 
+                : 0;
+
+            let summary = `You resolved ${gameState.totalResolved} incidents with ${decisionAccuracy}% accuracy. `;
+            
+            if (grade === 'A+' || grade === 'A') {
+                summary += 'Excellent operational management! Your decisive actions minimized disruptions.';
+            } else if (grade === 'B') {
+                summary += 'Good performance. With more careful decision-making, you can optimize further.';
+            } else if (grade === 'C') {
+                summary += 'Adequate response to challenges, but improvement in strategy is needed.';
+            } else {
+                summary += 'Significant operational challenges. Review your incident response procedures.';
+            }
+
+            // Display end game modal
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-label">Total Resolved</div>
+                    <div class="stat-value">${gameState.totalResolved}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Correct Decisions</div>
+                    <div class="stat-value">${gameState.correctDecisions}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Wrong Decisions</div>
+                    <div class="stat-value">${gameState.wrongDecisions}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Decision Accuracy</div>
+                    <div class="stat-value">${decisionAccuracy}%</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Final Service Level</div>
+                    <div class="stat-value">${gameState.kpis.serviceLevel}%</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Final Satisfaction</div>
+                    <div class="stat-value">${gameState.kpis.satisfaction}%</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Final Inventory</div>
+                    <div class="stat-value">${gameState.kpis.inventory}%</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Final Efficiency</div>
+                    <div class="stat-value">${gameState.kpis.efficiency}%</div>
+                </div>
+            `;
+
+            document.getElementById('finalScore').textContent = gameState.kpis.score;
+            const gradeElement = document.getElementById('performanceGrade');
+            gradeElement.textContent = grade;
+            gradeElement.className = `grade-display ${grade.toLowerCase().replace('+', '-plus')}`;
+            document.getElementById('operationalSummary').textContent = summary;
+
+            openModal('endGameModal');
+        }
+
+        // ============================================
+        // UI CONTROLS
+        // ============================================
+
+        function togglePause() {
+            gameState.gamePaused = !gameState.gamePaused;
+            const pauseBtn = document.getElementById('pauseBtn');
+            
+            if (gameState.gamePaused) {
+                pauseBtn.style.color = '#ff5252';
+                openModal('pauseModal');
+            } else {
+                pauseBtn.style.color = '';
+                closeModal('pauseModal');
+            }
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        document.getElementById('pauseBtn').addEventListener('click', togglePause);
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            document.getElementById('soundToggle').style.color = gameState.soundEnabled ? '#4caf50' : '';
+        });
+
+        document.getElementById('helpBtn').addEventListener('click', () => openModal('helpModal'));
+
+        // Close modals on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal('helpModal');
+            }
+        });
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+
+        function formatImpactText(impact) {
+            const parts = [];
+            if (impact.service) parts.push(`Service${impact.service > 0 ? '+' : ''}${impact.service}%`);
+            if (impact.satisfaction) parts.push(`Satisfaction${impact.satisfaction > 0 ? '+' : ''}${impact.satisfaction}%`);
+            if (impact.inventory) parts.push(`Inventory${impact.inventory > 0 ? '+' : ''}${impact.inventory}%`);
+            if (impact.efficiency) parts.push(`Efficiency${impact.efficiency > 0 ? '+' : ''}${impact.efficiency}%`);
+            if (impact.cost) parts.push(`Cost${impact.cost > 0 ? '+' : ''}$${impact.cost * 100000 / 1000000}M`);
+            if (impact.revenue) parts.push(`Revenue${impact.revenue > 0 ? '+' : ''}$${impact.revenue}M`);
+            return parts.join(' | ');
+        }
+
+        // ============================================
+        // START GAME
+        // ============================================
+
+        window.addEventListener('load', () => {
+            init();
+            addEvent('Game started', 'System');
+        });
+    </script>
+</body>
+</html>
