@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Think Like a Marketing Strategist: Grow This Brand</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #root {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .container {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #cbd5e1;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .card.highlight {
+            border-color: rgba(96, 165, 250, 0.5);
+            background: rgba(30, 41, 59, 0.95);
+        }
+
+        .card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #60a5fa;
+        }
+
+        .card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            color: #a78bfa;
+            margin-top: 20px;
+        }
+
+        .description {
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-option {
+            background: rgba(148, 163, 184, 0.1);
+            color: #e2e8f0;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            padding: 20px;
+            text-align: left;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .btn-option:hover {
+            background: rgba(148, 163, 184, 0.2);
+        }
+
+        .btn-option.selected {
+            background: rgba(96, 165, 250, 0.2);
+            border-color: #60a5fa;
+        }
+
+        .btn-option-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .btn-option-desc {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #a78bfa;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #60a5fa;
+        }
+
+        .what-why-box {
+            background: rgba(51, 65, 85, 0.4);
+            border-left: 3px solid #a78bfa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .what-why-box strong {
+            color: #a78bfa;
+        }
+
+        .how-to-claude {
+            background: rgba(96, 165, 250, 0.08);
+            border-left: 4px solid #60a5fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 30px;
+        }
+
+        .how-to-claude-prompt {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #a78bfa;
+            margin-top: 10px;
+        }
+
+        .copy-btn {
+            background: rgba(96, 165, 250, 0.2);
+            border: 1px solid rgba(96, 165, 250, 0.5);
+            color: #60a5fa;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(51, 65, 85, 0.5);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            color: #60a5fa;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .event-scenario {
+            background: linear-gradient(135deg, rgba(234, 88, 12, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+            border: 1px solid rgba(234, 88, 12, 0.3);
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .choice-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .choice-btn {
+            background: rgba(96, 165, 250, 0.1);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .consequence {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 3px solid #6366f1;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+
+        .lesson-item {
+            background: rgba(51, 65, 85, 0.4);
+            border-left: 3px solid #a78bfa;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script>
+        const e = React.createElement;
+        const { useState } = React;
+
+        // Utility Functions
+        const randomChoice = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+        const generateRandomBusiness = () => {
+            const industries = [
+                { name: 'Sustainable Fashion', budget: '$5,000-10,000/month' },
+                { name: 'AI-Powered Fitness App', budget: '$8,000-15,000/month' },
+                { name: 'Artisan Coffee Roastery', budget: '$3,000-8,000/month' },
+            ];
+            const audiences = ['Eco-conscious millennials', 'Busy professionals', 'Gen Z creators'];
+            const industry = randomChoice(industries);
+            const audience = randomChoice(audiences);
+            return {
+                name: industry.name,
+                industry: industry.name,
+                budget: industry.budget,
+                audience: audience,
+            };
+        };
+
+        // ModeSelection Component
+        function ModeSelection({ onSelect }) {
+            return e('div', { className: 'container' },
+                e('div', { className: 'header' },
+                    e('h1', null, '🚀 Think Like a Marketing Strategist'),
+                    e('p', null, 'Learn how real marketers grow brands')
+                ),
+                e('div', { className: 'card highlight' },
+                    e('h2', null, 'Let\'s Pick Your Path'),
+                    e('p', { className: 'description' }, 'Choose how you want to learn.'),
+                    e('div', { className: 'button-group' },
+                        e('button', { 
+                            className: 'btn btn-option',
+                            onClick: () => onSelect('own')
+                        },
+                            e('div', { className: 'btn-option-title' }, '🏢 Use My Own Business'),
+                            e('div', { className: 'btn-option-desc' }, 'Tell me about your real business')
+                        ),
+                        e('button', { 
+                            className: 'btn btn-option',
+                            onClick: () => onSelect('personal')
+                        },
+                            e('div', { className: 'btn-option-title' }, '🙋 Build My Personal Brand'),
+                            e('div', { className: 'btn-option-desc' }, 'Your expertise, your story')
+                        ),
+                        e('button', { 
+                            className: 'btn btn-option',
+                            onClick: () => onSelect('client')
+                        },
+                            e('div', { className: 'btn-option-title' }, '🎲 Random Client'),
+                            e('div', { className: 'btn-option-desc' }, 'Learn with a random business')
+                        )
+                    )
+                )
+            );
+        }
+
+        // BusinessInput Component
+        function BusinessInput({ mode, onSubmit }) {
+            const [data, setData] = useState({ name: '', industry: '', whatYouDo: '', targetAudience: '' });
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (data.name && data.industry && data.whatYouDo && data.targetAudience) {
+                    onSubmit(data);
+                }
+            };
+
+            return e('div', { className: 'container' },
+                e('div', { className: 'header' },
+                    e('h1', null, mode === 'personal' ? '📋 Tell Me About You' : '📋 Tell Me About Your Business'),
+                ),
+                e('form', { onSubmit: handleSubmit },
+                    e('div', { className: 'card' },
+                        e('div', { className: 'input-group' },
+                            e('label', null, mode === 'personal' ? 'Your Name' : 'Business Name'),
+                            e('input', {
+                                type: 'text',
+                                value: data.name,
+                                onChange: (ev) => setData({...data, name: ev.target.value}),
+                                placeholder: 'e.g., Sarah Chen'
+                            })
+                        ),
+                        e('div', { className: 'input-group' },
+                            e('label', null, mode === 'personal' ? 'Your Expertise' : 'Industry'),
+                            e('input', {
+                                type: 'text',
+                                value: data.industry,
+                                onChange: (ev) => setData({...data, industry: ev.target.value}),
+                                placeholder: 'e.g., Product Design'
+                            })
+                        ),
+                        e('div', { className: 'input-group' },
+                            e('label', null, mode === 'personal' ? 'What makes you unique?' : 'What do you do?'),
+                            e('textarea', {
+                                value: data.whatYouDo,
+                                onChange: (ev) => setData({...data, whatYouDo: ev.target.value}),
+                                placeholder: 'Tell me your story...'
+                            })
+                        ),
+                        e('div', { className: 'input-group' },
+                            e('label', null, 'Target Audience'),
+                            e('input', {
+                                type: 'text',
+                                value: data.targetAudience,
+                                onChange: (ev) => setData({...data, targetAudience: ev.target.value}),
+                                placeholder: 'Who do you want to reach?'
+                            })
+                        ),
+                        e('button', { type: 'submit', className: 'btn btn-primary', style: { marginTop: '20px' } },
+                            'Continue →'
+                        )
+                    )
+                )
+            );
+        }
+
+        // AudienceUnderstanding Component
+        function AudienceUnderstanding({ business, onContinue }) {
+            const [understanding, setUnderstanding] = useState({ painPoints: '', goals: '', whereOnline: '' });
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (understanding.painPoints && understanding.goals && understanding.whereOnline) {
+                    onContinue(understanding);
+                }
+            };
+
+            return e('div', { className: 'container' },
+                e('div', { className: 'header' },
+                    e('h1', null, '🎯 Understand Your Audience'),
+                ),
+                e('div', { className: 'card' },
+                    e('div', { className: 'what-why-box' },
+                        e('strong', null, '🤔 What Is This?'),
+                        e('p', null, 'Understanding your audience means knowing their real problems and where they hang out online.')
+                    )
+                ),
+                e('form', { onSubmit: handleSubmit },
+                    e('div', { className: 'card' },
+                        e('h3', null, `Audience: ${business.targetAudience}`),
+                        e('div', { className: 'input-group' },
+                            e('label', null, 'What are their pain points?'),
+                            e('textarea', {
+                                value: understanding.painPoints,
+                                onChange: (ev) => setUnderstanding({...understanding, painPoints: ev.target.value}),
+                                placeholder: 'e.g., They struggle with...'
+                            })
+                        ),
+                        e('div', { className: 'input-group' },
+                            e('label', null, 'What are their goals?'),
+                            e('textarea', {
+                                value: understanding.goals,
+                                onChange: (ev) => setUnderstanding({...understanding, goals: ev.target.value}),
+                                placeholder: 'e.g., They want to...'
+                            })
+                        ),
+                        e('div', { className: 'input-group' },
+                            e('label', null, 'Where do they spend time online?'),
+                            e('textarea', {
+                                value: understanding.whereOnline,
+                                onChange: (ev) => setUnderstanding({...understanding, whereOnline: ev.target.value}),
+                                placeholder: 'e.g., LinkedIn, Instagram, Twitter...'
+                            })
+                        ),
+                        e('button', { type: 'submit', className: 'btn btn-primary', style: { marginTop: '20px' } },
+                            'Next: Choose Platforms →'
+                        )
+                    )
+                )
+            );
+        }
+
+        // PlatformSelection Component
+        function PlatformSelection({ business, onContinue }) {
+            const platforms = ['Instagram', 'TikTok', 'LinkedIn', 'YouTube', 'Twitter/X', 'Newsletter', 'Discord'];
+            const [selected, setSelected] = useState([]);
+
+            const togglePlatform = (name) => {
+                if (selected.includes(name)) {
+                    setSelected(selected.filter(p => p !== name));
+                } else if (selected.length < 4) {
+                    setSelected([...selected, name]);
+                }
+            };
+
+            return e('div', { className: 'container' },
+                e('div', { className: 'header' },
+                    e('h1', null, '📱 Choose Your Platforms (2-4)'),
+                ),
+                e('div', { className: 'card' },
+                    e('h3', null, 'Available Platforms'),
+                    e('div', { className: 'button-group' },
+                        platforms.map((p) =>
+                            e('button', {
+                                key: p,
+                                className: `btn btn-option ${selected.includes(p) ? 'selected' : ''}`,
+                                onClick: () => togglePlatform(p),
+                            }, p)
+                        )
+                    ),
+                    e('p', { style: { marginTop: '20px', color: '#94a3b8' } },
+                        `Selected: ${selected.length > 0 ? selected.join(', ') : 'None yet'}`
+                    ),
+                    e('button', {
+                        onClick: () => selected.length >= 2 && onContinue(selected),
+                        disabled: selected.length < 2,
+                        className: 'btn btn-primary',
+                        style: { marginTop: '20px', opacity: selected.length < 2 ? 0.5 : 1 }
+                    }, 'Next: Content Pillars →')
+                )
+            );
+        }
+
+        // ContentPillars Component
+        function ContentPillars({ business, onContinue }) {
+            const pillars = ['Thought Leadership', 'Personal Story', 'Behind-the-Scenes', 'Education', 'Case Studies', 'Hot Takes'];
+            const [selected, setSelected] = useState([]);
+
+            const togglePillar = (name) => {
+                if (selected.includes(name)) {
+                    setSelected(selected.filter(p => p !== name));
+                } else if (selected.length < 3) {
+                    setSelected([...selected, name]);
+                }
+            };
+
+            return e('div', { className: 'container' },
+                e('div', { className: 'header' },
+                    e('h1', null, '🎯 Choose Content Pillars (Exactly 3)'),
+                ),
+                e('div', { className: 'card' },
+                    e('h3', null, 'Available Pillars'),
+                    e('div', { className: 'button-group' },
+                        pillars.map((p) =>
+                            e('button', {
+                                key: p,
+                                className: `btn btn-option ${selected.includes(p) ? 'selected' : ''}`,
+                                onClick: () => togglePillar(p),
+                                style: { opacity: selected.includes(p) || selected.length < 3 ? 1 : 0.6 }
+                            }, p)
+                        )
+                    ),
+                    e('p', { style: { marginTop: '20px', color: '#94a3b8' } },
+                        `Selected: ${selected.length}/3`
+                    ),
+                    e('button', {
+                        onClick: () => selected.length === 3 && onContinue(selected),
+                        disabled: selected.length !== 3,
+                        className: 'btn btn-primary',
+                        style: { marginTop: '20px', opacity: selected.length !== 3 ? 0.5 : 1 }
+                    }, 'Next: Your Roadmap →')
+                )
+            );
+        }
+
+        // ContentRoadmap Component
+        function ContentRoadmap({ business, pillars, onContinue }) {
+            const weeks = [
+                { week: 1, title: 'Launch & Define', goals: ['Clarify your message', 'Optimize your profile', 'Post 3 founding posts'] },
+                { week: 2, title: 'Start Teaching', goals: ['Post 3 insights', 'Engage with 10 people', 'Get feedback'] },
+                { week: 3, title: 'Build Community', goals: ['Share a personal story', 'Respond to comments', 'Collaborate'] },
+                { week: 4, title: 'Analyze & Repeat', goals: ['Review what worked', 'Repost your best content', 'Double down'] },
+            ];
+
+            return e('div', { className: 'container' },
+                e('div', { className: 'header' },
+                    e('h1', null, '📅 Your 30-Day Roadmap'),
+                ),
+                weeks.map((w) =>
+                    e('div', { key: w.week, className: 'card' },
+                        e('h3', null, `Week ${w.week}: ${w.title}`),
+                        e('ul', { style: { marginLeft: '20px', color: '#cbd5e1', marginTop: '15px' } },
+                            w.goals.map((g, i) =>
+                                e('li', { key: i }, '✓ ' + g)
+                            )
+                        )
+                    )
+                ),
+                e('button', {
+                    onClick: onContinue,
+                    className: 'btn btn-primary',
+                    style: { width: '100%', marginTop: '20px', padding: '15px' }
+                }, 'Next: Marketing Event →')
+            );
+        }
+
+        // MarketingEvent Component
+        function MarketingEvent({ business, onContinue }) {
+            const [responded, setResponded] = useState(false);
+            const [choice, setChoice] = useState('');
+
+            const events = [
+                {
+                    title: '🚀 Your Post Goes Viral',
+                    scenario: 'One of your posts just hit 50,000 views. Comments are flooding in.',
+                    choices: [
+                        { text: '💭 Respond to every comment', consequence: 'You build real relationships and trust. Long-term win.' },
+                        { text: '📢 Promote your service', consequence: 'Quick followers but people feel sold to. Trust goes down.' },
+                    ]
+                },
+                {
+                    title: '😳 Someone Copied Your Content',
+                    scenario: 'Another creator with more followers copied your exact idea.',
+                    choices: [
+                        { text: '👋 DM them privately', consequence: 'Classy move. You just won the internet.' },
+                        { text: '📢 Call them out publicly', consequence: 'You look petty. Lose-lose for your brand.' },
+                    ]
+                },
+                {
+                    title: '💰 Competitor Undercuts Price',
+                    scenario: 'A competitor launched at 30% cheaper than you.',
+                    choices: [
+                        { text: '💰 Match their price', consequence: 'Margins shrink. Now you only compete on price.' },
+                        { text: '📢 Lean into unique value', consequence: 'Harder but you keep margins and attract loyal customers.' },
+                    ]
+                },
+            ];
+
+            const event = randomChoice(events);
+            const selectedChoice = event.choices.find(c => c.text === choice);
+
+            return e('div', { className: 'container' },
+                e('div', { className: 'header' },
+                    e('h1', null, '🎬 The Plot Twist'),
+                ),
+                e('div', { className: 'event-scenario' },
+                    e('div', { style: { fontSize: '1.3rem', fontWeight: 'bold', marginBottom: '10px' } }, event.title),
+                    e('p', null, event.scenario)
+                ),
+                !responded ? 
+                    e('div', { className: 'card' },
+                        e('h3', null, 'What Do You Do?'),
+                        e('div', { className: 'choice-buttons' },
+                            event.choices.map((c) =>
+                                e('button', {
+                                    key: c.text,
+                                    className: 'choice-btn',
+                                    onClick: () => { setChoice(c.text); setResponded(true); }
+                                }, c.text)
+                            )
+                        )
+                    )
+                :
+                    e('div', { className: 'card' },
+                        e('div', { className: 'consequence' },
+                            e('div', { style: { fontWeight: '700', marginBottom: '8px', color: '#6366f1' } }, '🎯 What Happens'),
+                            e('p', null, selectedChoice.consequence)
+                        ),
+                        e('button', {
+                            onClick: onContinue,
+                            className: 'btn btn-primary',
+                            style: { marginTop: '20px', width: '100%' }
+                        }, 'See Your Report →')
+                    )
+            );
+        }
+
+        // GrowthReport Component
+        function GrowthReport({ business, platforms, pillars, understanding, onRestart }) {
+            const lessons = [
+                { lesson: 'Consistency Beats Virality', explanation: 'You don\'t need 1M followers. Show up weekly for a year.' },
+                { lesson: 'Niche Down to Scale Up', explanation: 'Pick a specific audience and own that space.' },
+                { lesson: 'Authenticity Wins', explanation: 'Your real story beats any polished fake-out.' },
+            ];
+
+            return e('div', { className: 'container' },
+                e('div', { className: 'header' },
+                    e('h1', null, '📈 Your Growth Report'),
+                ),
+                e('div', { className: 'card highlight' },
+                    e('h2', null, 'Your Strategy'),
+                    e('div', { className: 'grid-2' },
+                        e('div', { className: 'stat-card' },
+                            e('div', { className: 'stat-label' }, 'Brand'),
+                            e('div', { className: 'stat-value' }, business.name)
+                        ),
+                        e('div', { className: 'stat-card' },
+                            e('div', { className: 'stat-label' }, 'Audience'),
+                            e('div', { className: 'stat-value', style: { fontSize: '1.2rem' } }, business.targetAudience)
+                        ),
+                        e('div', { className: 'stat-card' },
+                            e('div', { className: 'stat-label' }, 'Platforms'),
+                            e('div', { className: 'stat-value', style: { fontSize: '1rem' } }, platforms.join(', '))
+                        ),
+                        e('div', { className: 'stat-card' },
+                            e('div', { className: 'stat-label' }, 'Pillars'),
+                            e('div', { className: 'stat-value', style: { fontSize: '1rem' } }, pillars.slice(0, 2).join(', ') + '...')
+                        )
+                    )
+                ),
+                e('div', { className: 'card' },
+                    e('h3', null, '📚 Three Marketing Lessons'),
+                    lessons.map((l, i) =>
+                        e('div', { key: i, className: 'lesson-item' },
+                            e('div', { style: { color: '#a78bfa', fontWeight: '700' } }, `${i + 1}. ${l.lesson}`),
+                            e('p', { style: { marginTop: '8px', color: '#cbd5e1' } }, l.explanation)
+                        )
+                    )
+                ),
+                e('button', {
+                    onClick: onRestart,
+                    className: 'btn btn-primary',
+                    style: { width: '100%', marginTop: '30px', padding: '15px' }
+                }, '🔄 Start Again')
+            );
+        }
+
+        // Main App Component
+        function App() {
+            const [step, setStep] = useState('mode');
+            const [mode, setMode] = useState('');
+            const [business, setBusiness] = useState(null);
+            const [understanding, setUnderstanding] = useState(null);
+            const [platforms, setPlatforms] = useState(null);
+            const [pillars, setPillars] = useState(null);
+
+            const handleModeSelect = (selected) => {
+                setMode(selected);
+                if (selected === 'client') {
+                    setBusiness(generateRandomBusiness());
+                    setStep('understanding');
+                } else {
+                    setStep('input');
+                }
+            };
+
+            const handleBusinessInput = (data) => {
+                setBusiness(data);
+                setStep('understanding');
+            };
+
+            return e(React.Fragment, null,
+                step === 'mode' && e(ModeSelection, { onSelect: handleModeSelect }),
+                step === 'input' && mode && e(BusinessInput, { mode: mode, onSubmit: handleBusinessInput }),
+                step === 'understanding' && business && e(AudienceUnderstanding, { business: business, onContinue: (data) => { setUnderstanding(data); setStep('platforms'); } }),
+                step === 'platforms' && business && e(PlatformSelection, { business: business, onContinue: (data) => { setPlatforms(data); setStep('pillars'); } }),
+                step === 'pillars' && business && e(ContentPillars, { business: business, onContinue: (data) => { setPillars(data); setStep('roadmap'); } }),
+                step === 'roadmap' && business && pillars && e(ContentRoadmap, { business: business, pillars: pillars, onContinue: () => setStep('event') }),
+                step === 'event' && business && e(MarketingEvent, { business: business, onContinue: () => setStep('report') }),
+                step === 'report' && business && understanding && platforms && pillars && e(GrowthReport, { business: business, platforms: platforms, pillars: pillars, understanding: understanding, onRestart: () => { setStep('mode'); setMode(''); setBusiness(null); setUnderstanding(null); setPlatforms(null); setPillars(null); } })
+            );
+        }
+
+        // Render App
+        ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+    </script>
+</body>
+</html>
