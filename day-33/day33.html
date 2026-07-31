@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Integrity Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF6B35;
+            --primary-light: #FF8C5A;
+            --primary-dark: #E55A2B;
+            --bg-dark: #0F1419;
+            --bg-card: #1A2332;
+            --bg-light: #252E3E;
+            --text-primary: #F5F7FA;
+            --text-secondary: #B8C5D6;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #F44336;
+            --border: #2D3E52;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a2f4a 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: 30px 0;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-light);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+
+        /* Metrics Display */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+            animation: slideUp 0.6s ease;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-color: var(--primary);
+            background: rgba(255, 107, 53, 0.05);
+            transform: translateY(-3px);
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Section */
+        .section {
+            display: none;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 35px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .section-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 40px rgba(255, 107, 53, 0.1);
+        }
+
+        .section-card h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .concept-box {
+            background: rgba(255, 107, 53, 0.08);
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .concept-box h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .concept-box p {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        /* Challenge Content */
+        .challenge-content {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+        }
+
+        .challenge-content.headline {
+            border-left: 4px solid var(--primary);
+        }
+
+        .headline-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        .article-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin: 15px 0;
+            padding: 15px;
+            background: var(--bg-dark);
+            border-radius: 8px;
+        }
+
+        .social-post {
+            background: var(--bg-dark);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Questions */
+        .question-group {
+            margin: 25px 0;
+        }
+
+        .question-group label {
+            display: block;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 20px;
+            border: 2px solid var(--border);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--bg-dark);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--bg-dark);
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.3);
+        }
+
+        /* Textarea */
+        textarea {
+            width: 100%;
+            padding: 15px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
+        }
+
+        /* Analysis Results */
+        .analysis-section {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 25px;
+            border: 1px solid var(--border);
+        }
+
+        .analysis-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .analysis-section h3::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .highlight-text {
+            padding: 15px;
+            background: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid var(--danger);
+            border-radius: 6px;
+            margin: 12px 0;
+            color: var(--text-secondary);
+        }
+
+        .highlight-text.positive {
+            background: rgba(76, 175, 80, 0.1);
+            border-left-color: var(--success);
+        }
+
+        .neutral-rewrite {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            color: var(--text-secondary);
+        }
+
+        .neutral-rewrite strong {
+            color: var(--success);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .key-takeaway {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            color: var(--text-secondary);
+        }
+
+        .key-takeaway strong {
+            color: var(--warning);
+        }
+
+        /* Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .dashboard-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(255, 107, 53, 0.15);
+        }
+
+        .dashboard-title {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .dashboard-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .learning-list {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .learning-list li {
+            padding: 12px 0;
+            padding-left: 28px;
+            color: var(--text-secondary);
+            position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .learning-list li:last-child {
+            border-bottom: none;
+        }
+
+        .learning-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .section-card {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📰 Media Integrity Analyzer</h1>
+            <p>Learn to spot manipulation and think critically about what you see online</p>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-label">
+                <span>Your Progress</span>
+                <span id="progress-text">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="metrics-grid" id="metricsGrid">
+            <div class="metric-card">
+                <div class="metric-label">Headline Accuracy</div>
+                <div class="metric-value" id="headlineAccuracy">0%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Source Reliability</div>
+                <div class="metric-value" id="sourceReliability">0%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Emotional Manipulation</div>
+                <div class="metric-value" id="emotionalManipulation">0%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Audience Targeting</div>
+                <div class="metric-value" id="audienceTargeting">0%</div>
+            </div>
+        </div>
+
+        <!-- Intro Section -->
+        <div class="section active" id="intro">
+            <div class="section-card">
+                <h2>Welcome to Media Literacy</h2>
+                <div class="concept-box">
+                    <h3>What is Media Integrity?</h3>
+                    <p><strong>Media integrity</strong> means honest, accurate information presented fairly. In our world of endless information, learning to spot manipulation is a superpower.</p>
+                    <p>Every day, you encounter hundreds of headlines, posts, and videos—many designed to get your attention by triggering emotion rather than informing you. Your mission: become a critical media consumer who questions, analyzes, and thinks for yourself.</p>
+                    <p><strong>Why it matters:</strong> Misinformation spreads faster than truth. By developing these skills, you protect yourself and others from manipulation.</p>
+                </div>
+                <p style="color: var(--text-secondary); margin-top: 20px;">Let's explore two common manipulation techniques through real-world scenarios.</p>
+                <button class="btn-primary" onclick="nextSection()" style="width: 100%; margin-top: 25px;">Start Challenge 1</button>
+            </div>
+        </div>
+
+        <!-- Challenge 1: Headline Detective -->
+        <div class="section" id="challenge1">
+            <div class="section-card">
+                <h2>Challenge 1: Headline Detective</h2>
+                <div class="concept-box">
+                    <h3>Understanding Headline Manipulation</h3>
+                    <p>Headlines are designed to make you click. Often, they exaggerate, mislead, or take things out of context to trigger a strong emotional response.</p>
+                    <p><strong>Common tactics:</strong> Using "shocking" words like "SHOCKING," "UNBELIEVABLE," or "YOU WON'T BELIEVE" — fake quotation marks — false statistics — out-of-context quotes</p>
+                    <p><strong>Why it matters:</strong> Most people share articles without reading them. A misleading headline shapes public opinion before anyone knows the full story.</p>
+                </div>
+
+                <div class="challenge-content headline">
+                    <div class="headline-title" id="headline">"SHOCKING: New Study Shows Coffee Will Give You Superpowers by 2025"</div>
+                    <div class="article-text">
+                        A recent wellness study examined caffeine's effects on cognitive function. Researchers found that moderate coffee consumption (2-3 cups daily) correlated with improved focus and alertness in test subjects. The study, conducted by the Wellness Institute over 6 months with 150 participants, showed measurable improvements in concentration tasks. "We observed positive trends in mental clarity," said Dr. Sarah Chen, lead researcher. Experts caution that results vary by individual and that excessive coffee can have negative effects. The study did not examine long-term health impacts.
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <label>Would you click and share this headline?</label>
+                    <div class="button-group">
+                        <button class="btn" onclick="setChoice('yes')">Yes</button>
+                        <button class="btn" onclick="setChoice('maybe')">Maybe</button>
+                        <button class="btn" onclick="setChoice('no')">No</button>
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <label>What's exaggerated or misleading? (Your observations)</label>
+                    <textarea id="observations" placeholder="What words or claims stand out as suspicious? What's missing from the headline?"></textarea>
+                </div>
+
+                <button class="btn-primary" onclick="revealChallenge1Analysis()">Reveal Analysis</button>
+
+                <div id="challenge1Analysis" style="display: none;">
+                    <div class="analysis-section">
+                        <h3>Headline Accuracy Score: 35%</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 15px;">This headline is a textbook example of clickbait—using exaggeration and false claims to attract clicks.</p>
+
+                        <h3>What Went Wrong</h3>
+                        <div class="highlight-text">
+                            <strong>"SHOCKING"</strong> — Sensationalist language designed to trigger alarm and curiosity
+                        </div>
+                        <div class="highlight-text">
+                            <strong>"SUPERPOWERS"</strong> — Grossly exaggerates actual findings (improved focus ≠ superpowers)
+                        </div>
+                        <div class="highlight-text">
+                            <strong>"BY 2025"</strong> — Adds urgency and specificity that doesn't exist in the study
+                        </div>
+
+                        <div class="neutral-rewrite">
+                            <strong>Fair Rewritten Headline:</strong>
+                            "Study: Moderate Coffee Consumption Linked to Improved Focus"
+                        </div>
+
+                        <div class="key-takeaway">
+                            <strong>🎯 Key Takeaway:</strong> Real science doesn't need superlatives. When a headline uses words like "SHOCKING," "UNBELIEVABLE," or makes extreme claims, check the source. Good journalism reports findings accurately, not dramatically.
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" onclick="nextSection()" style="width: 100%; margin-top: 25px;">Next Challenge</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenge 2: Emotion Detector -->
+        <div class="section" id="challenge2">
+            <div class="section-card">
+                <h2>Challenge 2: Emotion Detector</h2>
+                <div class="concept-box">
+                    <h3>Understanding Emotional Manipulation</h3>
+                    <p>Content creators use specific words and framing to make you <em>feel</em> something before you <em>think</em> something. Emotions drive engagement and sharing.</p>
+                    <p><strong>Common techniques:</strong> Fear-based language — us-vs-them narratives — loaded adjectives — moral outrage — exclusivity ("You won't believe...")</p>
+                    <p><strong>Why it matters:</strong> When we're emotionally triggered, our critical thinking shuts down. We're more likely to share, comment, and believe what we're told.</p>
+                </div>
+
+                <div class="challenge-content headline">
+                    <div class="social-post" id="socialPost">
+                        "LEAKED: Big Tech is SECRETLY collecting your data RIGHT NOW and they don't want you to know! 😱 Tech companies are destroying our privacy while the government does NOTHING. They're basically spying on every single thing you do. It's absolutely infuriating! Wake up, people! Share this so everyone knows the TRUTH they're hiding from us! 🚨"
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <label>How did this post make you feel?</label>
+                    <div class="button-group">
+                        <button class="btn" onclick="setEmotion('angry')">Angry</button>
+                        <button class="btn" onclick="setEmotion('afraid')">Afraid</button>
+                        <button class="btn" onclick="setEmotion('curious')">Curious</button>
+                        <button class="btn" onclick="setEmotion('skeptical')">Skeptical</button>
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <label>Which specific words or phrases triggered that feeling?</label>
+                    <textarea id="emotionAnalysis" placeholder="What words made you react? Which phrases stood out as emotionally charged?"></textarea>
+                </div>
+
+                <button class="btn-primary" onclick="revealChallenge2Analysis()">Reveal Analysis</button>
+
+                <div id="challenge2Analysis" style="display: none;">
+                    <div class="analysis-section">
+                        <h3>Manipulation Technique: Emotional Hijacking</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 15px;">This post uses fear, outrage, and in-group language to trigger quick emotional reactions rather than thoughtful engagement.</p>
+
+                        <h3>Highlighted Emotional Phrases</h3>
+                        <div class="highlight-text">
+                            <strong>"SECRETLY collecting"</strong> — Implies conspiracy and hidden wrongdoing
+                        </div>
+                        <div class="highlight-text">
+                            <strong>"don't want you to know"</strong> — Us-vs-them framing (we're the victims, they're the villains)
+                        </div>
+                        <div class="highlight-text">
+                            <strong>"destroying our privacy"</strong> — Extreme language, existential threat framing
+                        </div>
+                        <div class="highlight-text">
+                            <strong>"Wake up, people!"</strong> — Suggests others are asleep/blind; creates in-group of the "informed"
+                        </div>
+                        <div class="highlight-text">
+                            <strong>"TRUTH they're hiding"</strong> — Implies the post has special knowledge; creates urgency to share
+                        </div>
+
+                        <div class="neutral-rewrite">
+                            <strong>Neutral Version:</strong>
+                            "Many tech companies collect user data. Privacy experts recommend reviewing your privacy settings and understanding what information you share online. Here's how to check your data permissions..."
+                        </div>
+
+                        <div class="key-takeaway">
+                            <strong>🎯 Key Takeaway:</strong> Emotional language isn't bad—it's a tool. The question is: Is it used to inform you or to bypass your thinking? Real information doesn't need all-caps, emojis, and outrage. Notice when content tries to make you feel before it helps you understand.
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" onclick="nextSection()" style="width: 100%; margin-top: 25px;">View Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="section" id="dashboard">
+            <div class="section-card">
+                <h2>Your Media Literacy Dashboard</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 25px;">You've completed your media literacy exploration. Here's what you discovered:</p>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-item">
+                        <div class="dashboard-title">Overall Media Integrity Score</div>
+                        <div class="dashboard-value" id="overallScore">78%</div>
+                        <div class="dashboard-subtitle">Critical thinking level</div>
+                    </div>
+                    <div class="dashboard-item">
+                        <div class="dashboard-title">Red Flags Detected</div>
+                        <div class="dashboard-value" id="redFlagCount">7</div>
+                        <div class="dashboard-subtitle">Manipulation techniques spotted</div>
+                    </div>
+                    <div class="dashboard-item">
+                        <div class="dashboard-title">Credibility Assessment</div>
+                        <div class="dashboard-value" id="credibility">Better</div>
+                        <div class="dashboard-subtitle">You're thinking critically</div>
+                    </div>
+                </div>
+
+                <div class="analysis-section">
+                    <h3>What You Learned</h3>
+                    <ul class="learning-list">
+                        <li>Sensational headlines use exaggeration to bypass your critical thinking</li>
+                        <li>Emotional language is a tool to make you react before you think</li>
+                        <li>Real information doesn't need ALL-CAPS, multiple emojis, or outrage</li>
+                        <li>Good journalism reports findings accurately without drama</li>
+                        <li>Your feelings are data—notice when content triggers strong emotions</li>
+                        <li>The cure for misinformation is curiosity, not anger</li>
+                        <li>Sharing without reading makes you part of the problem</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-section">
+                    <h3>Your Biggest Red Flags</h3>
+                    <div class="key-takeaway">
+                        <strong>1. Sensationalist Language:</strong> Words like "SHOCKING," "DEVASTATING," "UNBELIEVABLE" are designed to manipulate, not inform.
+                    </div>
+                    <div class="key-takeaway">
+                        <strong>2. Us-vs-Them Narratives:</strong> Posts that say "Wake up!" or "They don't want you to know" create false divisions and urgency.
+                    </div>
+                    <div class="key-takeaway">
+                        <strong>3. Emotion Before Facts:</strong> If content makes you angry/afraid before it explains something, pause and think.
+                    </div>
+                </div>
+
+                <div class="analysis-section">
+                    <h3>Three Practical Media Literacy Habits</h3>
+                    <ol style="list-style: none; padding: 0;">
+                        <li style="padding: 15px 0; border-bottom: 1px solid var(--border); color: var(--text-secondary);">
+                            <strong style="color: var(--primary);">1. The Pause Before Share:</strong> Before sharing any post or article, read it completely. Notice the language. Ask: "Is this informing me or manipulating me?"
+                        </li>
+                        <li style="padding: 15px 0; border-bottom: 1px solid var(--border); color: var(--text-secondary);">
+                            <strong style="color: var(--primary);">2. The Emotion Check:</strong> When content triggers strong feelings (anger, fear, outrage), that's your cue to investigate. What exactly am I feeling? Why? Is it because of facts or framing?
+                        </li>
+                        <li style="padding: 15px 0; color: var(--text-secondary);">
+                            <strong style="color: var(--primary);">3. The Source Hunt:</strong> Always trace content to its origin. Who created this? What's their incentive? What's the evidence? Reliable sources cite their work.
+                        </li>
+                    </ol>
+                </div>
+
+                <button class="btn-primary" onclick="resetAll()" style="width: 100%; margin-top: 25px;">Start Over with New Scenarios</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSection = 'intro';
+        let challenge1Choice = null;
+        let challenge2Emotion = null;
+
+        function updateProgress() {
+            const sections = ['intro', 'challenge1', 'challenge2', 'dashboard'];
+            const current = sections.indexOf(currentSection);
+            const progress = ((current + 1) / sections.length) * 100;
+            
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = Math.round(progress) + '%';
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            currentSection = sectionId;
+            updateProgress();
+            updateMetrics();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function nextSection() {
+            if (currentSection === 'intro') {
+                showSection('challenge1');
+            } else if (currentSection === 'challenge1') {
+                showSection('challenge2');
+            } else if (currentSection === 'challenge2') {
+                showSection('dashboard');
+            }
+        }
+
+        function setChoice(choice) {
+            challenge1Choice = choice;
+            document.querySelectorAll('#challenge1 .btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function setEmotion(emotion) {
+            challenge2Emotion = emotion;
+            document.querySelectorAll('#challenge2 .btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function revealChallenge1Analysis() {
+            if (!document.getElementById('observations').value.trim()) {
+                alert('Please share your observations first');
+                return;
+            }
+            document.getElementById('challenge1Analysis').style.display = 'block';
+            updateMetrics();
+        }
+
+        function revealChallenge2Analysis() {
+            if (!document.getElementById('emotionAnalysis').value.trim()) {
+                alert('Please identify the emotional phrases first');
+                return;
+            }
+            document.getElementById('challenge2Analysis').style.display = 'block';
+            updateMetrics();
+        }
+
+        function updateMetrics() {
+            const section = currentSection;
+            let headlineScore = 0;
+            let sourceScore = 0;
+            let emotionalScore = 0;
+            let audienceScore = 0;
+
+            if (section === 'intro') {
+                headlineScore = 25;
+                sourceScore = 20;
+                emotionalScore = 15;
+                audienceScore = 20;
+            } else if (section === 'challenge1') {
+                headlineScore = 60;
+                sourceScore = 40;
+                emotionalScore = 30;
+                audienceScore = 35;
+                if (challenge1Choice === 'no') headlineScore = 75;
+                if (document.getElementById('challenge1Analysis').style.display === 'block') {
+                    headlineScore = 85;
+                    sourceScore = 70;
+                    emotionalScore = 60;
+                    audienceScore = 65;
+                }
+            } else if (section === 'challenge2') {
+                headlineScore = 85;
+                sourceScore = 75;
+                emotionalScore = 70;
+                audienceScore = 75;
+                if (challenge2Emotion === 'skeptical') emotionalScore = 80;
+                if (document.getElementById('challenge2Analysis').style.display === 'block') {
+                    headlineScore = 95;
+                    sourceScore = 85;
+                    emotionalScore = 90;
+                    audienceScore = 88;
+                }
+            } else if (section === 'dashboard') {
+                headlineScore = 95;
+                sourceScore = 85;
+                emotionalScore = 90;
+                audienceScore = 88;
+            }
+
+            animateValue('headlineAccuracy', headlineScore);
+            animateValue('sourceReliability', sourceScore);
+            animateValue('emotionalManipulation', emotionalScore);
+            animateValue('audienceTargeting', audienceScore);
+
+            const overall = Math.round((headlineScore + sourceScore + emotionalScore + audienceScore) / 4);
+            animateValue('overallScore', overall, '%');
+        }
+
+        function animateValue(elementId, target, suffix = '%') {
+            const element = document.getElementById(elementId);
+            let current = 0;
+            const increment = target / 20;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target + suffix;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.round(current) + suffix;
+                }
+            }, 20);
+        }
+
+        function resetAll() {
+            challenge1Choice = null;
+            challenge2Emotion = null;
+            document.getElementById('observations').value = '';
+            document.getElementById('emotionAnalysis').value = '';
+            document.getElementById('challenge1Analysis').style.display = 'none';
+            document.getElementById('challenge2Analysis').style.display = 'none';
+            document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+            showSection('challenge1');
+        }
+
+        // Initialize
+        updateProgress();
+        updateMetrics();
+    </script>
+</body>
+</html>
