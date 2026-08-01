@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Detective</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-green: #2d5016;
+            --accent-green: #4a7c2e;
+            --light-green: #7cb342;
+            --highlight-green: #a8d577;
+            --dark-bg: #0f1419;
+            --card-bg: #1a1f2e;
+            --text-light: #e8e8e8;
+            --text-muted: #a0a0a0;
+            --paper-cream: #f5f1e8;
+            --cork-brown: #8b6f47;
+            --pin-red: #c41e3a;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1f2e 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Main Layout */
+        #app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .title {
+            font-size: 3em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            color: var(--highlight-green);
+            text-shadow: 0 0 20px rgba(168, 213, 119, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1em;
+            letter-spacing: 1px;
+        }
+
+        /* Welcome Screen */
+        .welcome-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            gap: 30px;
+        }
+
+        .welcome-text {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .welcome-text h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: var(--light-green);
+        }
+
+        .welcome-text p {
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        /* Case Assignment Screen */
+        .assignment-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            gap: 40px;
+        }
+
+        .case-file {
+            background: linear-gradient(135deg, var(--card-bg), #252d3d);
+            border: 2px solid var(--accent-green);
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: var(--shadow), inset 0 0 20px rgba(74, 124, 46, 0.1);
+            position: relative;
+        }
+
+        .case-file::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 30px;
+            width: 60px;
+            height: 8px;
+            background: var(--cork-brown);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .case-number {
+            color: var(--light-green);
+            font-size: 0.9em;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .case-title {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+        }
+
+        .case-description {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .case-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
+
+        .case-detail {
+            background: rgba(74, 124, 46, 0.1);
+            padding: 12px;
+            border-left: 3px solid var(--light-green);
+            border-radius: 4px;
+        }
+
+        .detail-label {
+            color: var(--text-muted);
+            font-size: 0.8em;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            color: var(--highlight-green);
+            font-weight: 600;
+        }
+
+        /* Investigation Board */
+        .investigation-container {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .evidence-sidebar {
+            width: 280px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--accent-green);
+            border-radius: 8px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .sidebar-title {
+            color: var(--light-green);
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .evidence-item {
+            background: var(--paper-cream);
+            color: #333;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            cursor: grab;
+            font-size: 0.9em;
+            border-left: 4px solid var(--light-green);
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .evidence-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(74, 124, 46, 0.3);
+        }
+
+        .evidence-item.dragging {
+            opacity: 0.6;
+        }
+
+        .board-area {
+            flex: 1;
+            background: linear-gradient(135deg, rgba(45, 80, 22, 0.1), rgba(74, 124, 46, 0.05));
+            border: 2px dashed var(--accent-green);
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+            min-height: 600px;
+        }
+
+        .board-title {
+            position: absolute;
+            top: -30px;
+            left: 0;
+            color: var(--light-green);
+            font-size: 1.1em;
+            letter-spacing: 1px;
+        }
+
+        .dropped-evidence {
+            background: var(--paper-cream);
+            color: #333;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px;
+            display: inline-block;
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            border-left: 4px solid var(--light-green);
+            min-width: 150px;
+            font-size: 0.9em;
+        }
+
+        .dropped-evidence.rotating {
+            transform: rotate(-1deg);
+        }
+
+        .board-note {
+            background: var(--paper-cream);
+            color: #333;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px;
+            position: relative;
+            max-width: 250px;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .push-pin {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--pin-red);
+            border-radius: 50%;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 8px rgba(196, 30, 58, 0.4);
+        }
+
+        /* Question & Clues Screen */
+        .investigation-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .investigation-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            flex: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .investigation-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .question-panel {
+            background: linear-gradient(135deg, var(--card-bg), #252d3d);
+            border: 2px solid var(--accent-green);
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .panel-title {
+            color: var(--light-green);
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            color: var(--text-light);
+        }
+
+        .clues-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .clue {
+            background: rgba(74, 124, 46, 0.1);
+            border: 1px solid var(--accent-green);
+            border-radius: 6px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .clue:hover {
+            background: rgba(74, 124, 46, 0.2);
+            transform: translateX(5px);
+        }
+
+        .clue-number {
+            color: var(--light-green);
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .clue-text {
+            color: var(--text-muted);
+            font-size: 0.95em;
+        }
+
+        .answer-section {
+            background: linear-gradient(135deg, var(--card-bg), #252d3d);
+            border: 2px solid var(--accent-green);
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--accent-green);
+            border-radius: 6px;
+            color: var(--text-light);
+            font-size: 1em;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            background: rgba(168, 213, 119, 0.1);
+            border-color: var(--light-green);
+            box-shadow: 0 0 10px rgba(168, 213, 119, 0.2);
+        }
+
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            background: rgba(74, 124, 46, 0.1);
+            border: 2px solid var(--accent-green);
+            border-radius: 6px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option:hover {
+            background: rgba(74, 124, 46, 0.2);
+            border-color: var(--light-green);
+        }
+
+        .option.selected {
+            background: rgba(168, 213, 119, 0.2);
+            border-color: var(--light-green);
+        }
+
+        .option-radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--light-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .option.selected .option-radio {
+            background: var(--light-green);
+        }
+
+        .option.selected .option-radio::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--dark-bg);
+            border-radius: 50%;
+        }
+
+        /* Result Screen */
+        .result-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            flex: 1;
+        }
+
+        .result-status {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, var(--card-bg), #252d3d);
+            border-radius: 8px;
+            border: 2px solid var(--accent-green);
+        }
+
+        .result-status.correct {
+            border-color: var(--light-green);
+            background: linear-gradient(135deg, rgba(74, 124, 46, 0.2), rgba(123, 195, 66, 0.1));
+        }
+
+        .result-status.incorrect {
+            border-color: #c41e3a;
+            background: linear-gradient(135deg, rgba(196, 30, 58, 0.1), rgba(196, 30, 58, 0.05));
+        }
+
+        .result-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .result-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: var(--light-green);
+        }
+
+        .result-message {
+            color: var(--text-muted);
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .explanation-box {
+            background: rgba(74, 124, 46, 0.1);
+            border-left: 4px solid var(--light-green);
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .explanation-title {
+            color: var(--light-green);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .explanation-text {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Learning Report */
+        .report-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            flex: 1;
+        }
+
+        .report-card {
+            background: linear-gradient(135deg, var(--card-bg), #252d3d);
+            border: 2px solid var(--accent-green);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .report-card-title {
+            color: var(--light-green);
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .report-card ul {
+            list-style: none;
+            color: var(--text-muted);
+        }
+
+        .report-card li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .report-card li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--light-green);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 15px 40px;
+            border: 2px solid var(--light-green);
+            background: transparent;
+            color: var(--light-green);
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background: var(--light-green);
+            color: var(--dark-bg);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(168, 213, 119, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-green), var(--light-green));
+            color: var(--dark-bg);
+            border-color: var(--light-green);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--light-green), var(--highlight-green));
+            box-shadow: 0 8px 20px rgba(123, 195, 66, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Progress Indicator */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(74, 124, 46, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-green), var(--light-green));
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(168, 213, 119, 0.5);
+        }
+
+        .progress-text {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: rgba(74, 124, 46, 0.1);
+            border: 1px solid var(--accent-green);
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8em;
+            color: var(--light-green);
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.8em;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2em;
+            }
+
+            .investigation-content {
+                grid-template-columns: 1fr;
+            }
+
+            .case-details {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        // ==================== MARKETING CASES ====================
+        const marketingCases = [
+            {
+                id: 1,
+                company: "TechFlow Solutions",
+                industry: "SaaS",
+                objective: "Launch new B2B automation platform",
+                audience: "Enterprise IT managers and CTOs",
+                channels: ["LinkedIn", "Email", "Webinars", "Industry Events"],
+                budget: "$500K",
+                metrics: {
+                    reach: "125K",
+                    ctr: "2.3%",
+                    engagement: "5,600 interactions",
+                    conversions: "340 sign-ups",
+                    sales: "$2.1M"
+                },
+                comments: ["Great webinar content", "Email felt generic", "Pricing confusion on website", "Sales team loved the leads"],
+                socialPerf: "LinkedIn performed 4x better than email",
+                mistake: "Ignored mobile optimization - 60% of audience used mobile",
+                clues: [
+                    "CTR was good but conversion dropped significantly on mobile",
+                    "75% of webinar attendees accessed via mobile devices",
+                    "Email landing page had poor mobile UX"
+                ],
+                explanation: "The campaign invested heavily in generating awareness across channels, but failed to optimize the conversion experience for mobile devices. Even though traffic was strong, potential customers couldn't effectively navigate or complete sign-ups on their phones.",
+                improvements: [
+                    "Implement responsive design across all landing pages",
+                    "Create mobile-specific email templates",
+                    "Test all webinar resources on mobile before launch"
+                ]
+            },
+            {
+                id: 2,
+                company: "EcoWear Apparel",
+                industry: "Fashion",
+                objective: "Establish sustainable fashion brand positioning",
+                audience: "Eco-conscious millennials and Gen Z",
+                channels: ["Instagram", "TikTok", "YouTube", "Influencer Partners"],
+                budget: "$300K",
+                metrics: {
+                    reach: "2.3M",
+                    ctr: "8.7%",
+                    engagement: "145K likes and comments",
+                    conversions: "8,900 purchases",
+                    sales: "$890K"
+                },
+                comments: ["Love the sustainability message", "Prices too high", "Influencer picks felt inauthentic", "Great aesthetic"],
+                socialPerf: "TikTok went viral with 1.2M views on top video",
+                mistake: "Partnered with influencers whose values contradicted brand message",
+                clues: [
+                    "Influencer followers were mostly buying fast fashion brands",
+                    "Comments questioned authenticity of influencer partnerships",
+                    "Audience skepticism about 'greenwashing'"
+                ],
+                explanation: "While the campaign generated significant engagement and reached millions, the influencer selections undermined the core sustainability message. Partnering with influencers known for promoting fast fashion created cognitive dissonance and damaged trust with the target audience.",
+                improvements: [
+                    "Partner with micro-influencers genuinely committed to sustainability",
+                    "Vet influencer audiences for brand alignment",
+                    "Create co-designed content with influencers sharing sustainability values"
+                ]
+            },
+            {
+                id: 3,
+                company: "HealthHub Clinic",
+                industry: "Healthcare",
+                objective: "Drive patient acquisition and telehealth adoption",
+                audience: "Busy professionals aged 25-50",
+                channels: ["Facebook Ads", "Google Search", "Local SEO", "Email"],
+                budget: "$200K",
+                metrics: {
+                    reach: "450K",
+                    ctr: "1.8%",
+                    engagement: "3,200 bookings",
+                    conversions: "2,100 new patients",
+                    sales: "$1.4M"
+                },
+                comments: ["Easy to book appointment", "Waited too long for telehealth callback", "Great ads on Facebook", "Confusing privacy policies"],
+                socialPerf: "Facebook ads converted at 2.1% but email was forgotten",
+                mistake: "Neglected email nurture sequence - no follow-up for interested prospects",
+                clues: [
+                    "80% of email list never received second communication",
+                    "Ad clickers had low conversion without email reinforcement",
+                    "Patient acquisition cost was 35% higher than industry benchmark"
+                ],
+                explanation: "The paid advertising was effective at generating interest and traffic, but the campaign lacked a nurture strategy. Without email follow-up, most interested prospects forgot about the clinic and opted for competitors with persistent outreach.",
+                improvements: [
+                    "Implement automated email nurture sequences (3-5 emails over 10 days)",
+                    "Create educational content about telehealth benefits",
+                    "Retarget interested prospects across platforms"
+                ]
+            },
+            {
+                id: 4,
+                company: "CoffeeBean Roasters",
+                industry: "Food & Beverage",
+                objective: "Launch subscription coffee delivery service",
+                audience: "Premium coffee enthusiasts and busy professionals",
+                channels: ["Instagram", "Newsletter", "Partnerships", "In-store"],
+                budget: "$150K",
+                metrics: {
+                    reach: "280K",
+                    ctr: "6.2%",
+                    engagement: "12K shares and saves",
+                    conversions: "3,400 subscriptions",
+                    sales: "$510K"
+                },
+                comments: ["First delivery quality was excellent", "Subscribe box felt overpriced", "Love the flavor notes", "Too many promotional emails"],
+                socialPerf: "Instagram Reels got 800K impressions, 12% engagement",
+                mistake: "Over-aggressive email marketing alienated new subscribers",
+                clues: [
+                    "Unsubscribe rate hit 45% within first month",
+                    "Daily promotional emails overwhelmed subscribers",
+                    "Retention dropped 60% after initial purchase"
+                ],
+                explanation: "The acquisition campaign was incredibly successful - Instagram content went viral and attracted high-quality subscribers. However, the email retention strategy backfired. New customers received promotional emails every single day, creating decision fatigue and prompting mass unsubscribes.",
+                improvements: [
+                    "Establish clear email cadence - no more than 2-3 per week",
+                    "Segment subscribers by roast preference and adjust content",
+                    "Create value-first emails: brewing tips, flavor stories, not just promotions"
+                ]
+            },
+            {
+                id: 5,
+                company: "FitPro Gym Franchise",
+                industry: "Fitness",
+                objective: "Increase gym membership signups in new market",
+                audience: "Fitness beginners aged 20-40",
+                channels: ["Local Facebook/Instagram", "Google Ads", "Community Events"],
+                budget: "$180K",
+                metrics: {
+                    reach: "320K",
+                    ctr: "3.1%",
+                    engagement: "4,800 event attendees",
+                    conversions: "1,200 memberships",
+                    sales: "$420K"
+                },
+                comments: ["Great community vibe", "Equipment seemed outdated in photos", "Staff was helpful", "Hidden fees in contract"],
+                socialPerf: "Event ads drove 4,800 in-person attendees",
+                mistake: "Marketing materials didn't match actual gym conditions",
+                clues: [
+                    "Gym photos were from flagship location, not actual gym",
+                    "In-person visitors expected different experience than ads showed",
+                    "30-day cancel rate was 22% due to expectation mismatch"
+                ],
+                explanation: "While the campaign successfully brought people through the door, the marketing materials showed the flagship gym location rather than the actual facility. New members felt deceived, leading to high cancellation rates and negative word-of-mouth despite strong initial conversion.",
+                improvements: [
+                    "Use authentic photos and videos from actual location",
+                    "Set clear expectations about equipment and amenities",
+                    "Feature real member testimonials from your location",
+                    "Create virtual tours before in-person visits"
+                ]
+            },
+            {
+                id: 6,
+                company: "DataShield Security",
+                industry: "Cybersecurity",
+                objective: "Position as thought leader, generate qualified B2B leads",
+                audience: "Fortune 500 IT security directors",
+                channels: ["LinkedIn", "Webinars", "Industry Reports", "Podcasts"],
+                budget: "$350K",
+                metrics: {
+                    reach: "85K",
+                    ctr: "5.8%",
+                    engagement: "4,200 report downloads",
+                    conversions: "280 enterprise demos",
+                    sales: "$4.7M"
+                },
+                comments: ["Thought leadership was impressive", "Demo experience was slow", "Podcast guests were too niche", "Great ROI for long sales cycle"],
+                socialPerf: "LinkedIn articles averaged 12K views per post",
+                mistake: "Generated highly qualified leads but failed to convert - sales team not prepared",
+                clues: [
+                    "Sales team received 280 leads but converted only 12",
+                    "Demo follow-up took 8-12 days instead of 24 hours",
+                    "Leads were perfectly qualified but lost to competition"
+                ],
+                explanation: "The marketing campaign was exceptionally effective at generating interest from the right target audience - Fortune 500 companies. However, the sales team wasn't equipped to handle the influx of high-value leads. Slow follow-up and unpreparedness allowed competitors to engage prospects first.",
+                improvements: [
+                    "Align sales team with marketing timeline before campaign launch",
+                    "Create rapid-response demo team for enterprise inquiries",
+                    "Implement 4-hour follow-up SLA for qualified leads",
+                    "Use Slack/automation for instant lead notification"
+                ]
+            },
+            {
+                id: 7,
+                company: "TravelLux Vacations",
+                industry: "Travel",
+                objective: "Drive luxury vacation bookings for winter season",
+                audience: "High-net-worth individuals, frequent travelers",
+                channels: ["Google Ads", "Facebook/Instagram", "Email", "Travel Blogs"],
+                budget: "$280K",
+                metrics: {
+                    reach: "520K",
+                    ctr: "2.9%",
+                    engagement: "8,600 page views",
+                    conversions: "420 bookings",
+                    sales: "$3.2M"
+                },
+                comments: ["Gorgeous destination photos", "Price wasn't competitive", "Agent was unhelpful", "Flights were great"],
+                socialPerf: "Instagram carousel ads with 12% CTR on destination content",
+                mistake: "Highlighted luxury amenities but didn't address common objections",
+                clues: [
+                    "High traffic but cart abandonment was 78%",
+                    "Customer objections centered on cost justification",
+                    "Competitors emphasized value-for-money messaging"
+                ],
+                explanation: "The campaign was excellent at driving awareness and interest in exotic destinations through stunning visuals. However, it failed to address why customers should choose TravelLux over competitors or how to justify the premium pricing. Prospects got inspired but left to book elsewhere.",
+                improvements: [
+                    "Include ROI messaging: 'Why luxury is worth it' content",
+                    "Add comparison to competitors showing value differentiation",
+                    "Create financing/package options to address price objections",
+                    "Include testimonials focused on value, not just experience"
+                ]
+            },
+            {
+                id: 8,
+                company: "EdTech Academy",
+                industry: "Education",
+                objective: "Recruit students for new online programming bootcamp",
+                audience: "Career changers aged 25-45",
+                channels: ["YouTube", "Reddit", "Ads", "Community Forums", "Email"],
+                budget: "$220K",
+                metrics: {
+                    reach: "380K",
+                    ctr: "4.2%",
+                    engagement: "14K comments and discussions",
+                    conversions: "1,850 enrollments",
+                    sales: "$925K"
+                },
+                comments: ["Curriculum seemed rigorous", "Job placement unclear", "Great alumni stories", "Expensive compared to alternatives"],
+                socialPerf: "Reddit discussions generated 3,200 engaged comments",
+                mistake: "Emphasized bootcamp rigor but didn't guarantee job placement",
+                clues: [
+                    "Prospective students worried about ROI",
+                    "No clear career outcomes messaging",
+                    "Competitors explicitly promised job placement"
+                ],
+                explanation: "The bootcamp marketing was effective at reaching passionate learners and demonstrating quality content. However, it focused too heavily on course difficulty rather than career outcomes. Prospective students were left wondering about their job prospects after graduation, driving them to competing programs with placement guarantees.",
+                improvements: [
+                    "Highlight job placement rates and partner companies",
+                    "Showcase alumni career trajectories and salary increases",
+                    "Create 'from student to employed' case study series",
+                    "Partner with employers for visible job pipeline"
+                ]
+            },
+            {
+                id: 9,
+                company: "PetCare Plus",
+                industry: "Pet Services",
+                objective: "Drive adoption of premium pet subscription boxes",
+                audience: "Pet owners spending $50+ monthly on pets",
+                channels: ["Facebook", "Instagram", "TikTok", "Pet Influencers"],
+                budget: "$160K",
+                metrics: {
+                    reach: "1.8M",
+                    ctr: "7.1%",
+                    engagement: "89K likes, 12K shares",
+                    conversions: "2,600 subscriptions",
+                    sales: "$390K"
+                },
+                comments: ["Cute content", "Box quality inconsistent", "Wish I knew what was inside", "Price went up after trial"],
+                socialPerf: "Dog TikTok videos hit 2.1M views with 22% engagement",
+                mistake: "Used cute content to drive subscriptions but didn't set expectations",
+                clues: [
+                    "First month retention 82% but second month dropped to 34%",
+                    "Customers surprised by quality and variety of items",
+                    "No product previews or guarantees in ad copy"
+                ],
+                explanation: "The TikTok and Instagram content was incredibly engaging and successful at driving initial subscriptions. Cute dog videos and influencer partnerships generated millions of impressions. However, customers expected more control over what they'd receive and were disappointed with inconsistent quality, leading to high churn after the first box.",
+                improvements: [
+                    "Show actual box contents in marketing materials",
+                    "Explain quality standards and sourcing of products",
+                    "Allow preview of next month's box for subscribers",
+                    "Set clear expectations about pricing after trial"
+                ]
+            },
+            {
+                id: 10,
+                company: "SmartHome Systems",
+                industry: "Home Automation",
+                objective: "Launch new smart home integration platform",
+                audience: "Tech-savvy homeowners aged 30-55",
+                channels: ["YouTube Tutorials", "Tech Blogs", "Amazon Ads", "Direct Mail"],
+                budget: "$240K",
+                metrics: {
+                    reach: "410K",
+                    ctr: "3.8%",
+                    engagement: "6,800 demo requests",
+                    conversions: "1,100 installations",
+                    sales: "$1.65M"
+                },
+                comments: ["Installation was complex", "Great tutorial content", "Setup support was lacking", "Works better than competitors"],
+                socialPerf: "YouTube tutorials averaged 24K views each",
+                mistake: "Complex technical setup without adequate customer support",
+                clues: [
+                    "High demo requests but low follow-through to purchase",
+                    "Support tickets for 'setup help' exceeded sales by 3x",
+                    "YouTube comments full of frustration about installation"
+                ],
+                explanation: "The educational content marketing was exceptional - YouTube tutorials established thought leadership and drove significant interest. However, the campaign undersold installation complexity and didn't allocate adequate support resources. Potential customers became overwhelmed during setup and either abandoned purchases or left negative reviews.",
+                improvements: [
+                    "Create simplified, step-by-step setup guides with visuals",
+                    "Offer professional installation service (premium add-on)",
+                    "Establish dedicated support team before campaign launch",
+                    "Include setup time/difficulty in all marketing materials"
+                ]
+            },
+            {
+                id: 11,
+                company: "BeautyBlend Cosmetics",
+                industry: "Beauty",
+                objective: "Launch inclusive shade range for foundation line",
+                audience: "Diverse beauty consumers aged 18-40",
+                channels: ["Instagram", "YouTube Beauty Creators", "Events", "Retail"],
+                budget: "$290K",
+                metrics: {
+                    reach: "2.1M",
+                    ctr: "9.3%",
+                    engagement: "156K interactions",
+                    conversions: "12K purchases",
+                    sales: "$1.8M"
+                },
+                comments: ["Finally shades for darker skin tones", "Great inclusive campaign", "Packaging looked premium", "Expensive vs drugstore"],
+                socialPerf: "Beauty Creator partnerships reached 5.2M impressions",
+                mistake: "Launched with diversity message but limited shade availability",
+                clues: [
+                    "Certain shade ranges sold out immediately",
+                    "Customers complained about 'greenwashing' diversity",
+                    "Inventory wasn't matched to demand prediction"
+                ],
+                explanation: "The inclusive marketing campaign resonated powerfully with diverse audiences and created genuine brand loyalty. Beauty creators and social media amplified the message effectively. However, the company underestimated demand and couldn't keep popular shades in stock. Customers felt manipulated when they couldn't purchase the shades they were targeted with.",
+                improvements: [
+                    "Forecast demand based on audience demographics",
+                    "Pre-order system to gauge real demand before manufacturing",
+                    "Transparent communication about inventory and restock dates",
+                    "Partner with retailers for wider distribution"
+                ]
+            },
+            {
+                id: 12,
+                company: "FinanceFlow App",
+                industry: "FinTech",
+                objective: "Acquire budget-conscious millennials for personal finance app",
+                audience: "Millennials earning $35-75K annually",
+                channels: ["TikTok", "Instagram", "Podcasts", "Discord Communities"],
+                budget: "$210K",
+                metrics: {
+                    reach: "4.2M",
+                    ctr: "6.8%",
+                    engagement: "201K interactions",
+                    conversions: "8,400 app downloads",
+                    sales: "$168K (subscription revenue)"
+                },
+                comments: ["App is too simple", "Wish it had investment features", "Great for budgeting", "No customer support"],
+                socialPerf: "TikTok videos about financial hacks reached 3.1M views",
+                mistake: "Acquired users with feature promises not delivered in MVP",
+                clues: [
+                    "App reviews were 2.1 stars due to missing features",
+                    "30-day retention was only 18%",
+                    "Marketing promised investment and trading features not in app"
+                ],
+                explanation: "The social media campaign brilliantly resonated with millennials through relatable financial humor and hacks on TikTok and Instagram. The app downloads were impressive. However, the marketing overpromised features that weren't actually in the MVP. Users downloaded expecting investment tools but found only basic budgeting, leading to poor reviews and quick churn.",
+                improvements: [
+                    "Align marketing messaging with actual feature set",
+                    "Use roadmap transparency in marketing: 'Coming soon' features",
+                    "Focus messaging on core strengths not planned features",
+                    "Build feature requests into acquisition messaging"
+                ]
+            },
+            {
+                id: 13,
+                company: "LocalEats Marketplace",
+                industry: "Food Delivery",
+                objective: "Expand delivery service to new city with restaurant partnerships",
+                audience: "Busy urban professionals aged 25-50",
+                channels: ["Google Local Ads", "Instagram", "Restaurant Partnerships", "Email"],
+                budget: "$175K",
+                metrics: {
+                    reach: "340K",
+                    ctr: "5.2%",
+                    engagement: "7,200 active users",
+                    conversions: "3,100 orders",
+                    sales: "$465K"
+                },
+                comments: ["Great restaurant selection", "Delivery was late", "App crashed frequently", "Prices seemed high"],
+                socialPerf: "Influencer partnerships drove 1.2M impressions on Instagram",
+                mistake: "Launched in new city without adequate logistics preparation",
+                clues: [
+                    "40% of orders had delivery delays exceeding 45 minutes",
+                    "Customer support overwhelmed with complaints",
+                    "Infrastructure couldn't handle peak hour volume"
+                ],
+                explanation: "The marketing campaign was effective at building excitement and driving initial orders through influencer partnerships and restaurant cross-promotion. However, the operations team wasn't ready for the volume. Delivery delays and system crashes turned early customers away and damaged the brand's reputation before it could establish market presence.",
+                improvements: [
+                    "Launch marketing aligned with logistics readiness",
+                    "Phased geographic expansion instead of city-wide",
+                    "Conduct stress testing of platform before campaign",
+                    "Set clear delivery time expectations in marketing"
+                ]
+            },
+            {
+                id: 14,
+                company: "CareerPath Coaching",
+                industry: "Career Services",
+                objective: "Sell high-ticket executive coaching programs",
+                audience: "Mid-career professionals seeking promotion",
+                channels: ["LinkedIn", "Industry Conferences", "Referral Program", "Email"],
+                budget: "$320K",
+                metrics: {
+                    reach: "95K",
+                    ctr: "4.1%",
+                    engagement: "3,800 consultation requests",
+                    conversions: "185 coaching engagements",
+                    sales: "$1.85M"
+                },
+                comments: ["Coach was excellent", "Results took longer than expected", "Networking value was high", "Price justified"],
+                socialPerf: "LinkedIn thought leadership posts averaged 8K impressions",
+                mistake: "Didn't establish clear success metrics before engagement",
+                clues: [
+                    "Clients unsure what constitutes 'coaching success'",
+                    "No defined milestones or progress tracking",
+                    "Renewal rate was only 42% despite positive feedback"
+                ],
+                explanation: "The LinkedIn-based thought leadership strategy effectively positioned coaches as experts and attracted ideal high-value clients. Coaching quality was strong and clients reported satisfaction. However, without clear metrics and milestones, clients couldn't measure ROI and weren't motivated to renew or refer others, despite positive experiences.",
+                improvements: [
+                    "Define measurable goals before coaching begins",
+                    "Monthly progress tracking against baseline metrics",
+                    "Create success case studies showing tangible outcomes",
+                    "Build renewal strategy around demonstrated progress"
+                ]
+            },
+            {
+                id: 15,
+                company: "ArtSupply Hub",
+                industry: "Retail",
+                objective: "Drive online sales of premium art supplies",
+                audience: "Professional artists and serious hobbyists",
+                channels: ["Pinterest", "Instagram", "YouTube Creators", "Email"],
+                budget: "$165K",
+                metrics: {
+                    reach: "680K",
+                    ctr: "8.2%",
+                    engagement: "34K saves on Pinterest",
+                    conversions: "2,200 purchases",
+                    sales: "$385K"
+                },
+                comments: ["Quality supplies", "Better prices online elsewhere", "Shipping was fast", "Great artist recommendations"],
+                socialPerf: "Pinterest boards averaged 12K repins; YouTube creator videos 200K views",
+                mistake: "Didn't optimize for price comparison - customers found better deals",
+                clues: [
+                    "High engagement but cart abandonment was 71%",
+                    "Price comparison sites consistently undercut their pricing",
+                    "Competitors advertised 'lowest price guarantee'"
+                ],
+                explanation: "The content marketing strategy was brilliant - Pinterest boards and YouTube creator partnerships created aspirational content that drove high engagement. However, the e-commerce strategy failed to address customer objections about price. While engagement was excellent, customers price-checked and purchased from competitors with lower costs or guarantees.",
+                improvements: [
+                    "Implement price matching guarantee in messaging",
+                    "Bundle products to create unique value propositions",
+                    "Emphasize exclusive expert curations not found elsewhere",
+                    "Create loyalty program rewarding repeat purchases"
+                ]
+            },
+            {
+                id: 16,
+                company: "SkillSprint Tech",
+                industry: "Training",
+                objective: "Scale corporate training subscriptions",
+                audience: "HR managers and learning & development directors",
+                channels: ["LinkedIn Ads", "Webinars", "Direct Outreach", "Industry Reports"],
+                budget: "$280K",
+                metrics: {
+                    reach: "72K",
+                    ctr: "6.9%",
+                    engagement: "4,200 demo attendees",
+                    conversions: "340 corporate accounts",
+                    sales: "$2.72M"
+                },
+                comments: ["Content quality excellent", "Implementation support was weak", "Great ROI tracking", "Adoption in teams was low"],
+                socialPerf: "LinkedIn webinars averaged 1,200 attendees",
+                mistake: "Marketed transformation outcomes without supporting implementation",
+                clues: [
+                    "Only 32% of purchased accounts had real engagement after 3 months",
+                    "Renewal rate was 58% due to low adoption",
+                    "Customers had no change management resources"
+                ],
+                explanation: "The B2B marketing campaign was highly effective at attracting HR decision-makers and generating enterprise contracts. Webinars were well-attended and the value proposition was clear. However, the company oversold transformation outcomes without providing the implementation support needed. Clients purchased but couldn't effectively roll out training to employees.",
+                improvements: [
+                    "Include change management support in marketing promise",
+                    "Provide detailed implementation roadmap before sale",
+                    "Create success metrics and tracking dashboard visibility",
+                    "Offer onboarding and adoption coaching programs"
+                ]
+            },
+            {
+                id: 17,
+                company: "WellnessBox",
+                industry: "Wellness",
+                objective: "Launch monthly wellness subscription box",
+                audience: "Health-conscious individuals aged 25-55",
+                channels: ["Instagram", "Facebook", "YouTube", "Wellness Blogs"],
+                budget: "$195K",
+                metrics: {
+                    reach: "920K",
+                    ctr: "7.3%",
+                    engagement: "67K likes and shares",
+                    conversions: "4,100 subscriptions",
+                    sales: "$615K"
+                },
+                comments: ["Great quality items", "Personalization lacking", "Loved the wellness guides", "Price increased without warning"],
+                socialPerf: "Facebook ads had 8.9% CTR; Instagram videos 850K views",
+                mistake: "Raised prices for existing subscribers without grandfathering",
+                clues: [
+                    "82% of month-2 subscribers didn't renew after price increase",
+                    "No customer communication before price hike",
+                    "Competitors offered loyalty pricing"
+                ],
+                explanation: "The social media campaign was exceptionally successful at building brand enthusiasm and converting health-conscious audiences. The subscription boxes themselves were well-received. However, a surprise price increase for existing subscribers without communication or transition period enraged the customer base, creating negative reviews and destroying loyalty.",
+                improvements: [
+                    "Grandfather loyal customers at original price",
+                    "Communicate price changes 60 days in advance",
+                    "Provide value justification for price increases",
+                    "Create VIP loyalty tiers with exclusive pricing"
+                ]
+            },
+            {
+                id: 18,
+                company: "RealEstatePro CRM",
+                industry: "Real Estate Tech",
+                objective: "Acquire real estate agents for property management software",
+                audience: "Independent real estate agents and small brokerages",
+                channels: ["Facebook Ads", "Real Estate Forums", "Email", "Agent Associations"],
+                budget: "$225K",
+                metrics: {
+                    reach: "310K",
+                    ctr: "4.4%",
+                    engagement: "5,200 free trial signups",
+                    conversions: "780 paid subscriptions",
+                    sales: "$936K"
+                },
+                comments: ["User interface intuitive", "Missing key features", "Great integrations", "Support response slow"],
+                socialPerf: "Facebook targeting of agents had 5.8% CTR",
+                mistake: "Free trial didn't include features agents wanted to evaluate",
+                clues: [
+                    "80% of trial users didn't convert because they couldn't test key features",
+                    "Feature requests in trial matched conversion barriers",
+                    "Competitors offered full-featured trials"
+                ],
+                explanation: "The targeted Facebook advertising was effective at reaching independent agents with a compelling offer. The free trial was a smart strategy to reduce risk. However, the trial version was stripped down so much that agents couldn't evaluate the core features they needed to make a purchase decision. Most trials expired without conversion.",
+                improvements: [
+                    "Offer full-featured trial for 14-30 days",
+                    "Highlight must-have features prominently in trial",
+                    "Create trial-to-paid upgrade prompt with success stories",
+                    "Provide dedicated onboarding during trial period"
+                ]
+            },
+            {
+                id: 19,
+                company: "GreenEnergy Solutions",
+                industry: "Renewable Energy",
+                objective: "Drive residential solar installation consultations",
+                audience: "Homeowners earning $100K+ in sunny regions",
+                channels: ["Google Ads", "Facebook", "Local Events", "Email"],
+                budget: "$340K",
+                metrics: {
+                    reach: "520K",
+                    ctr: "3.9%",
+                    engagement: "8,900 consultation bookings",
+                    conversions: "1,240 installations",
+                    sales: "$3.1M"
+                },
+                comments: ["Sales rep was pushy", "Installation quality great", "Financing options helped", "Warranty unclear"],
+                socialPerf: "Google Local Ads generated 6,200 consultation requests",
+                mistake: "Sales process relied on aggressive tactics instead of education",
+                clues: [
+                    "High consultation bookings but only 14% conversion to installation",
+                    "Customer reviews mentioned high-pressure sales tactics",
+                    "Competitors emphasized educational approach in their marketing"
+                ],
+                explanation: "The paid advertising strategy was highly effective at generating consultation bookings from qualified homeowners. Google Local targeting was particularly successful. However, the sales team's aggressive conversion tactics backfired. Prospects felt pressured and chose competitors with more consultative approaches, despite booking consultations.",
+                improvements: [
+                    "Marketing should set expectations for consultative process",
+                    "Create educational content about solar ROI and financing",
+                    "Emphasize low-pressure consultation approach in ads",
+                    "Highlight customer success stories and ROI calculations"
+                ]
+            },
+            {
+                id: 20,
+                company: "DesignStudio Pro",
+                industry: "Design SaaS",
+                objective: "Launch collaborative design tool for remote teams",
+                audience: "Creative professionals and design teams",
+                channels: ["Product Hunt", "Twitter", "Designer Communities", "YouTube"],
+                budget: "$175K",
+                metrics: {
+                    reach: "850K",
+                    ctr: "7.6%",
+                    engagement: "42K comments and discussion",
+                    conversions: "3,200 free accounts",
+                    sales: "$240K (from free tier conversions)"
+                },
+                comments: ["Collaboration features excellent", "Learning curve steep", "Performance issues", "Pricing tier confusing"],
+                socialPerf: "Product Hunt launch reached #2 product of the day",
+                mistake: "Successful acquisition but neglected onboarding for feature complexity",
+                clues: [
+                    "Free-to-paid conversion only 7.5%",
+                    "Tutorial videos viewed but users still felt lost",
+                    "Competitors offered structured onboarding programs"
+                ],
+                explanation: "The launch strategy was perfect - generating buzz on Product Hunt, Twitter, and designer communities resulted in thousands of new accounts and strong engagement. The product was genuinely good. However, the steep learning curve meant users struggled to see value without proper guidance, leading to very low conversion from free to paid despite strong acquisition numbers.",
+                improvements: [
+                    "Create interactive in-app onboarding tutorials",
+                    "Offer structured learning paths for different user roles",
+                    "Provide live onboarding calls for team accounts",
+                    "Build template library to accelerate time-to-value",
+                    "Establish community forum with expert support"
+                ]
+            }
+        ];
+
+        // ==================== STATE MANAGEMENT ====================
+        let gameState = {
+            currentScreen: 'welcome',
+            currentCase: null,
+            selectedAnswer: null,
+            droppedEvidence: [],
+            caseHistory: [],
+            correctAnswers: 0,
+            totalCases: 0
+        };
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function getRandomCase() {
+            return marketingCases[Math.floor(Math.random() * marketingCases.length)];
+        }
+
+        function showScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const screen = document.querySelector(`[data-screen="${screenName}"]`);
+            if (screen) screen.classList.add('active');
+            gameState.currentScreen = screenName;
+        }
+
+        function startNewCase() {
+            gameState.currentCase = getRandomCase();
+            gameState.selectedAnswer = null;
+            gameState.droppedEvidence = [];
+            gameState.totalCases++;
+            showScreen('assignment');
+        }
+
+        function handleCaseStart() {
+            showScreen('investigation');
+        }
+
+        function handleEvidenceDrag(e) {
+            e.dataTransfer.effectAllowed = 'move';
+            e.currentTarget.classList.add('dragging');
+            e.dataTransfer.setData('evidence', e.currentTarget.textContent);
+        }
+
+        function handleBoardDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleBoardDrop(e) {
+            e.preventDefault();
+            const evidence = e.dataTransfer.getData('evidence');
+            if (evidence && !gameState.droppedEvidence.includes(evidence)) {
+                gameState.droppedEvidence.push(evidence);
+                renderBoard();
+            }
+        }
+
+        function renderBoard() {
+            const board = document.getElementById('investigation-board');
+            if (!board) return;
+            board.innerHTML = '<div class="board-title">Investigation Board</div>';
+            gameState.droppedEvidence.forEach((ev, idx) => {
+                const el = document.createElement('div');
+                el.className = `dropped-evidence ${idx % 2 === 0 ? 'rotating' : ''}`;
+                el.style.left = Math.random() * 300 + 'px';
+                el.style.top = Math.random() * 300 + 'px';
+                el.textContent = ev;
+                el.innerHTML = `<div class="push-pin"></div>${ev}`;
+                board.appendChild(el);
+            });
+        }
+
+        function selectAnswer(answer) {
+            gameState.selectedAnswer = answer;
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+        }
+
+        function submitAnswer() {
+            if (!gameState.selectedAnswer) {
+                alert('Please select an answer');
+                return;
+            }
+
+            const isCorrect = gameState.selectedAnswer === gameState.currentCase.mistake;
+            if (isCorrect) gameState.correctAnswers++;
+
+            const result = {
+                caseName: gameState.currentCase.company,
+                submitted: gameState.selectedAnswer,
+                correct: gameState.currentCase.mistake,
+                isCorrect: isCorrect,
+                explanation: gameState.currentCase.explanation
+            };
+
+            gameState.caseHistory.push(result);
+            showResult(isCorrect, result);
+        }
+
+        function showResult(isCorrect, result) {
+            const container = document.querySelector('[data-screen="result"]');
+            if (!container) return;
+
+            const status = isCorrect ? 'correct' : 'incorrect';
+            const title = isCorrect ? '🎯 CASE CLOSED' : '❌ INVESTIGATION FAILED';
+            const message = isCorrect ? 'You identified the marketing mistake!' : 'That\'s not the primary issue...';
+
+            container.innerHTML = `
+                <div class="header">
+                    <div class="title">Marketing Detective</div>
+                </div>
+
+                <div class="result-status ${status}">
+                    <div class="result-icon">${isCorrect ? '✓' : '✗'}</div>
+                    <div class="result-title">${title}</div>
+                    <div class="result-message">${message}</div>
+
+                    <div class="explanation-box">
+                        <div class="explanation-title">THE ACTUAL PROBLEM:</div>
+                        <div class="explanation-text">${result.explanation}</div>
+                    </div>
+
+                    <div class="explanation-box">
+                        <div class="explanation-title">RECOMMENDED IMPROVEMENTS:</div>
+                        <ul style="margin-top: 10px;">
+                            ${gameState.currentCase.improvements.map(imp => `<li style="color: var(--text-muted); margin-bottom: 8px;">• ${imp}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="showLearningReport()">View Learning Report</button>
+                    <button class="btn" onclick="startNewCase()">Next Case</button>
+                </div>
+            `;
+
+            showScreen('result');
+        }
+
+        function showLearningReport() {
+            const container = document.querySelector('[data-screen="report"]');
+            if (!container) return;
+
+            const accuracy = Math.round((gameState.correctAnswers / gameState.totalCases) * 100);
+            const mistakes = gameState.caseHistory.map(c => c.correct);
+            const improvements = gameState.caseHistory.flatMap(c => gameState.currentCase.improvements);
+
+            container.innerHTML = `
+                <div class="header">
+                    <div class="title">Learning Report</div>
+                    <div class="subtitle">Your Marketing Detective Progress</div>
+                </div>
+
+                <div class="report-container">
+                    <div class="report-card">
+                        <div class="report-card-title">📊 PERFORMANCE</div>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number">${gameState.correctAnswers}/${gameState.totalCases}</div>
+                                <div class="stat-label">CORRECT</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">${accuracy}%</div>
+                                <div class="stat-label">ACCURACY</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">${gameState.totalCases}</div>
+                                <div class="stat-label">CASES</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <div class="report-card-title">🎯 COMMON MISTAKES DISCOVERED</div>
+                        <ul>
+                            ${[...new Set(mistakes)].slice(0, 5).map(m => `<li>${m}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="report-card">
+                        <div class="report-card-title">💡 KEY LEARNINGS</div>
+                        <ul>
+                            <li>Always align marketing with operations readiness</li>
+                            <li>Set clear expectations to match actual product</li>
+                            <li>Plan customer retention from day one</li>
+                            <li>Test edge cases before full campaign launch</li>
+                            <li>Measure actual ROI against customer objections</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="startNewCase()">Play Another Case</button>
+                    <button class="btn" onclick="resetGame()">Start Over</button>
+                </div>
+            `;
+
+            showScreen('report');
+        }
+
+        function resetGame() {
+            gameState = {
+                currentScreen: 'welcome',
+                currentCase: null,
+                selectedAnswer: null,
+                droppedEvidence: [],
+                caseHistory: [],
+                correctAnswers: 0,
+                totalCases: 0
+            };
+            showScreen('welcome');
+        }
+
+        // ==================== RENDER APP ====================
+        function renderApp() {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <!-- Welcome Screen -->
+                <div class="screen active" data-screen="welcome">
+                    <div class="header">
+                        <div class="title">🔍 MARKETING DETECTIVE</div>
+                        <div class="subtitle">SOLVE REAL MARKETING MYSTERIES</div>
+                    </div>
+                    <div class="welcome-container">
+                        <div class="welcome-text">
+                            <h2>Welcome, Detective</h2>
+                            <p>Companies have failed their marketing campaigns. The metrics tell a story, but what's the real problem?</p>
+                            <p>Examine the evidence. Analyze the clues. Solve the case.</p>
+                            <p style="margin-top: 20px; color: var(--light-green); font-weight: 600;">Can you identify the marketing mistakes before they become costly lessons?</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="startNewCase()" style="font-size: 1.2em; padding: 20px 60px;">ACCEPT ASSIGNMENT</button>
+                    </div>
+                </div>
+
+                <!-- Case Assignment Screen -->
+                <div class="screen" data-screen="assignment">
+                    <div class="header">
+                        <div class="title">NEW CASE ASSIGNMENT</div>
+                        <div class="subtitle">Review the brief below</div>
+                    </div>
+                    <div class="assignment-container">
+                        <div class="case-file" id="case-file-display"></div>
+                        <div class="button-group">
+                            <button class="btn btn-primary" onclick="handleCaseStart()">BEGIN INVESTIGATION</button>
+                            <button class="btn" onclick="startNewCase()">DECLINE CASE</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Investigation Screen -->
+                <div class="screen" data-screen="investigation">
+                    <div class="header">
+                        <div class="title">EVIDENCE BOARD</div>
+                        <div class="subtitle">Build your theory</div>
+                    </div>
+                    <div class="investigation-container">
+                        <div class="evidence-sidebar" id="evidence-sidebar"></div>
+                        <div class="board-area" id="investigation-board" ondragover="handleBoardDragOver(event)" ondrop="handleBoardDrop(event)"></div>
+                    </div>
+                    <div class="button-group" style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="proceedToQuestion()">READY TO SOLVE</button>
+                    </div>
+                </div>
+
+                <!-- Question Screen -->
+                <div class="screen" data-screen="question">
+                    <div class="header">
+                        <div class="title">IDENTIFY THE MISTAKE</div>
+                    </div>
+                    <div class="investigation-screen">
+                        <div class="investigation-content">
+                            <div class="question-panel">
+                                <div class="panel-title">THE QUESTION</div>
+                                <div class="question-text" id="question-text"></div>
+                                <div class="clues-container" id="clues-container"></div>
+                            </div>
+                            <div class="answer-section">
+                                <div class="panel-title">YOUR ANSWER</div>
+                                <div class="answer-options" id="answer-options"></div>
+                                <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="submitAnswer()">SUBMIT ANSWER</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Screen -->
+                <div class="screen" data-screen="result"></div>
+
+                <!-- Report Screen -->
+                <div class="screen" data-screen="report"></div>
+            `;
+
+            renderCaseFile();
+        }
+
+        function renderCaseFile() {
+            const caseFile = document.getElementById('case-file-display');
+            if (!caseFile || !gameState.currentCase) return;
+
+            const c = gameState.currentCase;
+            caseFile.innerHTML = `
+                <div class="case-number">CASE #${c.id} / CONFIDENTIAL</div>
+                <div class="case-title">${c.company}</div>
+                <div class="case-description">${c.industry} | Campaign Objective: ${c.objective}</div>
+
+                <div class="case-details">
+                    <div class="case-detail">
+                        <div class="detail-label">TARGET AUDIENCE</div>
+                        <div class="detail-value">${c.audience}</div>
+                    </div>
+                    <div class="case-detail">
+                        <div class="detail-label">BUDGET ALLOCATION</div>
+                        <div class="detail-value">${c.budget}</div>
+                    </div>
+                    <div class="case-detail">
+                        <div class="detail-label">PRIMARY CHANNELS</div>
+                        <div class="detail-value">${c.channels.slice(0, 2).join(', ')}</div>
+                    </div>
+                    <div class="case-detail">
+                        <div class="detail-label">CAMPAIGN REACH</div>
+                        <div class="detail-value">${c.metrics.reach}</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--accent-green);">
+                    <div style="color: var(--text-muted); margin-bottom: 10px;"><strong>CAMPAIGN METRICS:</strong></div>
+                    <div class="case-details">
+                        <div class="case-detail">
+                            <div class="detail-label">CTR</div>
+                            <div class="detail-value">${c.metrics.ctr}</div>
+                        </div>
+                        <div class="case-detail">
+                            <div class="detail-label">CONVERSIONS</div>
+                            <div class="detail-value">${c.metrics.conversions}</div>
+                        </div>
+                        <div class="case-detail">
+                            <div class="detail-label">SALES REVENUE</div>
+                            <div class="detail-value">${c.metrics.sales}</div>
+                        </div>
+                        <div class="case-detail">
+                            <div class="detail-label">ENGAGEMENT</div>
+                            <div class="detail-value">${c.metrics.engagement}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--accent-green);">
+                    <div style="color: var(--text-muted); margin-bottom: 10px;"><strong>CUSTOMER FEEDBACK:</strong></div>
+                    <div style="color: var(--text-light); font-size: 0.9em; line-height: 1.6;">
+                        ${c.comments.map(comment => `<div style="margin-bottom: 8px;">💬 "${comment}"</div>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function proceedToQuestion() {
+            const container = document.querySelector('[data-screen="question"]');
+            if (!container || !gameState.currentCase) return;
+
+            const c = gameState.currentCase;
+
+            document.getElementById('question-text').textContent = 'What is the PRIMARY marketing mistake that caused this campaign to underperform?';
+
+            const cluesHtml = c.clues.map((clue, idx) => `
+                <div class="clue" draggable="true" ondragstart="handleEvidenceDrag(event)" ondragend="document.querySelectorAll('.evidence-item').forEach(e => e.classList.remove('dragging'))">
+                    <div class="clue-number">CLUE ${idx + 1}</div>
+                    <div class="clue-text">${clue}</div>
+                </div>
+            `).join('');
+            document.getElementById('clues-container').innerHTML = cluesHtml;
+
+            const answers = [c.mistake];
+            const otherMistakes = marketingCases
+                .filter(mc => mc.id !== c.id)
+                .map(mc => mc.mistake)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3);
+            answers.push(...otherMistakes);
+            answers.sort(() => Math.random() - 0.5);
+
+            const optionsHtml = answers.map(answer => `
+                <div class="option" onclick="selectAnswer('${answer.replace(/'/g, "\\'")}'); event.currentTarget.classList.add('selected');">
+                    <div class="option-radio"></div>
+                    <div>${answer}</div>
+                </div>
+            `).join('');
+            document.getElementById('answer-options').innerHTML = optionsHtml;
+
+            renderEvidenceSidebar();
+            showScreen('question');
+        }
+
+        function renderEvidenceSidebar() {
+            const sidebar = document.getElementById('evidence-sidebar');
+            if (!sidebar || !gameState.currentCase) return;
+
+            const c = gameState.currentCase;
+            const evidence = [
+                `Reach: ${c.metrics.reach}`,
+                `CTR: ${c.metrics.ctr}`,
+                `Conversions: ${c.metrics.conversions}`,
+                `Engagement: ${c.metrics.engagement}`,
+                `Industry: ${c.industry}`,
+                `Channels: ${c.channels.join(', ')}`,
+                `Budget: ${c.budget}`,
+                `${c.socialPerf}`
+            ];
+
+            sidebar.innerHTML = `
+                <div class="sidebar-title">📋 EVIDENCE</div>
+                ${evidence.map(ev => `
+                    <div class="evidence-item" draggable="true" ondragstart="handleEvidenceDrag(event)" ondragend="event.currentTarget.classList.remove('dragging')">
+                        ${ev}
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        // ==================== INITIALIZE ====================
+        renderApp();
+        showScreen('welcome');
+    </script>
+</body>
+</html>
