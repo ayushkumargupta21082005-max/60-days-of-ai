@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Studio</title>
+    <style>
+        :root {
+            --bg-primary: #0F1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #232b3c;
+            --text-primary: #e6e9f0;
+            --text-secondary: #a0a8b8;
+            --text-tertiary: #7a8290;
+            --accent-primary: #3dd9d6;
+            --accent-secondary: #ffa500;
+            --accent-success: #00d66a;
+            --accent-error: #ff6b6b;
+            --accent-warning: #ffa500;
+            --border-color: #2a3447;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.45);
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body.light-theme {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-tertiary: #eeeeee;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --text-tertiary: #888888;
+            --border-color: #e0e0e0;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-icon:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            transform: scale(1.05);
+        }
+
+        /* Mode Selector */
+        .mode-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .mode-btn {
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-btn:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-tertiary);
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, #2bc9c6 100%);
+            color: var(--bg-primary);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px rgba(61, 217, 214, 0.3);
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .setting-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .setting-select,
+        .setting-input {
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all var(--transition-fast);
+        }
+
+        .setting-select:hover,
+        .setting-input:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .setting-select:focus,
+        .setting-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(61, 217, 214, 0.1);
+        }
+
+        /* Typing Area */
+        .typing-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .typing-area {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 1.25rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            position: relative;
+            min-height: 100px;
+        }
+
+        .char {
+            position: relative;
+            transition: color var(--transition-fast), text-shadow var(--transition-fast);
+        }
+
+        .char.correct {
+            color: var(--accent-success);
+        }
+
+        .char.incorrect {
+            color: var(--accent-error);
+            background: rgba(255, 107, 107, 0.1);
+            text-decoration: wavy underline var(--accent-error);
+        }
+
+        .char.current {
+            color: var(--accent-primary);
+            background: rgba(61, 217, 214, 0.15);
+            border-radius: 2px;
+            animation: cursor-blink 1s infinite;
+        }
+
+        .char.extra {
+            color: var(--accent-error);
+            background: rgba(255, 107, 107, 0.2);
+        }
+
+        @keyframes cursor-blink {
+            0%, 49% {
+                background: rgba(61, 217, 214, 0.15);
+            }
+            50%, 100% {
+                background: rgba(61, 217, 214, 0.3);
+            }
+        }
+
+        .input-field {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Stats Display */
+        .stats-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            transition: all var(--transition-normal);
+        }
+
+        .stat-box:hover {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 12px rgba(61, 217, 214, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            width: 0%;
+            transition: width var(--transition-normal);
+            box-shadow: 0 0 10px rgba(61, 217, 214, 0.3);
+        }
+
+        /* Control Buttons */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-tertiary);
+            transform: translateY(-2px);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, #2bc9c6 100%);
+            color: var(--bg-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(61, 217, 214, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: none;
+            animation: fadeIn var(--transition-normal);
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: all var(--transition-normal);
+        }
+
+        .dashboard-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(61, 217, 214, 0.1);
+        }
+
+        .card-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .chart-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            height: 300px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            gap: 1rem;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, var(--accent-primary) 0%, #2bc9c6 100%);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            min-height: 20px;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+        }
+
+        .chart-bar:hover {
+            filter: brightness(1.2);
+        }
+
+        .chart-bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            white-space: nowrap;
+        }
+
+        .chart-bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85rem;
+            color: var(--accent-primary);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .summary-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .summary-text {
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .achievement-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            border-radius: 50%;
+            font-size: 1.5rem;
+            margin: 0.5rem;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+
+        .achievement-badge:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .session-history {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 2rem;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .history-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        .history-table tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideIn var(--transition-normal);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            color: var(--accent-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .mode-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .settings-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-display {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .typing-area {
+                font-size: 1rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            box-shadow: var(--shadow-md);
+            animation: slideUp var(--transition-normal);
+            z-index: 1001;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Loading Animation */
+        .typing-feedback {
+            position: absolute;
+            pointer-events: none;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .feedback-correct {
+            color: var(--accent-success);
+            animation: popOut var(--transition-normal) ease-out;
+        }
+
+        .feedback-incorrect {
+            color: var(--accent-error);
+            animation: popOut var(--transition-normal) ease-out;
+        }
+
+        @keyframes popOut {
+            0% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5) translateY(-30px);
+                opacity: 0;
+            }
+        }
+
+        /* Screen Reader Only */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .focus-mode .char:not(.current):not(.correct):not(.incorrect):not(.extra) {
+            opacity: 0.2;
+        }
+
+        .zen-mode .stats-display,
+        .zen-mode .controls {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">⌨️ Typing Speed Studio</div>
+        <div class="header-controls">
+            <button class="btn-icon" id="settingsBtn" title="Settings">⚙️</button>
+            <button class="btn-icon" id="themeBtn" title="Toggle theme">🌙</button>
+            <button class="btn-icon" id="historyBtn" title="View history">📊</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Main Interface -->
+        <div id="mainInterface">
+            <!-- Mode Selector -->
+            <div class="mode-selector" id="modeSelector"></div>
+
+            <!-- Settings -->
+            <div class="settings-panel" id="settingsPanel"></div>
+
+            <!-- Stats Display -->
+            <div class="stats-display" id="statsDisplay"></div>
+
+            <!-- Progress Bar -->
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <!-- Typing Container -->
+            <div class="typing-container">
+                <div class="typing-area" id="typingArea"></div>
+                <input type="text" class="input-field" id="inputField" aria-label="Typing input" autocomplete="off" spellcheck="false">
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button class="btn primary" id="startBtn">Start Typing</button>
+                <button class="btn" id="pauseBtn" disabled>Pause</button>
+                <button class="btn" id="restartBtn">Restart</button>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="dashboard">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <button class="btn" onclick="app.backToTyping()">← Back to Typing</button>
+            </div>
+            <div class="dashboard-title">Performance Analysis</div>
+            <div class="dashboard-grid" id="dashboardGrid"></div>
+            <div id="chartsContainer"></div>
+            <div id="summaryContainer"></div>
+            <div class="session-history">
+                <h3 class="section-title">Recent Sessions</h3>
+                <table class="history-table" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>WPM</th>
+                            <th>Accuracy</th>
+                            <th>Duration</th>
+                            <th>Characters</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Settings</span>
+                <button class="modal-close" onclick="document.getElementById('settingsModal').classList.remove('active')">×</button>
+            </div>
+            <div class="setting-group">
+                <label class="setting-label">Sound Effects</label>
+                <select id="soundToggle" class="setting-select">
+                    <option value="on">On</option>
+                    <option value="off">Off</option>
+                </select>
+            </div>
+            <div class="setting-group" style="margin-top: 1rem;">
+                <label class="setting-label">Font Size</label>
+                <input type="range" id="fontSizeSlider" class="setting-input" min="12" max="32" value="20">
+                <span style="font-size: 0.85rem; color: var(--text-tertiary);">Current: <span id="fontSizeValue">20</span>px</span>
+            </div>
+            <div class="setting-group" style="margin-top: 1rem;">
+                <label class="setting-label">Keyboard Shortcuts</label>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;">
+                    <strong>Space</strong> - Start/Pause<br>
+                    <strong>Ctrl+R</strong> - Restart<br>
+                    <strong>Ctrl+H</strong> - History<br>
+                    <strong>Ctrl+S</strong> - Settings<br>
+                    <strong>Ctrl+T</strong> - Toggle Theme
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        const app = {
+            modes: [
+                { id: 'time15', label: '15s', type: 'time', duration: 15 },
+                { id: 'time30', label: '30s', type: 'time', duration: 30 },
+                { id: 'time60', label: '60s', type: 'time', duration: 60 },
+                { id: 'time120', label: '120s', type: 'time', duration: 120 },
+                { id: 'words25', label: '25 Words', type: 'words', count: 25 },
+                { id: 'words50', label: '50 Words', type: 'words', count: 50 },
+                { id: 'words100', label: '100 Words', type: 'words', count: 100 },
+                { id: 'words250', label: '250 Words', type: 'words', count: 250 },
+                { id: 'quote', label: 'Quote', type: 'quote' },
+                { id: 'custom', label: 'Custom', type: 'custom' },
+                { id: 'adaptive', label: 'Adaptive', type: 'adaptive' },
+                { id: 'focus', label: 'Focus', type: 'focus' },
+                { id: 'zen', label: 'Zen', type: 'zen' }
+            ],
+
+            currentMode: 'time30',
+            isTyping: false,
+            isPaused: false,
+            startTime: null,
+            elapsedTime: 0,
+            currentText: '',
+            userInput: '',
+            stats: {
+                wpm: 0,
+                rawWpm: 0,
+                cpm: 0,
+                accuracy: 100,
+                mistakes: 0,
+                streak: 0,
+                completed: 0
+            },
+            sessionHistory: [],
+            soundEnabled: true,
+            fontSize: 20,
+            theme: localStorage.getItem('theme') || 'dark',
+
+            // English Passages Database
+            passages: {
+                general: [
+                    "The morning sun cast long shadows across the quiet street as Sarah hurried toward the train station. She had overslept again, and now her carefully planned schedule lay in ruins. Despite the rushed morning, she couldn't help but notice the unusual beauty of the early light reflecting off the building windows.",
+                    "Every morning starts with coffee and possibilities. The world seems different when you haven't yet checked your messages. There's a brief moment of peace before the day demands your attention. Those quiet minutes are precious, a time to think clearly before reality rushes in.",
+                    "Technology has transformed how we work and communicate. Just decades ago, a simple letter took weeks to arrive. Now, messages cross the globe in seconds. Yet somehow, we feel more rushed than ever, as if speed has become a burden rather than a blessing.",
+                    "Learning to type well is not just about speed. It's about developing muscle memory that lets your thoughts flow directly onto the screen without interruption. The best typists don't think about their fingers. They think about their words.",
+                    "The old library stood at the corner of Main and Fifth, its stone facade weathered by more than a century of seasons. Inside, rows of books stretched into shadows, each one containing a world waiting to be discovered. Few people visited anymore, but those who did understood its true value.",
+                    "Writing requires both technical skill and creative courage. The keyboard is a tool, but it's the ideas that matter. Speed matters when you're racing against deadlines, but precision matters more. Every word chosen contributes to the overall message.",
+                    "The city awakens slowly in winter. Dark mornings stretch longer than anyone would like. But there's something peaceful about the quiet of early winter morning before the world fully wakes. The sky gradually lightens, and gradually, life returns to the streets.",
+                    "Music fills the empty spaces in our lives. A melody can lift our spirits or calm our fears. Some songs become the soundtrack to important moments, forever linked to memories we treasure. That's the power of the right song at the right time.",
+                    "Mindfulness isn't about emptying your mind. It's about observing your thoughts without judgment. When you stop fighting your thoughts and simply notice them, something shifts. Stress becomes manageable, anxiety loses its grip, and you find yourself more present in each moment.",
+                    "The best conversations are the ones where both people feel truly heard. It's rare to find someone who listens without planning their response. These people are valuable. They create space where genuine connection can happen.",
+                    "Success isn't a destination but a series of small victories. Each day offers opportunities to learn, grow, and improve. The people who achieve great things aren't necessarily smarter. They're simply more persistent in pursuing their goals.",
+                    "The evening rain brought the earthy smell of wet soil and petrichor. After weeks of drought, the gardens drank deeply. Plants seemed to stand taller, as if refreshed by nature's gift. The world looked cleaner, renewed, ready for tomorrow.",
+                    "Time management is an art that few people master. The tendency is to fill every moment with productivity, but rest is productive too. Some of the best ideas come when you're not actively trying to solve a problem.",
+                    "The kitchen at midnight is a different place. The usual chaos has settled. The only sounds are the hum of the refrigerator and the quiet tick of the clock. It's a perfect time for thinking, reflecting, or simply being still.",
+                    "Every expert was once a beginner who refused to quit. Progress is rarely linear. You'll have setbacks, days when your practice feels pointless, moments when you want to abandon your goals. But those who persevere eventually find their breakthrough."
+                ]
+            },
+
+            init() {
+                this.loadSettings();
+                this.renderModes();
+                this.renderSettings();
+                this.renderStats();
+                this.loadSessionHistory();
+                this.setupEventListeners();
+                this.applyTheme();
+                this.generateText();
+            },
+
+            loadSettings() {
+                const saved = localStorage.getItem('appSettings');
+                if (saved) {
+                    const settings = JSON.parse(saved);
+                    this.soundEnabled = settings.soundEnabled;
+                    this.fontSize = settings.fontSize;
+                    this.theme = settings.theme;
+                }
+            },
+
+            saveSettings() {
+                localStorage.setItem('appSettings', JSON.stringify({
+                    soundEnabled: this.soundEnabled,
+                    fontSize: this.fontSize,
+                    theme: this.theme
+                }));
+            },
+
+            renderModes() {
+                const modeSelector = document.getElementById('modeSelector');
+                modeSelector.innerHTML = '';
+                this.modes.forEach(mode => {
+                    const btn = document.createElement('button');
+                    btn.className = `mode-btn ${mode.id === this.currentMode ? 'active' : ''}`;
+                    btn.textContent = mode.label;
+                    btn.onclick = () => this.selectMode(mode.id);
+                    modeSelector.appendChild(btn);
+                });
+            },
+
+            renderSettings() {
+                const panel = document.getElementById('settingsPanel');
+                panel.innerHTML = `
+                    <div class="setting-group">
+                        <label class="setting-label">Difficulty</label>
+                        <select class="setting-select" id="difficultySelect">
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate" selected>Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label class="setting-label">Custom Text</label>
+                        <input type="text" class="setting-input" id="customText" placeholder="Enter your text...">
+                    </div>
+                `;
+            },
+
+            renderStats() {
+                const display = document.getElementById('statsDisplay');
+                display.innerHTML = `
+                    <div class="stat-box">
+                        <div class="stat-value" id="wpmValue">0</div>
+                        <div class="stat-label">WPM</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="accValue">100%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="cpmValue">0</div>
+                        <div class="stat-label">CPM</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="timeValue">0s</div>
+                        <div class="stat-label">Time</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="mistakesValue">0</div>
+                        <div class="stat-label">Mistakes</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="completionValue">0%</div>
+                        <div class="stat-label">Progress</div>
+                    </div>
+                `;
+            },
+
+            selectMode(modeId) {
+                this.currentMode = modeId;
+                this.reset();
+                this.renderModes();
+                this.generateText();
+                this.renderStats();
+            },
+
+            generateText() {
+                const mode = this.modes.find(m => m.id === this.currentMode);
+                let text = '';
+
+                const difficulty = document.getElementById('difficultySelect')?.value || 'intermediate';
+                
+                if (mode.type === 'custom') {
+                    text = document.getElementById('customText')?.value || 'Enter custom text and click start.';
+                } else {
+                    text = this.passages.general[Math.floor(Math.random() * this.passages.general.length)];
+
+                    if (mode.type === 'words') {
+                        const words = text.split(' ').slice(0, mode.count).join(' ');
+                        text = words;
+                    } else if (mode.type === 'quote') {
+                        text = '"' + this.passages.general[Math.floor(Math.random() * this.passages.general.length)] + '"';
+                    }
+                }
+
+                this.currentText = text;
+                this.renderTypingArea();
+            },
+
+            renderTypingArea() {
+                const area = document.getElementById('typingArea');
+                area.innerHTML = this.currentText.split('').map((char, i) => {
+                    let className = 'char';
+                    if (i < this.userInput.length) {
+                        if (this.userInput[i] === char) {
+                            className += ' correct';
+                        } else {
+                            className += ' incorrect';
+                        }
+                    } else if (i === this.userInput.length) {
+                        className += ' current';
+                    }
+                    return `<span class="${className}" data-index="${i}">${char}</span>`;
+                }).join('');
+
+                // Handle extra characters
+                if (this.userInput.length > this.currentText.length) {
+                    const extra = this.userInput.substring(this.currentText.length);
+                    const extraSpans = extra.split('').map((char, i) => 
+                        `<span class="char extra">${char}</span>`
+                    ).join('');
+                    area.innerHTML += extraSpans;
+                }
+            },
+
+            setupEventListeners() {
+                const input = document.getElementById('inputField');
+                const startBtn = document.getElementById('startBtn');
+                const pauseBtn = document.getElementById('pauseBtn');
+                const restartBtn = document.getElementById('restartBtn');
+
+                input.addEventListener('input', (e) => this.handleInput(e));
+                startBtn.addEventListener('click', () => this.start());
+                pauseBtn.addEventListener('click', () => this.pause());
+                restartBtn.addEventListener('click', () => this.reset());
+
+                document.getElementById('settingsBtn').addEventListener('click', () => {
+                    document.getElementById('settingsModal').classList.add('active');
+                });
+
+                document.getElementById('themeBtn').addEventListener('click', () => this.toggleTheme());
+                document.getElementById('historyBtn').addEventListener('click', () => this.showDashboard());
+
+                document.getElementById('soundToggle').addEventListener('change', (e) => {
+                    this.soundEnabled = e.target.value === 'on';
+                    this.saveSettings();
+                });
+
+                document.getElementById('fontSizeSlider').addEventListener('input', (e) => {
+                    this.fontSize = parseInt(e.target.value);
+                    document.getElementById('fontSizeValue').textContent = this.fontSize;
+                    document.getElementById('typingArea').style.fontSize = this.fontSize + 'px';
+                    this.saveSettings();
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        if (this.isTyping) this.pause();
+                        else this.start();
+                    }
+                    if (e.ctrlKey && e.code === 'KeyR') {
+                        e.preventDefault();
+                        this.reset();
+                    }
+                    if (e.ctrlKey && e.code === 'KeyH') {
+                        e.preventDefault();
+                        this.showDashboard();
+                    }
+                    if (e.ctrlKey && e.code === 'KeyS') {
+                        e.preventDefault();
+                        document.getElementById('settingsModal').classList.add('active');
+                    }
+                    if (e.ctrlKey && e.code === 'KeyT') {
+                        e.preventDefault();
+                        this.toggleTheme();
+                    }
+                });
+
+                // Apply initial font size
+                document.getElementById('typingArea').style.fontSize = this.fontSize + 'px';
+                document.getElementById('fontSizeSlider').value = this.fontSize;
+                document.getElementById('fontSizeValue').textContent = this.fontSize;
+                document.getElementById('soundToggle').value = this.soundEnabled ? 'on' : 'off';
+            },
+
+            start() {
+                if (this.isTyping && !this.isPaused) return;
+                if (this.isPaused) {
+                    this.isPaused = false;
+                    document.getElementById('inputField').focus();
+                    return;
+                }
+
+                this.isTyping = true;
+                this.startTime = Date.now() - this.elapsedTime;
+                this.userInput = '';
+                this.stats.mistakes = 0;
+                this.stats.streak = 0;
+
+                document.getElementById('inputField').focus();
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+                document.getElementById('inputField').value = '';
+
+                this.updateLoop = setInterval(() => this.update(), 100);
+            },
+
+            pause() {
+                this.isPaused = true;
+                document.getElementById('pauseBtn').textContent = 'Resume';
+                clearInterval(this.updateLoop);
+            },
+
+            reset() {
+                clearInterval(this.updateLoop);
+                this.isTyping = false;
+                this.isPaused = false;
+                this.elapsedTime = 0;
+                this.userInput = '';
+                this.stats = {
+                    wpm: 0,
+                    rawWpm: 0,
+                    cpm: 0,
+                    accuracy: 100,
+                    mistakes: 0,
+                    streak: 0,
+                    completed: 0
+                };
+
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                document.getElementById('pauseBtn').textContent = 'Pause';
+                document.getElementById('inputField').value = '';
+                document.getElementById('progressFill').style.width = '0%';
+
+                this.renderStats();
+                this.renderTypingArea();
+                this.generateText();
+            },
+
+            handleInput(e) {
+                if (!this.isTyping || this.isPaused) return;
+
+                this.userInput = e.target.value;
+                this.renderTypingArea();
+
+                const mode = this.modes.find(m => m.id === this.currentMode);
+                let isComplete = false;
+
+                if (mode.type === 'time') {
+                    isComplete = this.elapsedTime >= mode.duration * 1000;
+                } else {
+                    isComplete = this.userInput.length >= this.currentText.length;
+                }
+
+                if (isComplete && this.userInput.length >= this.currentText.length) {
+                    this.complete();
+                }
+            },
+
+            update() {
+                if (!this.isTyping || this.isPaused) return;
+
+                this.elapsedTime = Date.now() - this.startTime;
+                const seconds = Math.max(1, Math.floor(this.elapsedTime / 1000));
+
+                // Calculate statistics
+                const words = this.userInput.trim().split(/\s+/).length;
+                const chars = this.userInput.length;
+                
+                let correct = 0;
+                for (let i = 0; i < Math.min(this.userInput.length, this.currentText.length); i++) {
+                    if (this.userInput[i] === this.currentText[i]) correct++;
+                }
+
+                this.stats.mistakes = this.userInput.length - correct;
+                this.stats.rawWpm = Math.round((chars / 5) / (seconds / 60) * 10) / 10;
+                this.stats.wpm = Math.max(0, Math.round((chars - this.stats.mistakes) / 5 / (seconds / 60) * 10) / 10);
+                this.stats.cpm = Math.round(chars / (seconds / 60) * 10) / 10;
+                this.stats.accuracy = this.userInput.length > 0 ? Math.round((correct / this.userInput.length) * 100) : 100;
+
+                const mode = this.modes.find(m => m.id === this.currentMode);
+                if (mode.type === 'words') {
+                    this.stats.completed = Math.round((words / mode.count) * 100);
+                } else if (mode.type === 'time') {
+                    this.stats.completed = Math.round((this.elapsedTime / (mode.duration * 1000)) * 100);
+                } else {
+                    this.stats.completed = Math.round((this.userInput.length / this.currentText.length) * 100);
+                }
+
+                this.updateDisplay();
+            },
+
+            updateDisplay() {
+                document.getElementById('wpmValue').textContent = this.stats.wpm.toFixed(1);
+                document.getElementById('accValue').textContent = this.stats.accuracy + '%';
+                document.getElementById('cpmValue').textContent = Math.round(this.stats.cpm);
+                document.getElementById('timeValue').textContent = Math.floor(this.elapsedTime / 1000) + 's';
+                document.getElementById('mistakesValue').textContent = this.stats.mistakes;
+                document.getElementById('completionValue').textContent = Math.min(this.stats.completed, 100) + '%';
+                document.getElementById('progressFill').style.width = Math.min(this.stats.completed, 100) + '%';
+
+                const mode = this.modes.find(m => m.id === this.currentMode);
+                if (mode.type === 'time') {
+                    const remaining = Math.max(0, mode.duration - Math.floor(this.elapsedTime / 1000));
+                    document.getElementById('timeValue').textContent = remaining + 's';
+                    if (remaining === 0 && this.isTyping && !this.isPaused) {
+                        this.complete();
+                    }
+                }
+            },
+
+            complete() {
+                clearInterval(this.updateLoop);
+                this.isTyping = false;
+
+                // Save session
+                const session = {
+                    date: new Date().toLocaleString(),
+                    wpm: this.stats.wpm,
+                    accuracy: this.stats.accuracy,
+                    duration: Math.floor(this.elapsedTime / 1000),
+                    characters: this.userInput.length,
+                    mode: this.currentMode
+                };
+
+                this.sessionHistory.unshift(session);
+                if (this.sessionHistory.length > 100) this.sessionHistory.pop();
+                localStorage.setItem('sessionHistory', JSON.stringify(this.sessionHistory));
+
+                this.showDashboard();
+            },
+
+            showDashboard() {
+                document.getElementById('mainInterface').style.display = 'none';
+                document.getElementById('dashboard').classList.add('active');
+                this.renderDashboard();
+            },
+
+            backToTyping() {
+                document.getElementById('mainInterface').style.display = 'block';
+                document.getElementById('dashboard').classList.remove('active');
+                this.reset();
+            },
+
+            renderDashboard() {
+                if (this.sessionHistory.length === 0) return;
+
+                const latest = this.sessionHistory[0];
+
+                // Main stats
+                const grid = document.getElementById('dashboardGrid');
+                grid.innerHTML = `
+                    <div class="dashboard-card">
+                        <div class="card-title">WPM</div>
+                        <div class="card-value">${latest.wpm.toFixed(1)}</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-title">Accuracy</div>
+                        <div class="card-value">${latest.accuracy}%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-title">Duration</div>
+                        <div class="card-value">${latest.duration}s</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-title">Characters</div>
+                        <div class="card-value">${latest.characters}</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-title">Personal Best WPM</div>
+                        <div class="card-value">${Math.max(...this.sessionHistory.map(s => s.wpm)).toFixed(1)}</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-title">Average Accuracy</div>
+                        <div class="card-value">${(this.sessionHistory.reduce((a, b) => a + b.accuracy, 0) / this.sessionHistory.length).toFixed(1)}%</div>
+                    </div>
+                `;
+
+                // Charts
+                const chartsContainer = document.getElementById('chartsContainer');
+                const last10 = this.sessionHistory.slice(0, 10).reverse();
+                const maxWpm = Math.max(...last10.map(s => s.wpm), 1);
+                
+                chartsContainer.innerHTML = `
+                    <div class="chart-container" style="margin-bottom: 2rem;">
+                        <h3 class="section-title">WPM Progress (Last 10)</h3>
+                        ${last10.map((session, idx) => {
+                            const height = (session.wpm / maxWpm) * 100;
+                            return `
+                                <div class="chart-bar" style="height: ${height}%;" title="${session.wpm.toFixed(1)} WPM">
+                                    <div class="chart-bar-value">${Math.round(session.wpm)}</div>
+                                    <div class="chart-bar-label">Session ${idx + 1}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+
+                // Summary
+                const summaryContainer = document.getElementById('summaryContainer');
+                const avgWpm = (this.sessionHistory.reduce((a, b) => a + b.wpm, 0) / this.sessionHistory.length).toFixed(1);
+                const totalChars = this.sessionHistory.reduce((a, b) => a + b.characters, 0);
+                
+                summaryContainer.innerHTML = `
+                    <div class="summary-section">
+                        <h3 class="section-title">Performance Summary</h3>
+                        <div class="summary-text">
+                            <strong>Latest Session:</strong> ${latest.wpm.toFixed(1)} WPM at ${latest.accuracy}% accuracy<br>
+                            <strong>Average WPM:</strong> ${avgWpm}<br>
+                            <strong>Total Sessions:</strong> ${this.sessionHistory.length}<br>
+                            <strong>Total Characters Typed:</strong> ${totalChars.toLocaleString()}<br>
+                            <strong>Consistency:</strong> Excellent consistency with your typing patterns
+                        </div>
+                    </div>
+                `;
+
+                // History table
+                const table = document.getElementById('historyTable').querySelector('tbody');
+                table.innerHTML = this.sessionHistory.slice(0, 20).map(session => `
+                    <tr>
+                        <td>${session.date}</td>
+                        <td><strong>${session.wpm.toFixed(1)}</strong></td>
+                        <td>${session.accuracy}%</td>
+                        <td>${session.duration}s</td>
+                        <td>${session.characters}</td>
+                    </tr>
+                `).join('');
+            },
+
+            loadSessionHistory() {
+                const saved = localStorage.getItem('sessionHistory');
+                if (saved) {
+                    this.sessionHistory = JSON.parse(saved);
+                }
+            },
+
+            toggleTheme() {
+                this.theme = this.theme === 'dark' ? 'light-theme' : 'dark';
+                this.applyTheme();
+                this.saveSettings();
+            },
+
+            applyTheme() {
+                const body = document.body;
+                if (this.theme === 'light-theme') {
+                    body.classList.add('light-theme');
+                } else {
+                    body.classList.remove('light-theme');
+                }
+            }
+        };
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>
