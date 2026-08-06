@@ -1,0 +1,328 @@
+# 🧭 Task Compass
+
+**Learn how work flows through real organizations.**
+
+Task Compass is an interactive educational game that teaches organizational dynamics, ownership, delegation, and collaboration through realistic startup scenarios. Instead of a traditional quiz, you experience how work moves through an organization and learn to think like a manager.
+
+---
+
+## ✨ Features
+
+### Three Progressive Learning Stages
+
+**🎯 Stage 1: Who Owns This? (Ownership)**
+- Learn to identify the primary owner of different workplace problems
+- 3 realistic startup scenarios covering bugs, analytics, and payments
+- Understand *why* certain roles own certain problems
+- Discover which supporting roles assist
+
+**🔄 Stage 2: Task Routing (Delegation & Workflow)**
+- Build the correct workflow sequence for tasks
+- Examples: Feature launches, security vulnerabilities, product tier rollouts
+- Learn how information and work flow through organizations
+- Avoid bottlenecks by understanding proper routing
+
+**👥 Stage 3: Collaboration Challenge (Complex Problem-Solving)**
+- Assign up to 4 teams to large, multi-faceted problems
+- Scenarios: Acquisitions, customer churn, system outages
+- Understand why complex problems require cross-functional collaboration
+- Learn to break down silos
+
+### Premium Game Experience
+
+- 🎮 **Drag-and-drop gameplay** — feels like a strategy game, not an exam
+- 📊 **Progress tracking** — see your journey through all 9 questions
+- 🎨 **Beautiful dark mode UI** — glassmorphism design with smooth animations
+- 💡 **Smart feedback** — educational explanations instead of "right/wrong"
+- 📈 **Learning reflection** — personalized insights about your organizational thinking
+- 📱 **Responsive design** — works on desktop, tablet, and mobile
+
+---
+
+## 🚀 Getting Started
+
+### How to Play
+
+1. **Open the file** — Download `task_compass.html` and open it in any modern web browser
+2. **No installation needed** — Everything runs offline, completely self-contained
+3. **Start the game** — Click "Begin the Journey" on the title screen
+4. **Play three stages** — 3 questions per stage, 9 total challenges
+5. **Receive insights** — Get a personalized reflection on your organizational understanding
+
+### Game Duration
+- ~10–15 minutes total
+- 3 minutes per stage
+
+---
+
+## 📚 What You'll Learn
+
+### Key Concepts
+
+**Ownership** — Who naturally owns different types of problems?
+- Product bugs belong to engineers, not support
+- Engagement drops involve Product Managers, Marketing, and customer data
+- Payment issues require backend expertise
+
+**Delegation** — How do tasks flow through an organization?
+- Understanding the sequence prevents delays
+- Different work types follow different paths
+- Communication flows in both directions
+
+**Collaboration** — When do teams need to work together?
+- Acquisitions involve founders, PMs, marketing, and sales
+- Outages require coordinated DevOps, backend, and customer communication
+- Major customer issues need support, sales, and product
+
+**Workflow Thinking** — How do real organizations operate?
+- Clear ownership prevents confusion
+- Information flows in predictable patterns
+- Cross-functional understanding accelerates decision-making
+
+---
+
+## 🎮 Game Content
+
+### Startup Roles
+
+The game includes 9 core startup roles, each with unique responsibilities:
+
+| Role | Icon | Responsibility |
+|------|------|---|
+| Founder/CEO | 👔 | Vision, strategy, final decisions |
+| Product Manager | 📊 | Product roadmap, metrics, prioritization |
+| Frontend Engineer | 💻 | User interface, client-side logic |
+| Backend Engineer | ⚙️ | APIs, databases, server logic |
+| Designer | 🎨 | UX/UI, visual design, user research |
+| DevOps Engineer | 🛠️ | Deployment, infrastructure, monitoring |
+| Marketing Manager | 📢 | Growth, brand, positioning |
+| Sales Manager | 💼 | Customer acquisition, deals |
+| Customer Support | 🎧 | Customer success, issue escalation |
+
+### Scenario Examples
+
+**Stage 1 — Ownership (Who Owns This?)**
+- 🐛 Bug Report: App Crashes on Login
+- 📉 Sudden Drop in User Engagement
+- 💰 Payment Processing Errors
+
+**Stage 2 — Routing (How Does Work Flow?)**
+- 📱 New Feature Request: Dark Mode
+- 🚀 Launch New Product Tier
+- 🔐 Security Vulnerability Discovered
+
+**Stage 3 — Collaboration (Complex Problems)**
+- 📊 Acquisition Offer: We're Being Acquired
+- ❌ Major Customer Churn Crisis
+- 🔥 System Outage & Reputation Crisis
+
+---
+
+## 📊 Scoring & Reflection
+
+Instead of a traditional score, Task Compass measures your understanding across four categories:
+
+- **Ownership** — How well you identify primary responsibility
+- **Delegation** — How well you route work through organizations
+- **Collaboration** — How well you recognize team interdependencies
+- **Workflow Thinking** — Overall organizational comprehension
+
+Your results are visualized as a **bar chart** showing your performance in each area. You'll also receive personalized insights:
+
+- What you understood well
+- Where you tended to over-assign responsibility
+- Where you underestimated collaboration
+- One key insight about how organizations actually work
+
+---
+
+## 💻 Technical Details
+
+### Requirements
+- **Modern web browser** (Chrome, Safari, Firefox, Edge)
+- **No installation** — just open the HTML file
+- **Completely offline** — no internet connection needed
+- **No external dependencies** — pure HTML, CSS, and JavaScript
+
+### Browser Compatibility
+- ✅ Chrome/Edge (latest)
+- ✅ Safari (latest)
+- ✅ Firefox (latest)
+- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
+
+### File Size
+- Single HTML file (~70 KB)
+- All scenarios embedded in JavaScript
+- Optimized for performance
+
+### What's Included
+- 100% vanilla JavaScript (no frameworks)
+- Pure CSS (no Tailwind or build tools)
+- Drag-and-drop implementation
+- Responsive grid layouts
+- Smooth animations
+- Data validation
+
+---
+
+## 🎯 Design Philosophy
+
+Task Compass was designed with three core principles:
+
+1. **Authenticity** — Scenarios reflect real startup challenges, not oversimplified cases
+2. **Understanding over points** — Learning matters more than scores
+3. **Engagement over lecturing** — Interactive play instead of reading explanations
+
+The game uses:
+- Glassmorphism UI for modern aesthetics
+- Dark mode for reduced eye strain
+- Drag-and-drop for satisfying interaction
+- Animated feedback to reward learning
+- Progress indicators to maintain motivation
+
+---
+
+## 🚀 Use Cases
+
+**For Individuals:**
+- Learn how organizations work before joining your first startup
+- Develop better intuition about role interdependencies
+- Prepare for management or leadership roles
+- Understand cross-functional collaboration
+
+**For Teams:**
+- Onboarding experience for new employees
+- Team building activity (~15 minutes)
+- Educational workshop on organizational design
+- Conversation starter about how your company actually works
+
+**For Educators:**
+- Introduction to organizational behavior
+- Business fundamentals course content
+- MBA or startup curriculum
+- Corporate training programs
+
+---
+
+## 📝 Tips for Getting the Most Out of It
+
+1. **Play without overthinking** — Your first instinct often reflects good intuition
+2. **Reflect on feedback** — Don't just accept the "right" answer; understand the reasoning
+3. **Play multiple times** — Each playthrough reinforces learning
+4. **Discuss with teammates** — Compare your answers with colleagues to learn different perspectives
+5. **Think about your organization** — How does your actual workplace match these patterns?
+
+---
+
+## 🤔 Frequently Asked Questions
+
+**Q: Is there a "correct" answer?**
+A: Stage 1 and 2 have optimal answers based on typical startup organization. Stage 3 rewards thoughtful collaboration, not one "right" choice.
+
+**Q: How long does it take to play?**
+A: 10–15 minutes for a complete playthrough. You can also play individual stages.
+
+**Q: Do I need to know startup terminology?**
+A: No! The game teaches as you play. Role descriptions are clear, and feedback explains reasoning.
+
+**Q: Can I play offline?**
+A: Yes! The entire game is self-contained and requires no internet.
+
+**Q: Can I save my progress?**
+A: The game runs in one session. Refreshing the page starts a new game. (Session persistence could be added if needed.)
+
+**Q: What if I want to change the scenarios?**
+A: The game is built with modular JavaScript. All scenarios are stored as data objects and can be customized by editing the `STAGE1_TASKS`, `STAGE2_TASKS`, and `STAGE3_TASKS` arrays.
+
+---
+
+## 🔧 Customization
+
+Want to adapt Task Compass for your organization?
+
+### Edit Scenarios
+- Open `task_compass.html` in a text editor
+- Find the `STAGE1_TASKS`, `STAGE2_TASKS`, and `STAGE3_TASKS` arrays
+- Modify titles, descriptions, and feedback to match your company culture
+- Adjust role assignments based on your org structure
+
+### Edit Roles
+- Modify the `ROLES` object to match your team structure
+- Change icons, names, and descriptions
+- Add or remove roles as needed
+
+### Edit Feedback
+- Customize explanations and insights
+- Make feedback reflect your company's values
+- Adjust the reflection output
+
+All changes are purely JavaScript — no build tools needed.
+
+---
+
+## 📖 Learning Outcomes
+
+After playing Task Compass, you should be able to:
+
+✅ **Identify ownership** — Determine who naturally owns different problems  
+✅ **Route work effectively** — Understand how tasks flow through organizations  
+✅ **Recognize dependencies** — See which roles need to collaborate  
+✅ **Avoid silos** — Understand costs of poor cross-functional communication  
+✅ **Think systemically** — See organizations as interconnected networks  
+✅ **Make better decisions** — Anticipate consequences of decisions across teams  
+
+---
+
+## 🎓 Educational Context
+
+Task Compass combines three learning approaches:
+
+1. **Scenario-based learning** — Real situations require active decision-making
+2. **Feedback-driven reflection** — Immediate, educational feedback deepens learning
+3. **Progressive complexity** — Stages 1→2→3 build in sophistication
+
+Research shows this approach is more effective than:
+- Multiple-choice quizzes (passive)
+- Lectures (one-way)
+- Case studies alone (no interaction)
+
+---
+
+## 💡 Credits & Design
+
+**Created by:** Claude (Anthropic)  
+**Designed for:** Startup team members and aspiring managers  
+**Built with:** Vanilla HTML, CSS, and JavaScript  
+**Inspired by:** Real organizational challenges and management simulation games
+
+---
+
+## 📄 License & Usage
+
+This game is provided as-is for educational use. You're welcome to:
+- ✅ Use it for personal learning
+- ✅ Share it with your team
+- ✅ Customize it for your organization
+- ✅ Use it in training or education
+
+Feel free to adapt, remix, and build upon it.
+
+---
+
+## 🎮 Next Steps
+
+1. **Open** `task_compass.html` in your browser
+2. **Play** through all three stages
+3. **Reflect** on the insights about your organizational thinking
+4. **Apply** what you learned to real situations in your work
+5. **Share** with teammates and discuss your answers together
+
+**Ready to explore how organizations really work?**
+
+🚀 Open the game and begin your journey!
+
+---
+
+**Questions? Suggestions for improvement?** The game is designed to evolve. Consider what additional scenarios or roles would make it more relevant to your context.
+
+Happy learning! 🧭
