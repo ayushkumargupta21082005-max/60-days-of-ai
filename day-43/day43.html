@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Workflow Architect - Next.js Full-Stack Development</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --dark-bg: #0f172a;
+            --dark-surface: #1e293b;
+            --dark-surface-light: #334155;
+            --dark-border: #475569;
+            --dark-text: #f1f5f9;
+            --dark-text-secondary: #cbd5e1;
+            --light-bg: #f8fafc;
+            --light-surface: #ffffff;
+            --light-border: #e2e8f0;
+            --light-text: #1e293b;
+            --light-text-secondary: #64748b;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        body.light-mode {
+            background-color: var(--light-bg);
+            color: var(--light-text);
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 2rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        button.secondary {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        button.secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Sidebar */
+        .layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+
+        .sidebar {
+            background: var(--dark-surface);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        body.light-mode .sidebar {
+            background: var(--light-surface);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h3 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--dark-text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        body.light-mode .sidebar h3 {
+            color: var(--light-text-secondary);
+        }
+
+        .stage-list {
+            list-style: none;
+        }
+
+        .stage-list li {
+            margin-bottom: 0.5rem;
+        }
+
+        .stage-list button {
+            width: 100%;
+            text-align: left;
+            background: var(--dark-surface-light);
+            color: var(--dark-text-secondary);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--dark-border);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        body.light-mode .stage-list button {
+            background: var(--light-bg);
+            color: var(--light-text-secondary);
+            border-color: var(--light-border);
+        }
+
+        .stage-list button:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .stage-list button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Main Content */
+        .content {
+            background: var(--dark-surface);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        body.light-mode .content {
+            background: var(--light-surface);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stage-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--dark-border);
+        }
+
+        body.light-mode .stage-header {
+            border-bottom-color: var(--light-border);
+        }
+
+        .stage-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .stage-title {
+            flex: 1;
+        }
+
+        .stage-title h1 {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .stage-title p {
+            color: var(--dark-text-secondary);
+            font-size: 0.95rem;
+        }
+
+        body.light-mode .stage-title p {
+            color: var(--light-text-secondary);
+        }
+
+        .stage-duration {
+            background: var(--dark-surface-light);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            color: var(--warning);
+            border: 1px solid var(--dark-border);
+        }
+
+        body.light-mode .stage-duration {
+            background: var(--light-bg);
+            border-color: var(--light-border);
+        }
+
+        /* Section Styles */
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--primary);
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 2px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--dark-surface-light);
+            border: 1px solid var(--dark-border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: var(--transition);
+        }
+
+        body.light-mode .card {
+            background: var(--light-bg);
+            border-color: var(--light-border);
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .card-content {
+            font-size: 0.95rem;
+            color: var(--dark-text-secondary);
+            line-height: 1.7;
+        }
+
+        body.light-mode .card-content {
+            color: var(--light-text-secondary);
+        }
+
+        /* Lists */
+        .task-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .task-list li {
+            padding: 0.75rem 0;
+            padding-left: 1.75rem;
+            position: relative;
+            border-bottom: 1px solid var(--dark-border);
+        }
+
+        body.light-mode .task-list li {
+            border-bottom-color: var(--light-border);
+        }
+
+        .task-list li:last-child {
+            border-bottom: none;
+        }
+
+        .task-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .tool-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .tool-card {
+            background: var(--dark-surface);
+            border: 2px solid var(--dark-border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: var(--transition);
+        }
+
+        body.light-mode .tool-card {
+            background: var(--light-surface);
+            border-color: var(--light-border);
+        }
+
+        .tool-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.15);
+        }
+
+        .tool-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .tool-category {
+            display: inline-block;
+            background: var(--dark-surface-light);
+            color: var(--dark-text-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        body.light-mode .tool-category {
+            background: var(--light-bg);
+            color: var(--light-text-secondary);
+        }
+
+        .tool-description {
+            font-size: 0.9rem;
+            color: var(--dark-text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        body.light-mode .tool-description {
+            color: var(--light-text-secondary);
+        }
+
+        .tool-benefits {
+            list-style: none;
+            font-size: 0.85rem;
+        }
+
+        .tool-benefits li {
+            padding: 0.35rem 0;
+            padding-left: 1.25rem;
+            position: relative;
+            color: var(--dark-text-secondary);
+        }
+
+        body.light-mode .tool-benefits li {
+            color: var(--light-text-secondary);
+        }
+
+        .tool-benefits li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        /* Prompt Section */
+        .prompt-box {
+            background: var(--dark-surface);
+            border-left: 4px solid var(--accent);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--primary);
+            overflow-x: auto;
+        }
+
+        body.light-mode .prompt-box {
+            background: var(--light-bg);
+        }
+
+        .prompt-header {
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+        }
+
+        /* Progress Tracker */
+        .progress-section {
+            background: var(--dark-surface-light);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        body.light-mode .progress-section {
+            background: var(--light-bg);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--dark-border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        body.light-mode .progress-bar {
+            background: var(--light-border);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success) 0%, var(--primary) 100%);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .checklist {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .checklist li {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: var(--dark-surface);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        body.light-mode .checklist li {
+            background: var(--light-surface);
+        }
+
+        .checklist li:hover {
+            background: var(--dark-surface-light);
+        }
+
+        body.light-mode .checklist li:hover {
+            background: var(--light-bg);
+        }
+
+        .checklist input[type="checkbox"] {
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+        }
+
+        .checklist li.completed {
+            opacity: 0.6;
+        }
+
+        .checklist li.completed span {
+            text-decoration: line-through;
+        }
+
+        /* Workflow Diagram */
+        .workflow-diagram {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            overflow-x: auto;
+            padding: 1.5rem;
+            background: var(--dark-surface);
+            border-radius: 0.75rem;
+            margin: 2rem 0;
+        }
+
+        body.light-mode .workflow-diagram {
+            background: var(--light-surface);
+        }
+
+        .workflow-step {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: var(--dark-surface-light);
+            border: 2px solid var(--dark-border);
+            border-radius: 0.5rem;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        body.light-mode .workflow-step {
+            background: var(--light-bg);
+            border-color: var(--light-border);
+        }
+
+        .workflow-step.active {
+            border-color: var(--primary);
+            background: var(--dark-surface);
+        }
+
+        .workflow-arrow {
+            color: var(--primary);
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        /* Toggle */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+                top: 0;
+                sticky: none;
+                max-height: none;
+            }
+
+            .stage-title h1 {
+                font-size: 1.5rem;
+            }
+
+            .tool-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            header {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .header-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .content {
+                padding: 1.5rem;
+            }
+
+            .stage-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .workflow-diagram {
+                flex-direction: column;
+            }
+
+            .workflow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-surface);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--dark-border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        body.light-mode ::-webkit-scrollbar-track {
+            background: var(--light-surface);
+        }
+
+        /* Print Styles */
+        @media print {
+            header, .sidebar, .header-controls {
+                display: none;
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                box-shadow: none;
+                border: none;
+            }
+
+            body {
+                background: white;
+            }
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stage-content {
+            animation: slideIn 0.3s ease;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        .badge-info {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        /* Expanded view */
+        .summary-section {
+            background: linear-gradient(135deg, var(--dark-surface-light) 0%, var(--dark-surface) 100%);
+            border: 1px solid var(--dark-border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        body.light-mode .summary-section {
+            background: linear-gradient(135deg, var(--light-bg) 0%, var(--light-surface) 100%);
+            border-color: var(--light-border);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .summary-item {
+            padding: 1.5rem;
+            background: var(--dark-surface);
+            border-radius: 0.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        body.light-mode .summary-item {
+            background: var(--light-surface);
+        }
+
+        .summary-item-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .summary-item-content {
+            font-size: 0.9rem;
+            color: var(--dark-text-secondary);
+            line-height: 1.6;
+        }
+
+        body.light-mode .summary-item-content {
+            color: var(--light-text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <span>🚀</span>
+                <span>AI Workflow Architect</span>
+            </div>
+            <div class="header-controls">
+                <button class="secondary" onclick="toggleDarkMode()">🌙 Dark</button>
+                <button class="secondary" onclick="window.print()">🖨️ Print</button>
+                <button onclick="downloadWorkflow()">💾 Export</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="layout">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <h3>📋 Workflow Stages</h3>
+                <ul class="stage-list" id="stageList"></ul>
+                <h3 style="margin-top: 2rem;">⚙️ Tools</h3>
+                <button onclick="scrollToSection('ai-stack')" style="width: 100%; margin-bottom: 1rem;">View AI Stack</button>
+                <h3>📚 Resources</h3>
+                <button onclick="scrollToSection('resources')" style="width: 100%;">Learning Guide</button>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="content" id="mainContent"></main>
+        </div>
+    </div>
+
+    <script>
+        // Workflow Data
+        const workflowData = {
+            title: "Building a Next.js Web Application from Scratch",
+            subtitle: "Complete end-to-end workflow for intermediate developers",
+            projectType: "Full-Stack Development",
+            techStack: "Next.js (React + Node)",
+            experienceLevel: "Intermediate",
+            stages: [
+                {
+                    id: 1,
+                    title: "Project Planning & Architecture",
+                    duration: "3-5 days",
+                    timeEstimate: "0.5-1 week",
+                    description: "Define your app concept, features, and technical architecture",
+                    icon: "📐",
+                    objectives: [
+                        "Define project scope and core features",
+                        "Create user personas and user flows",
+                        "Design system architecture and data models",
+                        "Plan technology stack and dependencies",
+                        "Create project timeline and milestones"
+                    ],
+                    tasks: [
+                        "Write product specification document",
+                        "Create wireframes and user flows",
+                        "Design database schema",
+                        "Document API endpoints (REST or GraphQL)",
+                        "Plan deployment strategy",
+                        "Setup project repository and CI/CD pipeline"
+                    ],
+                    aiTools: [
+                        {
+                            name: "Claude",
+                            category: "AI Planning & Documentation",
+                            description: "Generate product specs, user flows, and technical documentation",
+                            why: "Claude excels at structured thinking and can help you flesh out your ideas into comprehensive specifications",
+                            benefits: [
+                                "Generate detailed product specifications",
+                                "Create user persona templates",
+                                "Design system architecture diagrams",
+                                "Review and improve technical plans"
+                            ],
+                            alternatives: ["ChatGPT", "Gemini"],
+                            prompt: "Create a detailed technical specification for a [APP_TYPE] application including: 1) Core features and MVP scope, 2) User personas, 3) Database schema design, 4) API endpoints, 5) Technology stack justification. Target users: [TARGET_USERS]. Key features: [KEY_FEATURES]."
+                        },
+                        {
+                            name: "Whimsical/Excalidraw",
+                            category: "Diagramming & Visualization",
+                            description: "Create wireframes, flowcharts, and architecture diagrams",
+                            why: "Visual planning tools help you map out user flows and system architecture before coding",
+                            benefits: [
+                                "Create interactive wireframes",
+                                "Design user flows and journeys",
+                                "Build architecture diagrams",
+                                "Collaborate with team members"
+                            ],
+                            alternatives: ["Figma", "Miro"],
+                            prompt: "N/A - Use visual design interface"
+                        },
+                        {
+                            name: "GitHub Copilot",
+                            category: "Code Generation",
+                            description: "Generate boilerplate configuration files and setup scripts",
+                            why: "Helps quickly generate initial project structure and configuration files",
+                            benefits: [
+                                "Generate package.json configurations",
+                                "Create environment setup scripts",
+                                "Generate .env.example files",
+                                "Scaffold project structure"
+                            ],
+                            alternatives: ["Claude", "ChatGPT"],
+                            prompt: "Generate a Next.js project configuration with the following setup: Database: [DB], Authentication: [AUTH], Styling: [STYLING], API: [API_TYPE]."
+                        }
+                    ],
+                    bestPractices: [
+                        "Start with user needs, not features",
+                        "Keep MVP scope minimal (3-5 core features)",
+                        "Document decisions and trade-offs",
+                        "Create a project roadmap beyond MVP",
+                        "Plan for scalability from the start"
+                    ],
+                    commonMistakes: [
+                        "Over-scoping the initial version",
+                        "Skipping documentation and planning",
+                        "Not considering data flow and relationships",
+                        "Ignoring authentication and security needs",
+                        "Planning without considering deployment"
+                    ],
+                    expectedOutputs: [
+                        "Product specification document (3-5 pages)",
+                        "User flow diagrams",
+                        "Database schema visualization",
+                        "API documentation (endpoints, methods, responses)",
+                        "Technology stack justification",
+                        "Project timeline with milestones",
+                        "Setup checklist for next phase"
+                    ],
+                    tips: [
+                        "Use templates to speed up documentation",
+                        "Get feedback from potential users early",
+                        "Keep diagrams simple and understandable",
+                        "Document assumptions and constraints",
+                        "Plan for future features in architecture"
+                    ]
+                },
+                {
+                    id: 2,
+                    title: "Environment Setup & Configuration",
+                    duration: "2-4 hours",
+                    timeEstimate: "0.5-1 day",
+                    description: "Initialize Next.js project and configure development environment",
+                    icon: "⚙️",
+                    objectives: [
+                        "Initialize Next.js project with appropriate configurations",
+                        "Setup version control and project structure",
+                        "Configure development tools and linters",
+                        "Setup environment variables and secrets management",
+                        "Configure build and deployment settings"
+                    ],
+                    tasks: [
+                        "Create Next.js project with create-next-app",
+                        "Configure TypeScript and ESLint",
+                        "Setup Git repository and branch strategy",
+                        "Install and configure development dependencies",
+                        "Create environment configuration files",
+                        "Setup pre-commit hooks with Husky",
+                        "Configure package.json scripts"
+                    ],
+                    aiTools: [
+                        {
+                            name: "Claude/GitHub Copilot",
+                            category: "Code Generation",
+                            description: "Generate configuration files and setup scripts",
+                            why: "These tools can quickly generate proper configurations, saving hours of setup time",
+                            benefits: [
+                                "Generate Next.js config files",
+                                "Create TypeScript configurations",
+                                "Setup linting rules",
+                                "Generate environment examples"
+                            ],
+                            alternatives: ["ChatGPT", "Gemini"],
+                            prompt: "Generate a complete Next.js project configuration including: 1) next.config.js for [FEATURES], 2) tsconfig.json with strict mode, 3) .eslintrc.json for best practices, 4) .env.example file with required variables."
+                        },
+                        {
+                            name: "Vercel CLI",
+                            category: "Deployment & Hosting",
+                            description: "Deploy and manage Next.js projects directly from CLI",
+                            why: "Purpose-built for Next.js projects with seamless integration",
+                            benefits: [
+                                "One-command deployment",
+                                "Environment management",
+                                "Automatic previews",
+                                "Production analytics"
+                            ],
+                            alternatives: ["Railway", "Netlify"],
+                            prompt: "N/A - Use CLI commands"
+                        },
+                        {
+                            name: "Docker",
+                            category: "Containerization",
+                            description: "Containerize your Next.js application for consistency",
+                            why: "Ensures development environment matches production deployment",
+                            benefits: [
+                                "Environment consistency",
+                                "Easy team onboarding",
+                                "Simple deployment process",
+                                "Better troubleshooting"
+                            ],
+                            alternatives: ["Podman"],
+                            prompt: "Generate a Dockerfile for a Next.js application with: Node.js [VERSION], environment [PROD/DEV], port [PORT], and build optimization."
+                        }
+                    ],
+                    bestPractices: [
+                        "Use TypeScript for better type safety",
+                        "Setup ESLint and Prettier immediately",
+                        "Keep configurations DRY with environment variables",
+                        "Use .gitignore to exclude sensitive files",
+                        "Document all setup steps for team members"
+                    ],
+                    commonMistakes: [
+                        "Not setting up linting from the start",
+                        "Hardcoding configuration values",
+                        "Ignoring TypeScript warnings",
+                        "Not documenting environment setup",
+                        "Using outdated Node.js versions"
+                    ],
+                    expectedOutputs: [
+                        "Initialized Next.js project",
+                        "Configured tsconfig.json",
+                        "ESLint and Prettier configuration",
+                        ".env.example file",
+                        "Docker setup (optional)",
+                        "Package.json with all dependencies",
+                        "GitHub repository with branches"
+                    ],
+                    tips: [
+                        "Use npm/yarn workspaces for monorepos",
+                        "Setup CI/CD pipeline immediately",
+                        "Test Docker setup before proceeding",
+                        "Keep dependency versions aligned with team",
+                        "Document all custom scripts and commands"
+                    ]
+                },
+                {
+                    id: 3,
+                    title: "Database Design & Setup",
+                    duration: "2-3 days",
+                    timeEstimate: "1-2 days",
+                    description: "Design and configure your database with schemas and relationships",
+                    icon: "🗄️",
+                    objectives: [
+                        "Design normalized database schema",
+                        "Setup database instance and connections",
+                        "Implement ORM/query builder configuration",
+                        "Create database migrations",
+                        "Setup seed data for development"
+                    ],
+                    tasks: [
+                        "Finalize database schema design",
+                        "Choose and setup database (PostgreSQL, MongoDB, etc.)",
+                        "Install and configure ORM (Prisma, TypeORM, etc.)",
+                        "Write initial migrations",
+                        "Setup database connection pooling",
+                        "Create seed scripts for development",
+                        "Setup development and test databases"
+                    ],
+                    aiTools: [
+                        {
+                            name: "Prisma with AI Assistance",
+                            category: "Database ORM",
+                            description: "Use Claude/Copilot to generate Prisma schemas and migrations",
+                            why: "Prisma provides type-safe database access; AI can help design optimal schemas",
+                            benefits: [
+                                "Type-safe database queries",
+                                "Automatic migrations",
+                                "Built-in relationship handling",
+                                "Developer-friendly syntax"
+                            ],
+                            alternatives: ["TypeORM", "Sequelize"],
+                            prompt: "Generate a Prisma schema for a [APP_TYPE] with the following models: [MODELS]. Include relationships: [RELATIONSHIPS]. Add validation rules: [VALIDATIONS]. Configure for PostgreSQL."
+                        },
+                        {
+                            name: "Claude",
+                            category: "Database Design",
+                            description: "Get help designing optimal database schemas",
+                            why: "Claude can review your schema for normalization, performance, and best practices",
+                            benefits: [
+                                "Review schema design",
+                                "Suggest optimizations",
+                                "Plan relationship strategies",
+                                "Generate migration scripts"
+                            ],
+                            alternatives: ["ChatGPT", "Database experts"],
+                            prompt: "Review this database schema for [APP]: [SCHEMA]. Suggest improvements for: 1) Normalization, 2) Performance, 3) Scalability. Provide the corrected schema."
+                        },
+                        {
+                            name: "DBeaver/pgAdmin",
+                            category: "Database Management",
+                            description: "Visual tools for managing and testing databases",
+                            why: "Helpful for visualizing schemas and testing queries before implementation",
+                            benefits: [
+                                "Visual schema design",
+                                "Query testing",
+                                "Data inspection",
+                                "Backup management"
+                            ],
+                            alternatives: ["Postico", "Navicat"],
+                            prompt: "N/A - Use visual interface"
+                        }
+                    ],
+                    bestPractices: [
+                        "Normalize schema to 3NF minimum",
+                        "Use foreign keys to enforce relationships",
+                        "Add indexes on frequently queried columns",
+                        "Version all schema changes with migrations",
+                        "Use timestamps for audit trails"
+                    ],
+                    commonMistakes: [
+                        "Storing denormalized data that causes update anomalies",
+                        "Missing indexes on foreign keys",
+                        "Not planning for growth in data volume",
+                        "Hardcoding database URLs in code",
+                        "Skipping data validation at database level"
+                    ],
+                    expectedOutputs: [
+                        "Database schema documentation",
+                        "ER (Entity-Relationship) diagram",
+                        "Migration files for all tables",
+                        "Seed data script",
+                        "Database connection configuration",
+                        "ORM model files (Prisma schema, etc.)",
+                        "Database performance test results"
+                    ],
+                    tips: [
+                        "Use UUIDs for distributed systems",
+                        "Add soft deletes for audit trails",
+                        "Plan for multi-tenancy if needed",
+                        "Test migration rollbacks",
+                        "Monitor schema growth patterns"
+                    ]
+                },
+                {
+                    id: 4,
+                    title: "Backend API Development",
+                    duration: "10-15 days",
+                    timeEstimate: "2-3 weeks",
+                    description: "Implement REST/GraphQL APIs with business logic and authentication",
+                    icon: "🔧",
+                    objectives: [
+                        "Implement API endpoints according to specification",
+                        "Setup authentication and authorization",
+                        "Implement request validation and error handling",
+                        "Write comprehensive test coverage",
+                        "Setup logging and monitoring"
+                    ],
+                    tasks: [
+                        "Create API route handlers for all endpoints",
+                        "Implement authentication (JWT, OAuth, etc.)",
+                        "Add role-based access control (RBAC)",
+                        "Implement input validation and sanitization",
+                        "Create error handling middleware",
+                        "Setup API documentation (Swagger/OpenAPI)",
+                        "Write unit and integration tests",
+                        "Setup logging with Winston/Pino"
+                    ],
+                    aiTools: [
+                        {
+                            name: "GitHub Copilot/Claude",
+                            category: "Code Generation",
+                            description: "Generate API route handlers and business logic",
+                            why: "Accelerates API development with intelligent code suggestions",
+                            benefits: [
+                                "Generate CRUD operations",
+                                "Create middleware functions",
+                                "Generate test cases",
+                                "Implement error handling"
+                            ],
+                            alternatives: ["ChatGPT"],
+                            prompt: "Generate Next.js API routes for [RESOURCE] with: 1) GET /[RESOURCE] (list with pagination), 2) GET /[RESOURCE]/:id, 3) POST /[RESOURCE] (create), 4) PATCH /[RESOURCE]/:id (update), 5) DELETE /[RESOURCE]/:id. Include validation, error handling, and authentication checks."
+                        },
+                        {
+                            name: "Postman/Insomnia",
+                            category: "API Testing & Documentation",
+                            description: "Test and document your API endpoints",
+                            why: "Essential for testing APIs during development and creating documentation",
+                            benefits: [
+                                "Test API endpoints",
+                                "Create request collections",
+                                "Generate documentation",
+                                "Automate testing workflows"
+                            ],
+                            alternatives: ["Thunderclient", "REST Client"],
+                            prompt: "N/A - Use visual interface"
+                        },
+                        {
+                            name: "Jest/Vitest",
+                            category: "Testing Framework",
+                            description: "Write unit and integration tests for API logic",
+                            why: "Ensures code reliability and catches bugs before production",
+                            benefits: [
+                                "Fast test execution",
+                                "Good coverage reports",
+                                "Snapshot testing",
+                                "Mocking support"
+                            ],
+                            alternatives: ["Mocha", "Jasmine"],
+                            prompt: "Generate comprehensive Jest tests for a [RESOURCE] API endpoint including: 1) Success cases, 2) Error cases, 3) Validation failures, 4) Authentication tests, 5) Database mocking."
+                        },
+                        {
+                            name: "Claude",
+                            category: "Code Review & Optimization",
+                            description: "Review code for security, performance, and best practices",
+                            why: "Gets comprehensive feedback on your backend code quality",
+                            benefits: [
+                                "Identify security vulnerabilities",
+                                "Suggest performance optimizations",
+                                "Review error handling",
+                                "Check API design patterns"
+                            ],
+                            alternatives: ["ChatGPT"],
+                            prompt: "Review this Next.js API route for security and performance issues: [CODE]. Check for: 1) SQL injection vulnerabilities, 2) Rate limiting needs, 3) Caching opportunities, 4) Error handling, 5) Input validation."
+                        }
+                    ],
+                    bestPractices: [
+                        "Follow RESTful API design principles",
+                        "Implement proper error responses with status codes",
+                        "Add rate limiting to prevent abuse",
+                        "Use pagination for list endpoints",
+                        "Validate all user inputs server-side",
+                        "Implement proper logging of all operations",
+                        "Keep secrets in environment variables"
+                    ],
+                    commonMistakes: [
+                        "Trusting frontend validation alone",
+                        "Exposing sensitive errors to clients",
+                        "Not implementing rate limiting",
+                        "Missing database transaction handling",
+                        "Returning excessive data in responses",
+                        "Not versioning your API"
+                    ],
+                    expectedOutputs: [
+                        "All API endpoints implemented and tested",
+                        "Authentication system working",
+                        "API documentation (Swagger/OpenAPI)",
+                        "Test coverage >80%",
+                        "Error handling for all edge cases",
+                        "Logging system configured",
+                        "Performance benchmarks"
+                    ],
+                    tips: [
+                        "Use TypeScript interfaces for type safety",
+                        "Implement comprehensive error logging",
+                        "Test with various invalid inputs",
+                        "Monitor API response times",
+                        "Plan for API versioning strategy"
+                    ]
+                },
+                {
+                    id: 5,
+                    title: "Frontend Development",
+                    duration: "10-15 days",
+                    timeEstimate: "2-3 weeks",
+                    description: "Build responsive UI components and pages with React/Next.js",
+                    icon: "🎨",
+                    objectives: [
+                        "Create reusable component library",
+                        "Build responsive page layouts",
+                        "Implement client-side routing",
+                        "Add state management",
+                        "Implement real-time features if needed"
+                    ],
+                    tasks: [
+                        "Create component library (buttons, forms, cards, etc.)",
+                        "Build page layouts and templates",
+                        "Implement client-side routing",
+                        "Setup state management (Zustand, Redux, etc.)",
+                        "Implement API integration layer",
+                        "Add loading and error states",
+                        "Implement responsive design",
+                        "Add accessibility features (WCAG compliance)"
+                    ],
+                    aiTools: [
+                        {
+                            name: "GitHub Copilot/Claude",
+                            category: "Code Generation",
+                            description: "Generate React components and component logic",
+                            why: "Accelerates component creation with intelligent suggestions",
+                            benefits: [
+                                "Generate component boilerplate",
+                                "Create hook logic",
+                                "Generate form handling code",
+                                "Create TypeScript interfaces"
+                            ],
+                            alternatives: ["ChatGPT"],
+                            prompt: "Create a React component for [COMPONENT_NAME] with: 1) Props interface, 2) State management using hooks, 3) Event handlers, 4) Loading/error states, 5) Responsive styling with Tailwind CSS. Include TypeScript types and prop validation."
+                        },
+                        {
+                            name: "Shadcn/ui or Headless UI",
+                            category: "Component Library",
+                            description: "Pre-built accessible components for rapid UI development",
+                            why: "Saves time on building common components with accessibility built-in",
+                            benefits: [
+                                "Pre-built accessible components",
+                                "Customizable via CSS",
+                                "Good documentation",
+                                "Active community"
+                            ],
+                            alternatives: ["Material-UI", "Chakra UI"],
+                            prompt: "N/A - Use component library"
+                        },
+                        {
+                            name: "Tailwind CSS",
+                            category: "Styling Framework",
+                            description: "Utility-first CSS framework for rapid styling",
+                            why: "Enables fast styling without writing custom CSS",
+                            benefits: [
+                                "Rapid development",
+                                "Consistent design",
+                                "Customizable themes",
+                                "Great documentation"
+                            ],
+                            alternatives: ["CSS Modules", "styled-components"],
+                            prompt: "N/A - Use Tailwind utilities"
+                        },
+                        {
+                            name: "Claude",
+                            category: "Code Review & Design",
+                            description: "Review UI components for usability and best practices",
+                            why: "Gets expert feedback on component design and accessibility",
+                            benefits: [
+                                "Review component design",
+                                "Check accessibility",
+                                "Suggest UX improvements",
+                                "Review responsive design"
+                            ],
+                            alternatives: ["ChatGPT"],
+                            prompt: "Review this React component for accessibility and UX: [CODE]. Check: 1) ARIA attributes, 2) Keyboard navigation, 3) Color contrast, 4) Responsive design, 5) Error states."
+                        }
+                    ],
+                    bestPractices: [
+                        "Build a component library first",
+                        "Use TypeScript for type safety",
+                        "Implement proper loading and error states",
+                        "Make all interfaces keyboard accessible",
+                        "Test with real data early",
+                        "Optimize images and assets",
+                        "Implement proper form validation"
+                    ],
+                    commonMistakes: [
+                        "Building components without reusability in mind",
+                        "Ignoring loading and error states",
+                        "Poor mobile responsiveness",
+                        "Missing accessibility features",
+                        "Prop drilling too deeply",
+                        "Over-using client-side state"
+                    ],
+                    expectedOutputs: [
+                        "Complete component library documented",
+                        "All pages implemented and responsive",
+                        "API integration working",
+                        "State management configured",
+                        "Loading and error states handled",
+                        "Mobile-responsive design",
+                        "Accessibility audit passing"
+                    ],
+                    tips: [
+                        "Build mobile-first then scale up",
+                        "Test components in isolation",
+                        "Use Storybook for component documentation",
+                        "Implement proper image optimization",
+                        "Plan for dark mode support early"
+                    ]
+                },
+                {
+                    id: 6,
+                    title: "Integration & Testing",
+                    duration: "8-10 days",
+                    timeEstimate: "1-2 weeks",
+                    description: "Connect frontend and backend, run comprehensive tests",
+                    icon: "🧪",
+                    objectives: [
+                        "Integrate frontend with backend API",
+                        "Write comprehensive test suite",
+                        "Test edge cases and error scenarios",
+                        "Performance testing and optimization",
+                        "Security testing and vulnerability scanning"
+                    ],
+                    tasks: [
+                        "Connect frontend to backend endpoints",
+                        "Implement error handling for API calls",
+                        "Write end-to-end (E2E) tests",
+                        "Write component tests",
+                        "Test API response handling",
+                        "Performance testing and optimization",
+                        "Security vulnerability scanning",
+                        "Load testing with realistic data"
+                    ],
+                    aiTools: [
+                        {
+                            name: "Playwright/Cypress",
+                            category: "E2E Testing",
+                            description: "Write and run end-to-end tests with AI assistance",
+                            why: "Ensures user workflows work correctly across the application",
+                            benefits: [
+                                "Cross-browser testing",
+                                "Visual regression testing",
+                                "Easy-to-read test syntax",
+                                "CI/CD integration"
+                            ],
+                            alternatives: ["WebdriverIO", "Selenium"],
+                            prompt: "Generate Cypress E2E tests for: 1) User registration flow, 2) Login flow, 3) Viewing [RESOURCE] list, 4) Creating new [RESOURCE], 5) Editing [RESOURCE], 6) Deleting [RESOURCE]. Include error cases."
+                        },
+                        {
+                            name: "Jest + Testing Library",
+                            category: "Component Testing",
+                            description: "Test React components with user-centric approach",
+                            why: "Catches component bugs and ensures UI behaves correctly",
+                            benefits: [
+                                "User-centric testing",
+                                "Good debugging messages",
+                                "Fast execution",
+                                "Good documentation"
+                            ],
+                            alternatives: ["Vitest", "Mocha"],
+                            prompt: "Write comprehensive React Testing Library tests for [COMPONENT]: 1) Render correctly, 2) User interactions, 3) State changes, 4) Error handling, 5) Accessibility."
+                        },
+                        {
+                            name: "OWASP/Snyk",
+                            category: "Security Scanning",
+                            description: "Scan for security vulnerabilities in dependencies",
+                            why: "Identifies known vulnerabilities in third-party packages",
+                            benefits: [
+                                "Dependency vulnerability scanning",
+                                "License compliance checking",
+                                "Security recommendations",
+                                "Automated patching"
+                            ],
+                            alternatives: ["WhiteSource", "Black Duck"],
+                            prompt: "N/A - Use scanning tools"
+                        },
+                        {
+                            name: "Claude",
+                            category: "Test Review & Optimization",
+                            description: "Review tests and suggest improvements",
+                            why: "Gets expert feedback on test quality and coverage",
+                            benefits: [
+                                "Review test coverage",
+                                "Suggest missing test cases",
+                                "Review test quality",
+                                "Identify flaky tests"
+                            ],
+                            alternatives: ["ChatGPT"],
+                            prompt: "Review these test cases for [FEATURE] and suggest: 1) Missing test scenarios, 2) Improved test structure, 3) Better assertions, 4) Edge cases to cover. Current tests: [TEST_CODE]"
+                        }
+                    ],
+                    bestPractices: [
+                        "Aim for >80% code coverage",
+                        "Test user workflows, not implementation details",
+                        "Test both success and failure paths",
+                        "Use realistic data in tests",
+                        "Keep tests fast and isolated",
+                        "Run tests in CI/CD pipeline"
+                    ],
+                    commonMistakes: [
+                        "Testing implementation instead of behavior",
+                        "Brittle tests that fail on refactoring",
+                        "Insufficient error case testing",
+                        "No performance testing",
+                        "Skipping security testing",
+                        "Not testing with real data volumes"
+                    ],
+                    expectedOutputs: [
+                        "E2E tests covering all user workflows",
+                        "Component tests with >80% coverage",
+                        "Integration tests for API calls",
+                        "Performance benchmark results",
+                        "Security scan reports",
+                        "Test coverage report",
+                        "Performance optimization checklist"
+                    ],
+                    tips: [
+                        "Start testing early, not at the end",
+                        "Use fixtures for consistent test data",
+                        "Test with production-like data volumes",
+                        "Monitor test execution time",
+                        "Include accessibility testing in E2E tests"
+                    ]
+                },
+                {
+                    id: 7,
+                    title: "Deployment & DevOps",
+                    duration: "3-5 days",
+                    timeEstimate: "3-5 days",
+                    description: "Deploy to production and setup monitoring/logging",
+                    icon: "🚀",
+                    objectives: [
+                        "Deploy application to production",
+                        "Setup CI/CD pipeline",
+                        "Configure monitoring and alerting",
+                        "Setup logging infrastructure",
+                        "Plan backup and disaster recovery"
+                    ],
+                    tasks: [
+                        "Choose hosting platform (Vercel, AWS, etc.)",
+                        "Setup production database",
+                        "Configure environment variables",
+                        "Setup CI/CD pipeline with GitHub Actions",
+                        "Configure monitoring (New Relic, DataDog, etc.)",
+                        "Setup error tracking (Sentry)",
+                        "Configure logging (ELK Stack, Datadog)",
+                        "Setup SSL/TLS certificates",
+                        "Configure CDN for static assets"
+                    ],
+                    aiTools: [
+                        {
+                            name: "Vercel",
+                            category: "Hosting & Deployment",
+                            description: "Purpose-built Next.js deployment platform",
+                            why: "Optimized for Next.js with automatic optimizations and edge deployment",
+                            benefits: [
+                                "One-click deployment from Git",
+                                "Automatic SSL certificates",
+                                "Edge functions and middleware",
+                                "Built-in analytics"
+                            ],
+                            alternatives: ["AWS", "Railway", "DigitalOcean"],
+                            prompt: "N/A - Use Vercel dashboard"
+                        },
+                        {
+                            name: "GitHub Actions",
+                            category: "CI/CD",
+                            description: "Automate testing and deployment with GitHub Actions",
+                            why: "Integrated with GitHub for easy CI/CD setup",
+                            benefits: [
+                                "Integrated with GitHub",
+                                "Free for public repos",
+                                "Easy to configure",
+                                "Good documentation"
+                            ],
+                            alternatives: ["GitLab CI", "CircleCI"],
+                            prompt: "Create a GitHub Actions workflow for: 1) Run tests on every PR, 2) Build and deploy on main branch, 3) Run security scans, 4) Notify on failures."
+                        },
+                        {
+                            name: "Sentry",
+                            category: "Error Tracking",
+                            description: "Real-time error tracking and reporting",
+                            why: "Catches errors in production before users report them",
+                            benefits: [
+                                "Real-time error alerts",
+                                "Error grouping",
+                                "User impact tracking",
+                                "Release tracking"
+                            ],
+                            alternatives: ["Rollbar", "LogRocket"],
+                            prompt: "N/A - Use Sentry dashboard"
+                        },
+                        {
+                            name: "Claude",
+                            category: "Infrastructure Review",
+                            description: "Review infrastructure setup for security and best practices",
+                            why: "Gets expert review of your deployment configuration",
+                            benefits: [
+                                "Security review",
+                                "Performance recommendations",
+                                "Scalability planning",
+                                "Cost optimization"
+                            ],
+                            alternatives: ["ChatGPT"],
+                            prompt: "Review this deployment configuration for security and performance: [CONFIG]. Check: 1) Security vulnerabilities, 2) Performance issues, 3) Cost optimization, 4) Disaster recovery, 5) Scalability."
+                        }
+                    ],
+                    bestPractices: [
+                        "Use infrastructure-as-code (Terraform, CloudFormation)",
+                        "Implement comprehensive logging",
+                        "Setup monitoring and alerting",
+                        "Use secrets management (not hardcoded)",
+                        "Implement blue-green deployments",
+                        "Regular database backups",
+                        "Implement gradual rollouts (canary deployments)"
+                    ],
+                    commonMistakes: [
+                        "Hardcoding secrets in code or config",
+                        "No monitoring or alerting setup",
+                        "Insufficient database backups",
+                        "No disaster recovery plan",
+                        "Deploying without testing",
+                        "No rate limiting on production"
+                    ],
+                    expectedOutputs: [
+                        "Application deployed and running",
+                        "CI/CD pipeline working",
+                        "Monitoring dashboard setup",
+                        "Error tracking configured",
+                        "Logging infrastructure running",
+                        "SSL/TLS certificates installed",
+                        "Backup and recovery documented"
+                    ],
+                    tips: [
+                        "Use Vercel for easiest Next.js deployment",
+                        "Automate everything in CI/CD",
+                        "Monitor costs closely",
+                        "Test disaster recovery regularly",
+                        "Use feature flags for gradual rollouts"
+                    ]
+                },
+                {
+                    id: 8,
+                    title: "Monitoring & Optimization",
+                    duration: "Ongoing",
+                    timeEstimate: "Ongoing",
+                    description: "Monitor performance and optimize application continuously",
+                    icon: "📊",
+                    objectives: [
+                        "Monitor application performance metrics",
+                        "Optimize database queries",
+                        "Optimize frontend performance",
+                        "Monitor user analytics",
+                        "Plan for scaling and growth"
+                    ],
+                    tasks: [
+                        "Setup performance monitoring (Web Vitals, Core Web Vitals)",
+                        "Analyze and optimize slow database queries",
+                        "Implement caching strategies",
+                        "Optimize images and assets",
+                        "Monitor API response times",
+                        "Setup user analytics",
+                        "Monitor infrastructure costs",
+                        "Plan capacity scaling"
+                    ],
+                    aiTools: [
+                        {
+                            name: "Vercel Analytics/DataDog",
+                            category: "Performance Monitoring",
+                            description: "Monitor real-world performance metrics",
+                            why: "Provides insights into actual user experience",
+                            benefits: [
+                                "Core Web Vitals tracking",
+                                "Real user monitoring",
+                                "Performance trends",
+                                "Comparison with competitors"
+                            ],
+                            alternatives: ["New Relic", "Datadog"],
+                            prompt: "N/A - Use monitoring dashboard"
+                        },
+                        {
+                            name: "Claude",
+                            category: "Performance Analysis",
+                            description: "Analyze performance data and suggest optimizations",
+                            why: "Gets expert analysis of your metrics and targeted recommendations",
+                            benefits: [
+                                "Identify bottlenecks",
+                                "Suggest optimizations",
+                                "Scalability planning",
+                                "Cost reduction tips"
+                            ],
+                            alternatives: ["ChatGPT"],
+                            prompt: "Analyze these performance metrics [METRICS] and suggest: 1) Top performance issues, 2) Database optimization, 3) Caching strategies, 4) Frontend optimizations, 5) Scalability plan."
+                        },
+                        {
+                            name: "Lighthouse/PageSpeed",
+                            category: "Performance Audit",
+                            description: "Automated performance and best practices audits",
+                            why: "Identifies specific performance issues and best practice violations",
+                            benefits: [
+                                "Automated audits",
+                                "Clear recommendations",
+                                "Accessibility checks",
+                                "SEO recommendations"
+                            ],
+                            alternatives: ["WebPageTest", "GTmetrix"],
+                            prompt: "N/A - Use audit tools"
+                        },
+                        {
+                            name: "PostHog/Amplitude",
+                            category: "Analytics",
+                            description: "Track user behavior and feature adoption",
+                            why: "Understand how users interact with your app for optimization",
+                            benefits: [
+                                "User behavior tracking",
+                                "Feature adoption metrics",
+                                "Cohort analysis",
+                                "Funnel analysis"
+                            ],
+                            alternatives: ["Mixpanel", "Heap"],
+                            prompt: "N/A - Use analytics dashboard"
+                        }
+                    ],
+                    bestPractices: [
+                        "Monitor Core Web Vitals constantly",
+                        "Optimize for user experience first",
+                        "Use caching strategically",
+                        "Monitor costs and optimize spending",
+                        "Track key business metrics",
+                        "Regular performance audits",
+                        "Plan for 2-3x traffic growth"
+                    ],
+                    commonMistakes: [
+                        "Only optimizing average case, not 95th percentile",
+                        "Ignoring database query performance",
+                        "Over-caching leading to stale data",
+                        "Not monitoring costs",
+                        "Ignoring user-reported slowness",
+                        "Optimizing without data"
+                    ],
+                    expectedOutputs: [
+                        "Performance monitoring dashboard",
+                        "Weekly performance reports",
+                        "Query optimization documentation",
+                        "Caching strategy documented",
+                        "User analytics reports",
+                        "Cost analysis and budget tracking",
+                        "Scaling plan for 1M+ users"
+                    ],
+                    tips: [
+                        "Focus on Core Web Vitals for SEO",
+                        "Use database query analysis tools",
+                        "Implement strategic caching",
+                        "Monitor real user experience, not lab tests",
+                        "Plan scaling before you need it"
+                    ]
+                }
+            ],
+            recommendedAIStack: [
+                {
+                    category: "Planning & Documentation",
+                    tools: [
+                        { name: "Claude", purpose: "Generate specs, documentation, code review" },
+                        { name: "ChatGPT", purpose: "Alternative AI for brainstorming" }
+                    ]
+                },
+                {
+                    category: "Code Generation & Development",
+                    tools: [
+                        { name: "GitHub Copilot", purpose: "Real-time code suggestions in IDE" },
+                        { name: "Cursor IDE", purpose: "AI-first code editor" },
+                        { name: "Tabnine", purpose: "AI code completion" }
+                    ]
+                },
+                {
+                    category: "Frontend Development",
+                    tools: [
+                        { name: "Shadcn/ui", purpose: "Pre-built accessible components" },
+                        { name: "Tailwind CSS", purpose: "Utility-first styling" },
+                        { name: "Framer Motion", purpose: "Animation library" }
+                    ]
+                },
+                {
+                    category: "Backend & Database",
+                    tools: [
+                        { name: "Prisma", purpose: "Type-safe database ORM" },
+                        { name: "PostgreSQL", purpose: "Relational database" },
+                        { name: "Redis", purpose: "Caching layer" }
+                    ]
+                },
+                {
+                    category: "Testing",
+                    tools: [
+                        { name: "Jest", purpose: "Unit and component testing" },
+                        { name: "Playwright", purpose: "E2E testing" },
+                        { name: "Postman", purpose: "API testing and documentation" }
+                    ]
+                },
+                {
+                    category: "Deployment & DevOps",
+                    tools: [
+                        { name: "Vercel", purpose: "Next.js hosting" },
+                        { name: "GitHub Actions", purpose: "CI/CD automation" },
+                        { name: "Sentry", purpose: "Error tracking" }
+                    ]
+                },
+                {
+                    category: "Monitoring & Analytics",
+                    tools: [
+                        { name: "Vercel Analytics", purpose: "Performance monitoring" },
+                        { name: "PostHog", purpose: "Product analytics" },
+                        { name: "LogRocket", purpose: "Session replay and debugging" }
+                    ]
+                }
+            ],
+            learningResources: [
+                { title: "Next.js Official Documentation", url: "https://nextjs.org/docs", type: "Documentation" },
+                { title: "React Documentation", url: "https://react.dev", type: "Documentation" },
+                { title: "Prisma Documentation", url: "https://www.prisma.io/docs", type: "Documentation" },
+                { title: "Tailwind CSS", url: "https://tailwindcss.com/docs", type: "Documentation" },
+                { title: "TypeScript Handbook", url: "https://www.typescriptlang.org/docs", type: "Documentation" },
+                { title: "Full Stack JavaScript", url: "https://fullstackopen.com", type: "Course" },
+                { title: "The Web Developer Bootcamp", url: "https://www.udemy.com/course/the-web-developer-bootcamp", type: "Course" },
+                { title: "System Design Interview", url: "https://www.educative.io/courses/web-application-system-design", type: "Course" }
+            ],
+            communities: [
+                { name: "Next.js Discord", description: "Official Next.js community" },
+                { name: "React Discussions", description: "React community forum" },
+                { name: "Dev.to", description: "Developer articles and discussions" },
+                { name: "Stack Overflow", description: "Q&A community for developers" },
+                { name: "GitHub Discussions", description: "Project-specific discussions" },
+                { name: "Indie Hackers", description: "Community for bootstrapped founders" }
+            ],
+            searchKeywords: [
+                "Next.js full-stack development",
+                "React TypeScript best practices",
+                "PostgreSQL schema design",
+                "REST API design patterns",
+                "Next.js authentication",
+                "Database optimization",
+                "React performance optimization",
+                "DevOps for Next.js",
+                "Serverless functions",
+                "Full-stack JavaScript"
+            ],
+            futureOptimizations: [
+                "Implement real-time features with WebSockets",
+                "Add AI features using OpenAI API",
+                "Setup automated testing on every commit",
+                "Implement dark mode support",
+                "Add internationalization (i18n)",
+                "Migrate to serverless architecture",
+                "Implement progressive web app (PWA) features",
+                "Add microservices for scale"
+            ]
+        };
+
+        // Initialize Application
+        let currentStage = 1;
+        let darkMode = localStorage.getItem('darkMode') !== 'false';
+        let progress = JSON.parse(localStorage.getItem('workflowProgress') || '{}');
+        let bookmarks = JSON.parse(localStorage.getItem('workflowBookmarks') || '[]');
+
+        function init() {
+            renderStageList();
+            renderStageContent(currentStage);
+            if (!darkMode) {
+                document.body.classList.add('light-mode');
+            }
+            loadProgress();
+        }
+
+        function renderStageList() {
+            const stageList = document.getElementById('stageList');
+            stageList.innerHTML = workflowData.stages.map(stage => `
+                <li>
+                    <button onclick="setCurrentStage(${stage.id})" class="${currentStage === stage.id ? 'active' : ''} stage-button">
+                        ${stage.icon} ${stage.title}
+                    </button>
+                </li>
+            `).join('');
+        }
+
+        function setCurrentStage(id) {
+            currentStage = id;
+            renderStageList();
+            renderStageContent(id);
+        }
+
+        function renderStageContent(stageId) {
+            const stage = workflowData.stages.find(s => s.id === stageId);
+            const mainContent = document.getElementById('mainContent');
+            const stageProgress = progress[stageId] || { completed: false, tasks: [] };
+
+            let html = `
+                <div class="stage-content">
+                    <div class="stage-header">
+                        <div class="stage-number">${stage.id}</div>
+                        <div class="stage-title">
+                            <h1>${stage.title}</h1>
+                            <p>${stage.description}</p>
+                        </div>
+                        <div class="stage-duration">⏱️ ${stage.timeEstimate}</div>
+                    </div>
+
+                    <div class="progress-section">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <div>
+                                <strong>Stage Progress</strong>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${calculateProgress(stageId)}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <ul class="checklist">
+                            ${stage.tasks.map((task, idx) => `
+                                <li class="${stageProgress.tasks[idx] ? 'completed' : ''}" onclick="toggleTask(${stageId}, ${idx})">
+                                    <input type="checkbox" ${stageProgress.tasks[idx] ? 'checked' : ''}>
+                                    <span>${task}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="workflow-diagram">
+                        ${workflowData.stages.map((s, idx) => `
+                            <div class="workflow-step ${s.id === stage.id ? 'active' : ''}" onclick="setCurrentStage(${s.id})">
+                                <div style="font-size: 1.5rem;">${s.icon}</div>
+                                <div style="font-size: 0.8rem; font-weight: 600;">${s.title.split('&')[0]}</div>
+                            </div>
+                            ${idx < workflowData.stages.length - 1 ? '<div class="workflow-arrow">→</div>' : ''}
+                        `).join('')}
+                    </div>
+
+                    <!-- Objectives Section -->
+                    <div class="section">
+                        <h2 class="section-title">🎯 Objectives</h2>
+                        <ul class="task-list">
+                            ${stage.objectives.map(obj => `<li>${obj}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <!-- Key Tasks Section -->
+                    <div class="section">
+                        <h2 class="section-title">📝 Key Tasks</h2>
+                        <ul class="task-list">
+                            ${stage.tasks.map(task => `<li>${task}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <!-- AI Tools Section -->
+                    <div class="section">
+                        <h2 class="section-title">🤖 AI Tools & Resources</h2>
+                        <div class="tool-comparison">
+                            ${stage.aiTools.map(tool => `
+                                <div class="tool-card">
+                                    <div class="tool-name">${tool.name}</div>
+                                    <div class="tool-category">${tool.category}</div>
+                                    <div class="tool-description">${tool.description}</div>
+                                    <strong style="color: var(--success); font-size: 0.85rem;">Why:</strong>
+                                    <div class="tool-description" style="margin-bottom: 1rem;">${tool.why}</div>
+                                    <strong style="color: var(--primary); font-size: 0.85rem;">Key Benefits:</strong>
+                                    <ul class="tool-benefits">
+                                        ${tool.benefits.map(b => `<li>${b}</li>`).join('')}
+                                    </ul>
+                                    ${tool.alternatives ? `<div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--dark-border);"><small style="color: var(--dark-text-secondary);">Alternatives: ${tool.alternatives.join(', ')}</small></div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Prompt Examples Section -->
+                    ${stage.aiTools.some(t => t.prompt !== 'N/A - Use visual interface' && t.prompt !== 'N/A - Use CLI commands') ? `
+                    <div class="section">
+                        <h2 class="section-title">💬 AI Prompt Examples</h2>
+                        ${stage.aiTools.filter(t => t.prompt !== 'N/A - Use visual interface' && t.prompt !== 'N/A - Use CLI commands').map(tool => `
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-icon">💭</div>
+                                    <div>${tool.name}</div>
+                                </div>
+                                <div class="prompt-box">
+                                    <div class="prompt-header">Prompt:</div>
+                                    ${tool.prompt}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+
+                    <!-- Best Practices Section -->
+                    <div class="section">
+                        <h2 class="section-title">✨ Best Practices</h2>
+                        <ul class="task-list">
+                            ${stage.bestPractices.map(practice => `<li>${practice}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <!-- Common Mistakes Section -->
+                    <div class="section">
+                        <h2 class="section-title">⚠️ Common Mistakes</h2>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                            ${stage.commonMistakes.map(mistake => `
+                                <div class="card" style="border-left: 4px solid var(--error);">
+                                    <div class="card-content">${mistake}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Expected Outputs Section -->
+                    <div class="section">
+                        <h2 class="section-title">📦 Expected Outputs</h2>
+                        <div class="card">
+                            <ul class="task-list">
+                                ${stage.expectedOutputs.map(output => `<li>${output}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tips Section -->
+                    <div class="section">
+                        <h2 class="section-title">💡 Tips for Efficiency</h2>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                            ${stage.tips.map((tip, idx) => `
+                                <div class="card" style="border-left: 4px solid var(--warning);">
+                                    <div style="font-weight: 600; color: var(--warning); margin-bottom: 0.5rem;">Tip ${idx + 1}</div>
+                                    <div class="card-content">${tip}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div style="display: flex; gap: 1rem; margin-top: 3rem; justify-content: space-between;">
+                        <button onclick="setCurrentStage(${Math.max(1, stage.id - 1)})" ${stage.id === 1 ? 'disabled style="opacity: 0.5;"' : ''}>← Previous Stage</button>
+                        <button onclick="setCurrentStage(${Math.min(workflowData.stages.length, stage.id + 1)})" ${stage.id === workflowData.stages.length ? 'disabled style="opacity: 0.5;"' : ''}>Next Stage →</button>
+                    </div>
+                </div>
+            `;
+
+            mainContent.innerHTML = html;
+        }
+
+        function calculateProgress(stageId) {
+            const stageProgress = progress[stageId] || { tasks: [] };
+            const stage = workflowData.stages.find(s => s.id === stageId);
+            const completed = stageProgress.tasks.filter(t => t).length;
+            return stage.tasks.length ? (completed / stage.tasks.length) * 100 : 0;
+        }
+
+        function toggleTask(stageId, taskIdx) {
+            if (!progress[stageId]) {
+                progress[stageId] = { tasks: [] };
+            }
+            progress[stageId].tasks[taskIdx] = !progress[stageId].tasks[taskIdx];
+            localStorage.setItem('workflowProgress', JSON.stringify(progress));
+            renderStageContent(currentStage);
+        }
+
+        function toggleDarkMode() {
+            darkMode = !darkMode;
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('darkMode', darkMode);
+        }
+
+        function scrollToSection(id) {
+            setTimeout(() => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 100);
+        }
+
+        function downloadWorkflow() {
+            const content = generateWorkflowSummary();
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'nextjs-workflow-guide.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function generateWorkflowSummary() {
+            let summary = `AI WORKFLOW ARCHITECT - Next.js Full-Stack Development\n`;
+            summary += `Generated: ${new Date().toLocaleDateString()}\n`;
+            summary += `\n${'='.repeat(80)}\n\n`;
+
+            summary += `PROJECT OVERVIEW\n`;
+            summary += `Tech Stack: ${workflowData.techStack}\n`;
+            summary += `Experience Level: ${workflowData.experienceLevel}\n`;
+            summary += `\n${'='.repeat(80)}\n\n`;
+
+            workflowData.stages.forEach(stage => {
+                summary += `STAGE ${stage.id}: ${stage.title}\n`;
+                summary += `Duration: ${stage.timeEstimate}\n`;
+                summary += `\nObjectives:\n`;
+                stage.objectives.forEach(obj => summary += `  • ${obj}\n`);
+                summary += `\nTasks:\n`;
+                stage.tasks.forEach(task => summary += `  • ${task}\n`);
+                summary += `\n${'-'.repeat(80)}\n\n`;
+            });
+
+            return summary;
+        }
+
+        function loadProgress() {
+            // Progress loads from localStorage automatically
+        }
+
+        // Initialize app on load
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
