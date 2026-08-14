@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Agent Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --primary-light: #a78bfa;
+            --accent: #ec4899;
+            --accent-dark: #db2777;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-darker: #020617;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border: #334155;
+            --border-light: #475569;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            color: var(--primary-light);
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            animation: fadeIn 0.6s ease;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            border-color: var(--border-light);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
+        }
+
+        .card h2 {
+            font-size: 1.3em;
+            margin-bottom: 16px;
+            color: var(--primary-light);
+        }
+
+        .card h3 {
+            font-size: 0.95em;
+            color: var(--text-secondary);
+            margin-top: 12px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(139, 92, 246, 0.1);
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(139, 92, 246, 0.3);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .button.secondary {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--primary-light);
+            border: 1px solid var(--primary);
+        }
+
+        .button.secondary:hover {
+            background: rgba(139, 92, 246, 0.25);
+        }
+
+        .workflow-viz {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: rgba(139, 92, 246, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            overflow-x: auto;
+        }
+
+        .agent-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            min-width: 100px;
+        }
+
+        .agent-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5em;
+            text-align: center;
+            padding: 8px;
+            border: 2px solid var(--border);
+            background: var(--bg-card);
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+        .agent-node.active .agent-circle {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .agent-name {
+            font-size: 0.8em;
+            color: var(--text-tertiary);
+            text-align: center;
+        }
+
+        .arrow {
+            font-size: 1.5em;
+            color: var(--text-tertiary);
+            margin: 0 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-box {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        .activity-log {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .log-entry {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            padding: 8px;
+            border-left: 3px solid var(--primary);
+            margin-bottom: 8px;
+            background: rgba(139, 92, 246, 0.05);
+            border-radius: 4px;
+            animation: slideInLeft 0.3s ease;
+        }
+
+        .log-entry.error {
+            border-left-color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .log-entry.success {
+            border-left-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .log-entry.warning {
+            border-left-color: var(--warning);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .score-display {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            margin: 16px 0;
+        }
+
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+            flex-shrink: 0;
+        }
+
+        .score-number {
+            font-size: 2em;
+            font-weight: 800;
+            color: white;
+        }
+
+        .score-max {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .score-details {
+            flex: 1;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+        }
+
+        .score-feedback {
+            font-size: 0.95em;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(139, 92, 246, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 20px;
+            color: var(--success);
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-indicator.waiting {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: var(--warning);
+        }
+
+        .status-indicator.error {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+        }
+
+        .iterations-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        .iterations-table thead {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .iterations-table th {
+            padding: 12px;
+            text-align: left;
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+
+        .iterations-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85em;
+        }
+
+        .iterations-table tr:hover {
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .score-cell {
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-radius: 4px;
+            padding: 8px 12px;
+        }
+
+        .delta-cell {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .delta-cell.negative {
+            color: var(--danger);
+        }
+
+        .final-section {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+
+        .final-section h3 {
+            color: var(--success);
+            font-size: 1.2em;
+            margin-bottom: 12px;
+        }
+
+        .final-post {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 16px;
+            line-height: 1.8;
+            font-size: 1em;
+            white-space: pre-wrap;
+        }
+
+        .copy-button {
+            padding: 10px 16px;
+            margin-top: 12px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .copy-button:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.8); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Autonomous Agent Studio</h1>
+            <p class="subtitle">Multi-Agent Orchestration for Social Media Post Refinement</p>
+            <span class="badge">Day 46 of Claude Coding Challenge</span>
+        </header>
+
+        <!-- INPUT SECTION -->
+        <div class="card" id="inputSection">
+            <h2>Input: Your Social Media Post</h2>
+            
+            <div class="input-group">
+                <label for="apiKey">Anthropic API Key:</label>
+                <input type="password" id="apiKey" placeholder="sk-ant-..." spellcheck="false">
+            </div>
+
+            <div class="input-group">
+                <label for="roughDraft">Rough Draft Post:</label>
+                <textarea id="roughDraft" placeholder="Paste your social media post here. It can be rough—the agents will polish it to maximize engagement." spellcheck="false">Just launched my new open source project! It helps you manage your tasks faster. Check it out on GitHub and let me know what you think!</textarea>
+            </div>
+
+            <div class="input-group">
+                <label for="targetScore">Target Quality Score:</label>
+                <input type="number" id="targetScore" value="8.5" min="1" max="10" step="0.5">
+                <small style="color: var(--text-tertiary); display: block; margin-top: 4px;">The loop will stop once the post reaches this score (1-10).</small>
+            </div>
+
+            <button class="button" id="startBtn" onclick="startRefinement()">Start Refinement Loop</button>
+            <button class="button secondary hidden" id="stopBtn" onclick="stopLoop()">Stop Loop</button>
+        </div>
+
+        <!-- WORKFLOW VISUALIZATION -->
+        <div class="card hidden" id="workflowSection">
+            <h2>Workflow Architecture</h2>
+            <p style="color: var(--text-tertiary); margin-bottom: 16px; font-size: 0.9em;">
+                The loop executes: <strong>Executor → Evaluator → Critic → Improver</strong> → check stop condition → repeat until target score is reached.
+            </p>
+            <div class="workflow-viz" id="workflowViz">
+                <div class="agent-node" data-agent="planner">
+                    <div class="agent-circle">🎯</div>
+                    <div class="agent-name">Planner</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="agent-node" data-agent="executor">
+                    <div class="agent-circle">📝</div>
+                    <div class="agent-name">Executor</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="agent-node" data-agent="evaluator">
+                    <div class="agent-circle">📊</div>
+                    <div class="agent-name">Evaluator</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="agent-node" data-agent="critic">
+                    <div class="agent-circle">💬</div>
+                    <div class="agent-name">Critic</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="agent-node" data-agent="improver">
+                    <div class="agent-circle">✨</div>
+                    <div class="agent-name">Improver</div>
+                </div>
+                <div class="arrow" id="loopArrow">↻</div>
+                <div class="agent-node" data-agent="finalReviewer">
+                    <div class="agent-circle">✅</div>
+                    <div class="agent-name">Final Reviewer</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATUS & STATS -->
+        <div class="dashboard hidden" id="dashboardSection">
+            <div class="card">
+                <h2>Live Status</h2>
+                <div id="statusIndicator" class="status-indicator waiting">
+                    <div class="loading"></div>
+                    <span>Ready</span>
+                </div>
+
+                <h3 style="margin-top: 20px;">Round Progress</h3>
+                <div style="display: flex; align-items: baseline; gap: 8px; margin: 12px 0;">
+                    <span id="roundNumber" style="font-size: 1.8em; font-weight: 800; color: var(--primary-light);">0</span>
+                    <span style="color: var(--text-tertiary);">— running iterations…</span>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="currentScore">—</div>
+                        <div class="stat-label">Current Score</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="targetScoreDisplay">8.5</div>
+                        <div class="stat-label">Target Score</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="deltaDisplay">—</div>
+                        <div class="stat-label">Last Improvement</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="stopReasonDisplay">—</div>
+                        <div class="stat-label">Stop Condition</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Activity Log</h2>
+                <div class="activity-log" id="activityLog">
+                    <div class="log-entry">Ready to start refinement…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCORE & FEEDBACK -->
+        <div class="card hidden" id="scoreSection">
+            <h2>Current Evaluation</h2>
+            <div id="scoreDisplay"></div>
+        </div>
+
+        <!-- ITERATIONS TABLE -->
+        <div class="card hidden" id="iterationsSection">
+            <h2>Iteration History</h2>
+            <table class="iterations-table" id="iterationsTable">
+                <thead>
+                    <tr>
+                        <th>Round</th>
+                        <th>Score</th>
+                        <th>Change</th>
+                        <th>Agent</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="iterationsBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- FINAL RESULT -->
+        <div class="card hidden" id="finalSection">
+            <div class="final-section">
+                <h3>✅ Refinement Complete</h3>
+                <p id="completionMessage" style="color: var(--text-secondary); margin-bottom: 16px;"></p>
+
+                <h3 style="margin-top: 20px; color: var(--text-primary);">Final Polished Post</h3>
+                <div class="final-post" id="finalPost"></div>
+                <button class="copy-button" onclick="copyFinalPost()">📋 Copy to Clipboard</button>
+
+                <h3 style="margin-top: 20px;">Performance Summary</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 12px;" id="performanceSummary"></div>
+            </div>
+        </div>
+
+        <footer>
+            Built as part of Day 46 of the Claude Coding Challenge • Autonomous Agent Studio v1.0
+        </footer>
+    </div>
+
+    <script>
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+        
+        const state = {
+            isRunning: false,
+            currentRound: 0,
+            iterations: [],
+            roughDraft: '',
+            targetScore: 8.5,
+            currentDraft: '',
+            stopReason: null,
+            maxIterations: 10,
+            rubric: '',
+            strategy: '',
+            history: [],
+            startTime: null,
+            activeAgent: null,
+            apiKey: ''
+        };
+
+        // ============================================
+        // SYSTEM PROMPTS FOR AGENTS
+        // ============================================
+
+        const SYSTEM_PROMPTS = {
+            planner: `You are the Planner Agent. Your role is to establish a clear quality rubric for evaluating social media posts designed for maximum engagement and reach. You will be given a rough draft social media post.
+
+Your task: Create a specific, measurable rubric with 4-5 key dimensions (e.g., Hook Strength, Clarity, Engagement Triggers, Brand Voice, Length). For each dimension, define what scores 1-3, 4-6, 7-8, and 9-10 mean.
+
+Respond ONLY with a valid JSON object (no markdown formatting, no backticks, no preamble):
+{
+  "rubric": "Detailed rubric here with dimensions and scoring guidelines",
+  "strategy": "Brief strategic guidance for optimizing this post for engagement"
+}`,
+
+            executor: `You are the Executor Agent. You refine social media posts to maximize engagement and reach.
+
+Given a draft post, feedback from previous iterations, and a quality rubric, your job is to rewrite the post to be more engaging, clear, and aligned with the rubric.
+
+IMPORTANT: Return ONLY the refined post text. Do not include any preamble, explanation, or markdown backticks. Just the polished post ready to share on social media.`,
+
+            evaluator: `You are the Evaluator Agent. You score social media posts on a 1-10 scale based on a quality rubric.
+
+Given a post and a rubric, you will score it and provide a brief numerical justification.
+
+Respond ONLY with a valid JSON object (no markdown formatting, no backticks, no preamble):
+{
+  "score": 7.5,
+  "reasoning": "Brief explanation of the score based on the rubric dimensions"
+}`,
+
+            critic: `You are the Critic Agent. You identify what's working and what needs improvement in a social media post.
+
+Given a post, its current score, and the rubric, provide specific, actionable feedback on 2-3 key areas that would most improve engagement.
+
+Respond ONLY with a valid JSON object (no markdown formatting, no backticks, no preamble):
+{
+  "strengths": ["What's working well"],
+  "weaknesses": ["What needs improvement"],
+  "priorityGaps": "The 1-2 most important things to fix next to increase score"
+}`,
+
+            improver: `You are the Improver Agent. You generate specific suggestions for enhancing a social media post.
+
+Given feedback from the Critic and the current draft, suggest 2-3 concrete changes that would most likely increase the engagement score.
+
+Respond ONLY with a valid JSON object (no markdown formatting, no backticks, no preamble):
+{
+  "suggestions": ["Concrete suggestion 1", "Concrete suggestion 2", "Concrete suggestion 3"],
+  "expectedImpact": "Brief prediction of how these changes will improve the score"
+}`,
+
+            finalReviewer: `You are the Final Reviewer Agent. You provide a final assessment of a social media post that has reached the target quality score.
+
+Review the post holistically and provide a brief approval statement.
+
+Respond ONLY with a valid JSON object (no markdown formatting, no backticks, no preamble):
+{
+  "approval": "Brief approval statement",
+  "finalNotes": "Any last-minute observations about why this post will perform well"
+}`
+        };
+
+        // ============================================
+        // LOGGING & UI UPDATES
+        // ============================================
+
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('activityLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'waiting') {
+            const indicator = document.getElementById('statusIndicator');
+            indicator.className = `status-indicator ${type}`;
+            
+            const showSpinner = type === 'running';
+            indicator.innerHTML = `${showSpinner ? '<div class="loading"></div>' : ''}<span>${message}</span>`;
+        }
+
+        function setActiveAgent(agentName) {
+            document.querySelectorAll('.agent-node').forEach(node => node.classList.remove('active'));
+            if (agentName) {
+                document.querySelector(`[data-agent="${agentName}"]`)?.classList.add('active');
+            }
+            state.activeAgent = agentName;
+        }
+
+        function updateRoundDisplay() {
+            document.getElementById('roundNumber').textContent = state.currentRound;
+        }
+
+        function displayScore(score, feedback) {
+            const scoreSection = document.getElementById('scoreSection');
+            scoreSection.classList.remove('hidden');
+
+            const html = `
+                <div class="score-display">
+                    <div class="score-circle">
+                        <div class="score-number">${score.toFixed(1)}</div>
+                        <div class="score-max">/ 10</div>
+                    </div>
+                    <div class="score-details">
+                        <div class="score-label">Quality Assessment</div>
+                        <div class="score-feedback">${feedback}</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${(score / 10) * 100}%"></div>
+                </div>
+            `;
+            document.getElementById('scoreDisplay').innerHTML = html;
+        }
+
+        function addIterationRow(round, score, delta, agent, status) {
+            const tbody = document.getElementById('iterationsBody');
+            const row = tbody.insertRow();
+            
+            const deltaSign = delta >= 0 ? '+' : '';
+            const deltaClass = delta >= 0 ? '' : 'negative';
+            
+            row.innerHTML = `
+                <td>${round}</td>
+                <td class="score-cell">${score.toFixed(1)}</td>
+                <td class="delta-cell ${deltaClass}">${deltaSign}${delta.toFixed(2)}</td>
+                <td>${agent}</td>
+                <td><span class="status-indicator" style="margin: 0; padding: 2px 8px;">${status}</span></td>
+            `;
+        }
+
+        // ============================================
+        // CLAUDE API INTEGRATION
+        // ============================================
+
+        async function callClaude(systemPrompt, userMessage, isJson = false) {
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-api-key': state.apiKey,
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerously-allow-browser': 'true'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-3-5-sonnet-20241022',
+                        max_tokens: 1500,
+                        messages: [{ role: 'user', content: userMessage }],
+                        system: systemPrompt,
+                    }),
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error?.message || `API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                let text = data.content[0].text.trim();
+
+                if (isJson) {
+                    // Clean code fence formatting if present
+                    text = text.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
+                    return JSON.parse(text);
+                }
+                return text;
+            } catch (error) {
+                log(`API Error: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        // ============================================
+        // AGENT EXECUTION FUNCTIONS
+        // ============================================
+
+        async function executePlanner(draft) {
+            setActiveAgent('planner');
+            log('Planner: Creating quality rubric and strategy…', 'info');
+            updateStatus('Planner generating rubric…', 'running');
+
+            const result = await callClaude(
+                SYSTEM_PROMPTS.planner,
+                `Please create a quality rubric for this social media post:\n\n${draft}`,
+                true
+            );
+
+            state.rubric = result.rubric;
+            state.strategy = result.strategy;
+            log('Planner: Rubric and strategy created.', 'success');
+            return result;
+        }
+
+        async function executeExecutor(draft, feedback = '') {
+            setActiveAgent('executor');
+            log('Executor: Refining draft post…', 'info');
+            updateStatus('Executor polishing post…', 'running');
+
+            const prompt = `Rubric:\n${state.rubric}\n\nCurrent Draft:\n${draft}\n\nFeedback for improvement:\n${feedback || 'None yet, this is the initial draft.'}`;
+            
+            const refinedPost = await callClaude(SYSTEM_PROMPTS.executor, prompt, false);
+            state.currentDraft = refinedPost;
+            log('Executor: Post refined successfully.', 'success');
+            return refinedPost;
+        }
+
+        async function executeEvaluator(post) {
+            setActiveAgent('evaluator');
+            log('Evaluator: Scoring post quality…', 'info');
+            updateStatus('Evaluator scoring…', 'running');
+
+            const prompt = `Rubric:\n${state.rubric}\n\nPost to evaluate:\n${post}`;
+            const evalResult = await callClaude(SYSTEM_PROMPTS.evaluator, prompt, true);
+            
+            log(`Evaluator Score: ${evalResult.score}/10`, evalResult.score >= state.targetScore ? 'success' : 'info');
+            return evalResult;
+        }
+
+        async function executeCritic(post, score) {
+            setActiveAgent('critic');
+            log('Critic: Analyzing post for weaknesses…', 'info');
+            updateStatus('Critic reviewing…', 'running');
+
+            const prompt = `Rubric:\n${state.rubric}\n\nCurrent Score: ${score}/10\n\nPost:\n${post}`;
+            const criticResult = await callClaude(SYSTEM_PROMPTS.critic, prompt, true);
+            
+            log(`Critic Priority Gap: ${criticResult.priorityGaps}`, 'warning');
+            return criticResult;
+        }
+
+        async function executeImprover(draft, criticFeedback) {
+            setActiveAgent('improver');
+            log('Improver: Generating improvement strategy…', 'info');
+            updateStatus('Improver strategizing…', 'running');
+
+            const prompt = `Draft:\n${draft}\n\nCritic Feedback:\n${JSON.stringify(criticFeedback, null, 2)}`;
+            const improverResult = await callClaude(SYSTEM_PROMPTS.improver, prompt, true);
+            
+            log(`Improver Suggestions: ${improverResult.suggestions.join('; ')}`, 'info');
+            return improverResult;
+        }
+
+        async function executeFinalReviewer(post) {
+            setActiveAgent('finalReviewer');
+            log('Final Reviewer: Conducting final assessment…', 'info');
+            updateStatus('Final Reviewer concluding…', 'running');
+
+            const prompt = `Post:\n${post}\n\nRubric:\n${state.rubric}`;
+            const finalResult = await callClaude(SYSTEM_PROMPTS.finalReviewer, prompt, true);
+            
+            log('Final Reviewer: Assessment complete!', 'success');
+            return finalResult;
+        }
+
+        // ============================================
+        // CORE REFINEMENT LOOP
+        // ============================================
+
+        async function startRefinement() {
+            const apiKeyInput = document.getElementById('apiKey').value.trim();
+            const roughDraftInput = document.getElementById('roughDraft').value.trim();
+            const targetScoreInput = parseFloat(document.getElementById('targetScore').value);
+
+            if (!apiKeyInput) {
+                alert('Please enter your Anthropic API Key.');
+                return;
+            }
+
+            if (!roughDraftInput) {
+                alert('Please enter a rough draft post.');
+                return;
+            }
+
+            // Initialize State
+            state.apiKey = apiKeyInput;
+            state.roughDraft = roughDraftInput;
+            state.currentDraft = roughDraftInput;
+            state.targetScore = targetScoreInput;
+            state.isRunning = true;
+            state.currentRound = 0;
+            state.iterations = [];
+            state.stopReason = null;
+            state.startTime = Date.now();
+
+            // Toggle Controls
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('stopBtn').classList.remove('hidden');
+            
+            // Show Workflow & Dashboard Sections
+            document.getElementById('workflowSection').classList.remove('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            document.getElementById('iterationsSection').classList.remove('hidden');
+            document.getElementById('targetScoreDisplay').textContent = state.targetScore.toFixed(1);
+            document.getElementById('iterationsBody').innerHTML = '';
+            document.getElementById('activityLog').innerHTML = '';
+
+            log('Starting Autonomous Agent Loop…', 'info');
+
+            try {
+                // Step 1: Planner Phase
+                await executePlanner(state.roughDraft);
+                
+                let lastScore = 0;
+                let currentFeedback = '';
+
+                // Refinement Cycle Loop
+                while (state.isRunning && state.currentRound < state.maxIterations) {
+                    state.currentRound++;
+                    updateRoundDisplay();
+                    log(`--- Starting Round ${state.currentRound} ---`, 'info');
+
+                    // 1. Executor
+                    const refinedDraft = await executeExecutor(state.currentDraft, currentFeedback);
+
+                    // 2. Evaluator
+                    const evalResult = await executeEvaluator(refinedDraft);
+                    const currentScore = evalResult.score;
+                    const delta = currentScore - lastScore;
+
+                    displayScore(currentScore, evalResult.reasoning);
+                    document.getElementById('currentScore').textContent = currentScore.toFixed(1);
+                    document.getElementById('deltaDisplay').textContent = (delta >= 0 ? '+' : '') + delta.toFixed(2);
+
+                    addIterationRow(state.currentRound, currentScore, delta, 'Executor/Evaluator', 'Complete');
+
+                    state.iterations.push({
+                        round: state.currentRound,
+                        draft: refinedDraft,
+                        score: currentScore,
+                        delta: delta,
+                        reasoning: evalResult.reasoning
+                    });
+
+                    // Check Stop Condition
+                    if (currentScore >= state.targetScore) {
+                        state.stopReason = `Target score reached (${currentScore.toFixed(1)} >= ${state.targetScore.toFixed(1)})`;
+                        log(`Stop Condition Met: ${state.stopReason}`, 'success');
+                        break;
+                    }
+
+                    if (state.currentRound >= state.maxIterations) {
+                        state.stopReason = `Maximum iterations limit reached (${state.maxIterations})`;
+                        log(`Stop Condition Met: ${state.stopReason}`, 'warning');
+                        break;
+                    }
+
+                    // 3. Critic
+                    const criticResult = await executeCritic(refinedDraft, currentScore);
+
+                    // 4. Improver
+                    const improverResult = await executeImprover(refinedDraft, criticResult);
+
+                    currentFeedback = `Critic Priority Gaps: ${criticResult.priorityGaps}\nImprover Suggestions: ${improverResult.suggestions.join(', ')}`;
+                    lastScore = currentScore;
+                }
+
+                if (!state.isRunning) {
+                    state.stopReason = 'Manually stopped by user';
+                    log('Refinement loop halted manually.', 'warning');
+                } else {
+                    // Final Reviewer Execution
+                    const finalReview = await executeFinalReviewer(state.currentDraft);
+                    finishRefinement(finalReview);
+                }
+
+            } catch (err) {
+                log(`Loop terminated due to error: ${err.message}`, 'error');
+                updateStatus('Execution Error', 'error');
+                stopLoop();
+            }
+        }
+
+        function stopLoop() {
+            state.isRunning = false;
+            setActiveAgent(null);
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('stopBtn').classList.add('hidden');
+            updateStatus('Stopped', 'error');
+        }
+
+        function finishRefinement(finalReview) {
+            stopLoop();
+            updateStatus('Completed', 'success');
+            document.getElementById('stopReasonDisplay').textContent = 'Target Met';
+
+            const finalSection = document.getElementById('finalSection');
+            finalSection.classList.remove('hidden');
+
+            document.getElementById('completionMessage').textContent = state.stopReason;
+            document.getElementById('finalPost').textContent = state.currentDraft;
+
+            const durationSec = Math.round((Date.now() - state.startTime) / 1000);
+            
+            const summaryHtml = `
+                <div class="stat-box">
+                    <div class="stat-value">${state.currentRound}</div>
+                    <div class="stat-label">Total Iterations</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">${durationSec}s</div>
+                    <div class="stat-label">Time Elapsed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">${state.iterations[state.iterations.length - 1]?.score.toFixed(1) || 'N/A'}</div>
+                    <div class="stat-label">Final Quality Score</div>
+                </div>
+            `;
+            document.getElementById('performanceSummary').innerHTML = summaryHtml;
+            finalSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyFinalPost() {
+            const postText = document.getElementById('finalPost').textContent;
+            navigator.clipboard.writeText(postText).then(() => {
+                alert('Copied final post to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>
