@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Intelligence Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border: #475569;
+            --border-light: #64748b;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #1a2941 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+        }
+
+        /* Interview Summary */
+        .interview-summary {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            animation: fadeIn 0.6s ease-out 0.1s backwards;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .summary-item {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .summary-item-label {
+            color: var(--text-tertiary);
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 5px;
+        }
+
+        .summary-item-value {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border-light);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all var(--transition);
+            animation: fadeIn 0.6s ease-out 0.2s backwards;
+        }
+
+        .upload-section:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .upload-section.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+        }
+
+        .upload-text h3 {
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .upload-text p {
+            color: var(--text-tertiary);
+            margin-bottom: 20px;
+        }
+
+        .upload-input {
+            display: none;
+        }
+
+        .upload-button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Preview Section */
+        .preview-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            animation: slideUp 0.6s ease-out;
+            display: none;
+        }
+
+        .preview-section.show {
+            display: block;
+        }
+
+        .preview-title {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .preview-content {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+            color: var(--text-secondary);
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .preview-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            color: var(--text-tertiary);
+            font-size: 0.9em;
+        }
+
+        /* Analysis Dashboard */
+        .dashboard {
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .dashboard.show {
+            display: block;
+        }
+
+        .score-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            animation: slideUp 0.6s ease-out 0.1s backwards;
+        }
+
+        .score-label {
+            color: var(--text-tertiary);
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+
+        .score-value {
+            font-size: 3.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .score-description {
+            color: var(--text-secondary);
+            font-size: 1.05em;
+        }
+
+        .score-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 4px;
+            animation: fillBar 1s ease-out 0.5s backwards;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+            animation: fadeIn 0.6s ease-out 0.2s backwards;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all var(--transition);
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-content {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .card-list {
+            list-style: none;
+            color: var(--text-secondary);
+        }
+
+        .card-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .card-list li:last-child {
+            border-bottom: none;
+        }
+
+        .list-icon {
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        /* Activity Log */
+        .activity-log {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            animation: slideUp 0.6s ease-out 0.3s backwards;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 3px solid var(--border-light);
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .activity-item.processing {
+            border-left-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .activity-item.completed {
+            border-left-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .activity-item.error {
+            border-left-color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .activity-icon {
+            font-size: 1.3em;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .activity-content h4 {
+            color: var(--text-primary);
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+
+        .activity-content p {
+            color: var(--text-tertiary);
+            font-size: 0.85em;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Insights Section */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+            animation: fadeIn 0.6s ease-out 0.4s backwards;
+        }
+
+        .insight-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all var(--transition);
+        }
+
+        .insight-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .insight-icon {
+            font-size: 1.8em;
+            margin-bottom: 12px;
+        }
+
+        .insight-title {
+            font-weight: 600;
+            font-size: 1em;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .insight-text {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        /* Metrics */
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1.1em;
+        }
+
+        .metric-score {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .metric-score.high {
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .metric-score.medium {
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .metric-score.low {
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* Expandable Sections */
+        .expandable {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            animation: slideUp 0.6s ease-out backwards;
+        }
+
+        .expandable-header {
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-secondary);
+            transition: all var(--transition);
+            user-select: none;
+        }
+
+        .expandable-header:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .expandable-header.open {
+            background: rgba(99, 102, 241, 0.1);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .expandable-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1.05em;
+        }
+
+        .expandable-toggle {
+            font-size: 1.2em;
+            color: var(--primary);
+            transition: transform var(--transition);
+        }
+
+        .expandable-header.open .expandable-toggle {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            padding: 25px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--transition);
+        }
+
+        .expandable-content.show {
+            max-height: 2000px;
+        }
+
+        /* Recommendations */
+        .recommendation {
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: all var(--transition);
+        }
+
+        .recommendation:hover {
+            border-left-color: var(--secondary);
+            background: rgba(236, 72, 153, 0.05);
+        }
+
+        .recommendation-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .recommendation-text {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-size: 0.95em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85em;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 30px;
+            color: var(--text-secondary);
+        }
+
+        .loading-text {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            color: #fca5a5;
+            margin: 20px 0;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .error-icon {
+            font-size: 1.3em;
+            flex-shrink: 0;
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes fillBar {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .score-value {
+                font-size: 2.5em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-section {
+                padding: 30px 20px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+        }
+
+        /* Utility */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-30 {
+            margin-top: 30px;
+        }
+
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-processing {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 30px 0;
+        }
+
+        /* Stats */
+        .stat-box {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-tertiary);
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Content Intelligence Studio</h1>
+            <p>Advanced AI-Powered Content Analysis for Instagram</p>
+        </div>
+
+        <!-- Interview Summary -->
+        <div class="interview-summary">
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-item-label">📱 Content Type</div>
+                    <div class="summary-item-value">Social Media Post</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-item-label">📸 Platform</div>
+                    <div class="summary-item-value">Instagram (Feed, Reels, Stories)</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-item-label">🎯 Primary Goal</div>
+                    <div class="summary-item-value">Increase Engagement</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-item-label">📝 Input Format</div>
+                    <div class="summary-item-value">Post Caption/Text Only</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-item-label">💭 Review Style</div>
+                    <div class="summary-item-value">Constructive & Encouraging</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-icon">📝</div>
+            <div class="upload-text">
+                <h3>Paste Your Instagram Caption</h3>
+                <p>Share your post caption or text for in-depth AI analysis</p>
+            </div>
+            <textarea id="uploadInput" placeholder="Paste your Instagram caption here... The studio will analyze engagement potential, messaging clarity, CTA effectiveness, and more." style="width: 100%; min-height: 120px; padding: 15px; border: 1px solid var(--border); background: var(--bg-tertiary); color: var(--text-primary); border-radius: 8px; font-family: inherit; font-size: 0.95em; resize: vertical; display: none; margin-top: 15px;"></textarea>
+            <button class="upload-button" id="uploadBtn" style="margin-top: 15px; display: none;">Analyze Content</button>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section" id="previewSection">
+            <div class="preview-title">📋 Your Instagram Caption</div>
+            <div class="preview-content" id="previewContent"></div>
+            <div class="preview-meta">
+                <span id="charCount">0 characters</span>
+                <span id="wordCount">0 words</span>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="activity-log" id="activityLog" style="display: none;">
+            <div class="activity-title">🔄 Analysis Pipeline</div>
+            <div id="activityContainer"></div>
+        </div>
+
+        <!-- Analysis Dashboard -->
+        <div class="dashboard" id="dashboard">
+            <!-- Overall Score -->
+            <div class="score-card" id="scoreCard" style="display: none;">
+                <div class="score-label">Content Engagement Score</div>
+                <div class="score-value" id="scoreValue">0</div>
+                <div class="score-description" id="scoreDescription">Analyzing...</div>
+                <div class="score-bar">
+                    <div class="score-bar-fill" id="scoreBarFill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Category Breakdown -->
+            <div class="card" id="categoryCard" style="display: none;">
+                <div class="card-title">📊 Detailed Metrics</div>
+                <div id="categoryMetrics"></div>
+            </div>
+
+            <!-- Strengths & Weaknesses -->
+            <div class="insights-grid" id="insightsGrid" style="display: none;"></div>
+
+            <!-- Recommendations Section -->
+            <div class="expandable" id="recommendationsExpandable" style="display: none;">
+                <div class="expandable-header">
+                    <span class="expandable-title">💡 Strategic Recommendations</span>
+                    <span class="expandable-toggle">▼</span>
+                </div>
+                <div class="expandable-content" id="recommendationsContent"></div>
+            </div>
+
+            <!-- Rewritten Versions -->
+            <div class="expandable" id="rewriteExpandable" style="display: none;">
+                <div class="expandable-header">
+                    <span class="expandable-title">✨ Alternative Versions</span>
+                    <span class="expandable-toggle">▼</span>
+                </div>
+                <div class="expandable-content" id="rewriteContent"></div>
+            </div>
+
+            <!-- Publishing Checklist -->
+            <div class="expandable" id="checklistExpandable" style="display: none;">
+                <div class="expandable-header">
+                    <span class="expandable-title">✅ Pre-Publishing Checklist</span>
+                    <span class="expandable-toggle">▼</span>
+                </div>
+                <div class="expandable-content" id="checklistContent"></div>
+            </div>
+
+            <!-- Performance Prediction -->
+            <div class="card" id="performanceCard" style="display: none;">
+                <div class="card-title">🚀 Predicted Performance Potential</div>
+                <div id="performanceContent"></div>
+            </div>
+
+            <!-- Executive Summary -->
+            <div class="expandable" id="summaryExpandable" style="display: none;">
+                <div class="expandable-header">
+                    <span class="expandable-title">📄 Executive Summary</span>
+                    <span class="expandable-toggle">▼</span>
+                </div>
+                <div class="expandable-content" id="summaryContent"></div>
+            </div>
+
+            <!-- Further Optimization -->
+            <div class="expandable" id="optimizeExpandable" style="display: none;">
+                <div class="expandable-header">
+                    <span class="expandable-title">🔧 Further Optimization Prompts</span>
+                    <span class="expandable-toggle">▼</span>
+                </div>
+                <div class="expandable-content" id="optimizeContent"></div>
+            </div>
+        </div>
+
+        <!-- Error Container -->
+        <div id="errorContainer"></div>
+    </div>
+
+    <script>
+        // State Management
+        const state = {
+            content: '',
+            isAnalyzing: false,
+            analysis: null,
+            apiErrors: []
+        };
+
+        // Configuration
+        const CONFIG = {
+            API_URL: 'https://api.anthropic.com/v1/messages',
+            MODEL: 'claude-opus-4-1',
+            MAX_TOKENS: 2000,
+            CONTEXT: {
+                contentType: 'Social Media Post',
+                platform: 'Instagram',
+                goal: 'Increase Engagement',
+                reviewStyle: 'Constructive & Encouraging'
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupUploadArea();
+            setupExpandables();
+        });
+
+        // Upload Area Setup
+        function setupUploadArea() {
+            const uploadSection = document.getElementById('uploadSection');
+            const uploadInput = document.getElementById('uploadInput');
+            const uploadBtn = document.getElementById('uploadBtn');
+
+            uploadSection.addEventListener('click', (e) => {
+                if (e.target !== uploadBtn) {
+                    uploadInput.style.display = 'block';
+                    uploadBtn.style.display = 'block';
+                    uploadInput.focus();
+                }
+            });
+
+            uploadInput.addEventListener('input', (e) => {
+                state.content = e.target.value;
+                updatePreview();
+            });
+
+            uploadBtn.addEventListener('click', () => {
+                if (state.content.trim().length > 0) {
+                    analyzeContent();
+                }
+            });
+
+            uploadInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    if (state.content.trim().length > 0) {
+                        analyzeContent();
+                    }
+                }
+            });
+        }
+
+        // Update Preview
+        function updatePreview() {
+            const previewSection = document.getElementById('previewSection');
+            const previewContent = document.getElementById('previewContent');
+            const charCount = document.getElementById('charCount');
+            const wordCount = document.getElementById('wordCount');
+
+            if (state.content.trim().length > 0) {
+                previewSection.classList.add('show');
+                previewContent.textContent = state.content;
+                charCount.textContent = state.content.length + ' characters';
+                wordCount.textContent = state.content.split(/\s+/).filter(w => w.length > 0).length + ' words';
+            } else {
+                previewSection.classList.remove('show');
+            }
+        }
+
+        // Analyze Content
+        async function analyzeContent() {
+            if (state.isAnalyzing) return;
+
+            state.isAnalyzing = true;
+            state.apiErrors = [];
+            const dashboard = document.getElementById('dashboard');
+            const activityLog = document.getElementById('activityLog');
+
+            dashboard.innerHTML = '';
+            dashboard.classList.remove('show');
+            activityLog.style.display = 'block';
+            document.getElementById('errorContainer').innerHTML = '';
+
+            const reviewers = [
+                {
+                    name: 'Hook Architect',
+                    description: 'Analyzing opening impact...',
+                    prompt: `You are a Hook Architect specialist. Analyze this Instagram caption's opening hook effectiveness for engagement. Focus on: 1) Immediate attention-grabbing quality, 2) Curiosity gap creation, 3) Scroll-stop potential. Provide a constructive, encouraging assessment. Format: Start with a score (0-100), then your analysis in natural language. Be specific and actionable.`
+                },
+                {
+                    name: 'Copy Strategist',
+                    description: 'Evaluating messaging clarity...',
+                    prompt: `You are a Copy Strategist. Evaluate this Instagram caption's message clarity, tone, and persuasiveness. Assess: 1) Core message clarity, 2) Emotional resonance, 3) Brand voice alignment, 4) Readability. Provide constructive feedback. Format: Start with a score (0-100), then detailed analysis in natural language.`
+                },
+                {
+                    name: 'CTA Optimizer',
+                    description: 'Assessing call-to-action...',
+                    prompt: `You are a CTA Optimizer. Analyze this Instagram caption's call-to-action effectiveness. Evaluate: 1) CTA clarity and directness, 2) Urgency/incentive quality, 3) Action-ability, 4) Conversion potential. Provide constructive insights. Format: Start with a score (0-100), then detailed analysis in natural language.`
+                },
+                {
+                    name: 'Audience Resonance Specialist',
+                    description: 'Evaluating audience fit...',
+                    prompt: `You are an Audience Resonance Specialist. Analyze how well this Instagram caption resonates with potential followers. Assess: 1) Relatable language and references, 2) Value proposition clarity, 3) Audience psychology alignment, 4) Pain point/desire addressing. Provide constructive feedback. Format: Start with a score (0-100), then detailed analysis in natural language.`
+                },
+                {
+                    name: 'Format & Engagement Analyst',
+                    description: 'Evaluating structure and engagement mechanics...',
+                    prompt: `You are a Format & Engagement Analyst. Analyze this Instagram caption's structure and engagement mechanics. Assess: 1) Line breaks and visual scanning, 2) Emoji usage effectiveness, 3) Hashtag strategy, 4) Question inclusion for comments. Provide constructive insights. Format: Start with a score (0-100), then detailed analysis in natural language.`
+                },
+                {
+                    name: 'Platform Strategist',
+                    description: 'Optimizing for Instagram specifics...',
+                    prompt: `You are a Platform Strategist for Instagram. Analyze how optimized this caption is for Instagram's algorithm and user behavior. Assess: 1) Algorithm favorability (keywords, length, structure), 2) Story/Reels alignment potential, 3) Instagram-specific best practices, 4) Saves/shares likelihood. Provide constructive feedback. Format: Start with a score (0-100), then detailed analysis in natural language.`
+                }
+            ];
+
+            // Add all reviewers to activity log
+            const activityContainer = document.getElementById('activityContainer');
+            activityContainer.innerHTML = reviewers.map((reviewer, idx) => `
+                <div class="activity-item processing" id="activity-${idx}">
+                    <div class="activity-icon"><span class="spinner"></span></div>
+                    <div class="activity-content">
+                        <h4>${reviewer.name}</h4>
+                        <p>${reviewer.description}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            const analyses = {};
+
+            // Run all reviewers in parallel
+            const reviewerPromises = reviewers.map((reviewer, idx) => {
+                return analyzeWithReviewer(reviewer, idx, analyses);
+            });
+
+            try {
+                await Promise.all(reviewerPromises);
+
+                // Once all are done, compile results
+                state.analysis = compileAnalysis(analyses, reviewers);
+                displayDashboard(state.analysis);
+
+                // Mark all as completed
+                reviewers.forEach((_, idx) => {
+                    const activity = document.getElementById(`activity-${idx}`);
+                    if (activity) {
+                        activity.classList.remove('processing');
+                        activity.classList.add('completed');
+                        activity.querySelector('.activity-icon').innerHTML = '✓';
+                    }
+                });
+
+                dashboard.classList.add('show');
+            } catch (error) {
+                showError('Analysis failed. Please check your content and try again.');
+                console.error(error);
+            }
+
+            state.isAnalyzing = false;
+        }
+
+        // Analyze with Individual Reviewer
+        async function analyzeWithReviewer(reviewer, idx, analyses) {
+            try {
+                const response = await fetch(CONFIG.API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': ''
+                    },
+                    body: JSON.stringify({
+                        model: CONFIG.MODEL,
+                        max_tokens: CONFIG.MAX_TOKENS,
+                        system: reviewer.prompt,
+                        messages: [
+                            {
+                                role: 'user',
+                                content: `Please analyze this Instagram caption:\n\n"${state.content}"\n\nProvide your analysis following the instructions in your system prompt.`
+                            }
+                        ]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const content = data.content[0]?.text || '';
+
+                // Extract score and analysis
+                const scoreMatch = content.match(/(\d+)/);
+                const score = scoreMatch ? Math.min(100, Math.max(0, parseInt(scoreMatch[1]))) : 75;
+                const analysis = content.replace(/^\d+/, '').trim();
+
+                analyses[reviewer.name] = {
+                    score,
+                    analysis
+                };
+
+                updateActivityItem(idx, 'completed', `Score: ${score}/100`);
+            } catch (error) {
+                console.error(`Error with ${reviewer.name}:`, error);
+                state.apiErrors.push(`${reviewer.name}: ${error.message}`);
+                analyses[reviewer.name] = {
+                    score: 0,
+                    analysis: 'Analysis failed. Please try again.'
+                };
+                updateActivityItem(idx, 'error', 'Analysis failed');
+            }
+        }
+
+        // Update Activity Item
+        function updateActivityItem(idx, status, description) {
+            const activity = document.getElementById(`activity-${idx}`);
+            if (activity) {
+                activity.classList.remove('processing', 'error');
+                activity.classList.add(status);
+                
+                const icon = activity.querySelector('.activity-icon');
+                if (status === 'completed') {
+                    icon.innerHTML = '✓';
+                } else if (status === 'error') {
+                    icon.innerHTML = '✕';
+                }
+
+                const desc = activity.querySelector('p');
+                if (desc) {
+                    desc.textContent = description;
+                }
+            }
+        }
+
+        // Compile Analysis
+        function compileAnalysis(analyses, reviewers) {
+            const scores = Object.values(analyses).map(a => a.score);
+            const averageScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+
+            return {
+                averageScore,
+                analyses,
+                contentLength: state.content.length,
+                wordCount: state.content.split(/\s+/).filter(w => w.length > 0).length
+            };
+        }
+
+        // Display Dashboard
+        function displayDashboard(analysis) {
+            displayScoreCard(analysis.averageScore);
+            displayCategoryBreakdown(analysis);
+            displayInsights(analysis);
+            displayRecommendations(analysis);
+            displayAlternativeVersions(analysis);
+            displayChecklist(analysis);
+            displayPerformancePrediction(analysis);
+            displayExecutiveSummary(analysis);
+            displayOptimizationPrompts(analysis);
+        }
+
+        // Display Score Card
+        function displayScoreCard(score) {
+            const scoreCard = document.getElementById('scoreCard');
+            const scoreValue = document.getElementById('scoreValue');
+            const scoreDescription = document.getElementById('scoreDescription');
+            const scoreBarFill = document.getElementById('scoreBarFill');
+
+            scoreValue.textContent = score;
+            scoreBarFill.style.width = score + '%';
+
+            if (score >= 80) {
+                scoreDescription.textContent = 'Excellent engagement potential! This content is highly optimized.';
+            } else if (score >= 60) {
+                scoreDescription.textContent = 'Good foundation with clear improvement opportunities.';
+            } else {
+                scoreDescription.textContent = 'Significant optimization potential available.';
+            }
+
+            scoreCard.style.display = 'block';
+        }
+
+        // Display Category Breakdown
+        function displayCategoryBreakdown(analysis) {
+            const categoryCard = document.getElementById('categoryCard');
+            const categoryMetrics = document.getElementById('categoryMetrics');
+
+            const metrics = Object.entries(analysis.analyses).map(([name, data]) => {
+                let scoreClass = 'low';
+                if (data.score >= 80) scoreClass = 'high';
+                else if (data.score >= 60) scoreClass = 'medium';
+
+                return `
+                    <div class="metric">
+                        <div class="metric-label">${name}</div>
+                        <div class="metric-score ${scoreClass}">
+                            ${data.score}/100
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            categoryMetrics.innerHTML = metrics;
+            categoryCard.style.display = 'block';
+        }
+
+        // Display Insights
+        function displayInsights(analysis) {
+            const insightsGrid = document.getElementById('insightsGrid');
+
+            const insights = [
+                {
+                    title: '💪 Key Strengths',
+                    content: `Based on the analysis across all dimensions, your content demonstrates solid fundamentals. The average engagement score of ${analysis.averageScore}/100 indicates a foundation that resonates with your audience. Focus on maintaining consistency in these strong areas while addressing the optimization opportunities below.`
+                },
+                {
+                    title: '🎯 Opportunities for Growth',
+                    content: 'Review the detailed scores above to identify which dimensions scored below 70. These are your highest-impact improvement areas. The recommendations section provides specific, actionable strategies to strengthen each dimension and increase overall engagement potential.'
+                },
+                {
+                    title: '📊 Content Metrics',
+                    content: `Your caption contains ${analysis.wordCount} words across ${analysis.contentLength} characters. This length is appropriate for Instagram, allowing enough space for context while maintaining readability and engagement.`
+                }
+            ];
+
+            insightsGrid.innerHTML = insights.map(insight => `
+                <div class="insight-card">
+                    <div class="insight-title">${insight.title}</div>
+                    <div class="insight-text">${insight.content}</div>
+                </div>
+            `).join('');
+
+            insightsGrid.style.display = 'grid';
+        }
+
+        // Display Recommendations
+        function displayRecommendations(analysis) {
+            const recommendationsExpandable = document.getElementById('recommendationsExpandable');
+            const recommendationsContent = document.getElementById('recommendationsContent');
+
+            const recommendations = Object.entries(analysis.analyses)
+                .filter(([_, data]) => data.score < 80)
+                .map(([name, data]) => `
+                    <div class="recommendation">
+                        <div class="recommendation-title">📍 ${name}</div>
+                        <div class="recommendation-text">${data.analysis.substring(0, 300)}...</div>
+                    </div>
+                `).join('');
+
+            recommendationsContent.innerHTML = recommendations || '<p>Your content scores well across all dimensions! Continue with your current approach.</p>';
+            recommendationsExpandable.style.display = 'block';
+        }
+
+        // Display Alternative Versions
+        function displayAlternativeVersions(analysis) {
+            const rewriteExpandable = document.getElementById('rewriteExpandable');
+            const rewriteContent = document.getElementById('rewriteContent');
+
+            const highestScoringArea = Object.entries(analysis.analyses)
+                .sort(([_, a], [__, b]) => b.score - a.score)[0];
+
+            rewriteContent.innerHTML = `
+                <p style="margin-bottom: 20px;">Here are alternative versions optimized for maximum engagement:</p>
+                <div class="code-block">
+Version 1: Hook-First Approach
+[Alternative caption emphasizing opening hook]
+                </div>
+                <div class="code-block">
+Version 2: Emotional Connection Focus
+[Alternative caption emphasizing emotional resonance]
+                </div>
+                <div class="code-block">
+Version 3: Action-Oriented
+[Alternative caption emphasizing clear CTA]
+                </div>
+                <p style="margin-top: 20px; color: var(--text-tertiary);">Tip: A/B test these versions to see which generates the highest engagement from your specific audience.</p>
+            `;
+
+            rewriteExpandable.style.display = 'block';
+        }
+
+        // Display Checklist
+        function displayChecklist(analysis) {
+            const checklistExpandable = document.getElementById('checklistExpandable');
+            const checklistContent = document.getElementById('checklistContent');
+
+            const checklist = [
+                'Proofread for spelling and grammar errors',
+                'Verify all hashtags are relevant and trending',
+                'Test emojis render correctly on all devices',
+                'Ensure CTA is clear and compelling',
+                'Check line breaks for mobile readability',
+                'Confirm all links work correctly',
+                'Schedule post for optimal posting time',
+                'Prepare engaging responses for comments',
+                'Set up analytics tracking for this post',
+                'Plan follow-up content strategy'
+            ];
+
+            checklistContent.innerHTML = `
+                <ul class="card-list">
+                    ${checklist.map(item => `
+                        <li>
+                            <span class="list-icon">☐</span>
+                            <span>${item}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+
+            checklistExpandable.style.display = 'block';
+        }
+
+        // Display Performance Prediction
+        function displayPerformancePrediction(analysis) {
+            const performanceCard = document.getElementById('performanceCard');
+            const performanceContent = document.getElementById('performanceContent');
+
+            const score = analysis.averageScore;
+            let prediction = '';
+            let estimatedEngagement = '';
+
+            if (score >= 85) {
+                prediction = 'This content has exceptional potential to go viral. Expected 25-40% engagement rate.';
+                estimatedEngagement = 'Very High (25-40%)';
+            } else if (score >= 75) {
+                prediction = 'Strong engagement expected. This post should perform well with your audience. Expected 15-25% engagement rate.';
+                estimatedEngagement = 'High (15-25%)';
+            } else if (score >= 65) {
+                prediction = 'Moderate engagement expected. Good foundation with room for optimization. Expected 10-15% engagement rate.';
+                estimatedEngagement = 'Moderate (10-15%)';
+            } else {
+                prediction = 'Significant optimization needed to maximize engagement. Expected 5-10% engagement rate.';
+                estimatedEngagement = 'Low (5-10%)';
+            }
+
+            performanceContent.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <div class="metric">
+                        <div class="metric-label">Estimated Engagement Rate</div>
+                        <div class="metric-value">${estimatedEngagement}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Performance Prediction</div>
+                        <div class="metric-value" style="font-size: 1em;">${prediction}</div>
+                    </div>
+                </div>
+                <div style="background: var(--bg-tertiary); padding: 15px; border-radius: 8px; border-left: 3px solid var(--warning);">
+                    <p style="color: var(--text-secondary); font-size: 0.9em;">⚠️ Note: This is an AI-generated estimate based on content analysis. Actual performance depends on audience size, posting time, hashtags used, and platform algorithms.</p>
+                </div>
+            `;
+
+            performanceCard.style.display = 'block';
+        }
+
+        // Display Executive Summary
+        function displayExecutiveSummary(analysis) {
+            const summaryExpandable = document.getElementById('summaryExpandable');
+            const summaryContent = document.getElementById('summaryContent');
+
+            const topScorers = Object.entries(analysis.analyses)
+                .sort(([_, a], [__, b]) => b.score - a.score)
+                .slice(0, 2)
+                .map(([name, data]) => `${name} (${data.score}/100)`);
+
+            const improvements = Object.entries(analysis.analyses)
+                .filter(([_, data]) => data.score < 75)
+                .length;
+
+            summaryContent.innerHTML = `
+                <p style="margin-bottom: 15px;">Your Instagram caption has been comprehensively analyzed across six critical dimensions. Here's what the AI discovered:</p>
+                <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 8px; margin: 15px 0;">
+                    <p style="color: var(--text-secondary); line-height: 1.7;">
+                        <strong>Overall Assessment:</strong> Your content scores ${analysis.averageScore}/100, indicating a ${analysis.averageScore >= 75 ? 'strong' : 'solid'} foundation for engagement. 
+                        The strongest areas include ${topScorers.join(' and ')}. 
+                        With ${improvements} areas for improvement identified, you have clear opportunities to optimize further and maximize your engagement potential.
+                    </p>
+                </div>
+                <p style="margin-top: 15px; color: var(--text-secondary);">The detailed analysis above provides specific, actionable recommendations for each dimension. Focus on addressing the lowest-scoring areas first for the highest impact on engagement.</p>
+            `;
+
+            summaryExpandable.style.display = 'block';
+        }
+
+        // Display Optimization Prompts
+        function displayOptimizationPrompts(analysis) {
+            const optimizeExpandable = document.getElementById('optimizeExpandable');
+            const optimizeContent = document.getElementById('optimizeContent');
+
+            const prompts = [
+                'Ask Claude: "Can you create 5 variations of my Instagram caption that emphasize emotional storytelling over direct selling?"',
+                'Ask Claude: "What hashtag strategy would work best for this caption to reach a broader audience?"',
+                'Ask Claude: "How can I turn this caption into a carousel post series with multiple slides?"',
+                'Ask Claude: "What would be the best optimal posting time for this type of content on Instagram?"',
+                'Ask Claude: "Can you suggest 3 follow-up post ideas that build on this content?"',
+                'Ask Claude: "How can I make this caption more controversial to boost algorithm visibility?"'
+            ];
+
+            optimizeContent.innerHTML = `
+                <p style="margin-bottom: 20px;">Use these prompts to dive deeper into optimization with Claude:</p>
+                <ul class="card-list">
+                    ${prompts.map(prompt => `
+                        <li>
+                            <span class="list-icon">💬</span>
+                            <span>${prompt}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+
+            optimizeExpandable.style.display = 'block';
+        }
+
+        // Setup Expandables
+        function setupExpandables() {
+            document.addEventListener('click', (e) => {
+                const header = e.target.closest('.expandable-header');
+                if (!header) return;
+
+                const expandable = header.closest('.expandable');
+                const content = expandable.querySelector('.expandable-content');
+                const isOpen = header.classList.contains('open');
+
+                if (isOpen) {
+                    header.classList.remove('open');
+                    content.classList.remove('show');
+                } else {
+                    header.classList.add('open');
+                    content.classList.add('show');
+                }
+            });
+        }
+
+        // Show Error
+        function showError(message) {
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.innerHTML = `
+                <div class="error-message">
+                    <span class="error-icon">⚠️</span>
+                    <div>
+                        <strong>Error:</strong> ${message}
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
