@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal AI Playbook - Debugging Workflows</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1e40af;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark-bg: #0f172a;
+            --dark-surface: #1e293b;
+            --dark-surface-2: #334155;
+            --dark-border: #475569;
+            --light-text: #f1f5f9;
+            --light-text-secondary: #cbd5e1;
+            --radius: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html {
+            background: var(--dark-bg);
+            color: var(--light-text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+        }
+
+        body {
+            background: var(--dark-bg);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background: var(--dark-surface);
+            border-right: 1px solid var(--dark-border);
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--primary);
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--light-text-secondary);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--light-text-secondary);
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--dark-surface-2);
+            color: var(--light-text);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: var(--dark-surface);
+            border-bottom: 1px solid var(--dark-border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--dark-border);
+            background: var(--dark-surface-2);
+            color: var(--light-text);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        /* Section Containers */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--dark-surface);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--light-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-description {
+            font-size: 0.85rem;
+            color: var(--light-text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Workflow Cards */
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .workflow-card {
+            background: var(--dark-surface);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .workflow-card:hover {
+            border-color: var(--primary);
+            background: var(--dark-surface-2);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+        }
+
+        .workflow-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .workflow-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .workflow-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .workflow-action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--dark-surface-2);
+            border: 1px solid var(--dark-border);
+            color: var(--light-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 0.85rem;
+        }
+
+        .workflow-action-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .workflow-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .workflow-description {
+            font-size: 0.9rem;
+            color: var(--light-text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .workflow-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            background: var(--dark-surface-2);
+            border: 1px solid var(--dark-border);
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--light-text-secondary);
+            text-transform: uppercase;
+        }
+
+        /* Forms and Inputs */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-label-hint {
+            font-size: 0.8rem;
+            color: var(--light-text-secondary);
+            font-weight: normal;
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            background: var(--dark-surface-2);
+            color: var(--light-text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        /* Builder Panels */
+        .builder-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .builder-panel {
+            background: var(--dark-surface);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .building-block {
+            background: var(--dark-surface-2);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .building-block:hover {
+            border-color: var(--primary);
+            background: var(--dark-surface-2);
+        }
+
+        .building-block-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .building-block-description {
+            font-size: 0.8rem;
+            color: var(--light-text-secondary);
+        }
+
+        /* Prompt Preview */
+        .preview-box {
+            background: var(--dark-surface-2);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .copy-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--dark-surface);
+            border: 1px solid var(--dark-border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--light-text-secondary);
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        /* Info Banner */
+        .info-banner {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid var(--primary);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .info-banner-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .info-banner-content {
+            flex: 1;
+        }
+
+        .info-banner-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-banner-description {
+            font-size: 0.9rem;
+            color: var(--light-text-secondary);
+        }
+
+        /* Help Button */
+        .help-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transition: var(--transition);
+            z-index: 100;
+        }
+
+        .help-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--dark-surface-2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--dark-border);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--dark-border);
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                padding: 1rem;
+            }
+
+            .nav-section {
+                margin-bottom: 0;
+            }
+
+            .builder-container {
+                grid-template-columns: 1fr;
+            }
+
+            .workflow-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-sparkles"></i>
+                AI Playbook
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Core</div>
+                <div class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-section="workflows">
+                    <i class="fas fa-cogs"></i>
+                    <span>Workflows</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Tools</div>
+                <div class="nav-item" data-section="prompt-builder">
+                    <i class="fas fa-cube"></i>
+                    <span>Prompt Builder</span>
+                </div>
+                <div class="nav-item" data-section="loop-builder">
+                    <i class="fas fa-infinity"></i>
+                    <span>Loop Builder</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Library</div>
+                <div class="nav-item" data-section="library">
+                    <i class="fas fa-book"></i>
+                    <span>My Workflows</span>
+                </div>
+                <div class="nav-item" data-section="settings">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Settings</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main">
+            <div class="header">
+                <div class="header-title" id="page-title">Dashboard</div>
+                <div class="header-actions">
+                    <button class="btn" id="export-btn" title="Export all workflows">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn" id="help-btn" title="Show help">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- Dashboard Section -->
+                <div class="section active" id="dashboard">
+                    <div class="info-banner">
+                        <div class="info-banner-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="info-banner-content">
+                            <div class="info-banner-title">Welcome to your Personal AI Playbook</div>
+                            <div class="info-banner-description">
+                                This tool helps you build reusable debugging workflows for JavaScript/TypeScript and Python. Use the Prompt Builder to craft AI prompts, the Loop Builder for iterative improvements, and save your best workflows for future use. Your data stays on your device.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Workflows Created</div>
+                            <div class="stat-value" id="stat-workflows">0</div>
+                            <div class="stat-description">Custom debugging workflows</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Prompts Built</div>
+                            <div class="stat-value" id="stat-prompts">0</div>
+                            <div class="stat-description">AI-assisted prompts</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Languages</div>
+                            <div class="stat-value">2</div>
+                            <div class="stat-description">JavaScript/Python</div>
+                        </div>
+                    </div>
+
+                    <h2 style="font-size: 1.3rem; margin-bottom: 1.5rem; margin-top: 2rem;">Quick Start Workflows</h2>
+                    <div class="workflow-grid" id="featured-workflows">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Workflows Section -->
+                <div class="section" id="workflows">
+                    <h2 style="font-size: 1.3rem; margin-bottom: 1.5rem;">Pre-built Debugging Workflows</h2>
+                    <div class="workflow-grid" id="all-workflows">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Prompt Builder Section -->
+                <div class="section" id="prompt-builder">
+                    <div class="info-banner">
+                        <div class="info-banner-icon">
+                            <i class="fas fa-wrench"></i>
+                        </div>
+                        <div class="info-banner-content">
+                            <div class="info-banner-title">Prompt Builder</div>
+                            <div class="info-banner-description">
+                                Combine building blocks to create powerful debugging prompts. Each block is explained so you understand why it matters. Live preview shows your prompt as you build it.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="builder-container">
+                        <!-- Left Panel: Building Blocks -->
+                        <div>
+                            <div class="panel-title">
+                                <i class="fas fa-cube"></i> Building Blocks
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">Role / Expertise</div>
+                                <div class="form-label-hint">Who is Claude acting as? (e.g., "Expert debugger")</div>
+                                <select id="block-role">
+                                    <option value="">-- Select a role --</option>
+                                    <option value="expert-debugger">Expert Debugger - Finds root causes</option>
+                                    <option value="python-expert">Python Expert - Specialized in Python issues</option>
+                                    <option value="js-expert">JavaScript/TypeScript Expert - Web tech specialist</option>
+                                    <option value="systems-thinker">Systems Thinker - Looks at holistic context</option>
+                                    <option value="teacher">Teacher - Explains concepts clearly</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">Objective</div>
+                                <div class="form-label-hint">What do you want AI to do? (e.g., "Diagnose this error")</div>
+                                <select id="block-objective">
+                                    <option value="">-- Select objective --</option>
+                                    <option value="find-root-cause">Find the root cause of this error</option>
+                                    <option value="explain-error">Explain what went wrong in simple terms</option>
+                                    <option value="suggest-fix">Suggest the quickest fix</option>
+                                    <option value="prevent-recurrence">Suggest how to prevent this bug</option>
+                                    <option value="compare-approaches">Compare different debugging approaches</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">Context</div>
+                                <div class="form-label-hint">What background info helps? (e.g., framework, environment)</div>
+                                <select id="block-context">
+                                    <option value="">-- Select context --</option>
+                                    <option value="react-node">React + Node.js backend</option>
+                                    <option value="express-api">Express.js REST API</option>
+                                    <option value="python-data">Python data processing</option>
+                                    <option value="async-code">Async/await code (promises, callbacks)</option>
+                                    <option value="database">Database queries and ORM</option>
+                                    <option value="none">No specific framework</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">Reasoning Strategy</div>
+                                <div class="form-label-hint">How should AI think through this? (helps it be more systematic)</div>
+                                <select id="block-strategy">
+                                    <option value="">-- Select strategy --</option>
+                                    <option value="step-by-step">Step-by-step analysis - Break down what happens at each step</option>
+                                    <option value="trace-execution">Trace execution - Follow code flow from start to error</option>
+                                    <option value="hypothesis">Hypothesis - Guess what's wrong, then verify</option>
+                                    <option value="exclude">Exclude possibilities - What's definitely NOT the issue</option>
+                                    <option value="most-likely">Most likely first - Start with common causes</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">Output Format</div>
+                                <div class="form-label-hint">How should the answer be structured?</div>
+                                <select id="block-format">
+                                    <option value="">-- Select format --</option>
+                                    <option value="one-liner">One-liner explanation (fastest)</option>
+                                    <option value="brief">Brief explanation + fix (default)</option>
+                                    <option value="detailed">Detailed breakdown + code example</option>
+                                    <option value="structured">Structured: Problem, Root Cause, Solution, Prevention</option>
+                                    <option value="code-only">Code example only</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">Tone</div>
+                                <div class="form-label-hint">How should Claude communicate?</div>
+                                <select id="block-tone">
+                                    <option value="">-- Select tone --</option>
+                                    <option value="casual">Casual & encouraging - Keep me motivated</option>
+                                    <option value="direct">Direct & factual - Just the facts</option>
+                                    <option value="educational">Educational - Teach me while fixing</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Preview -->
+                        <div>
+                            <div class="panel-title">
+                                <i class="fas fa-eye"></i> Live Preview
+                            </div>
+                            <div class="form-label">Your AI Prompt (automatically generated)</div>
+                            <div class="preview-box" id="prompt-preview">
+                                Select the building blocks on the left to preview your prompt here...
+                            </div>
+                            <button class="btn btn-primary copy-button" id="copy-prompt-btn">
+                                <i class="fas fa-copy"></i> Copy Prompt to Clipboard
+                            </button>
+                            <button class="btn copy-button" id="save-prompt-btn">
+                                <i class="fas fa-save"></i> Save as Custom Workflow
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loop Builder Section -->
+                <div class="section" id="loop-builder">
+                    <div class="info-banner">
+                        <div class="info-banner-icon">
+                            <i class="fas fa-infinity"></i>
+                        </div>
+                        <div class="info-banner-content">
+                            <div class="info-banner-title">Loop Builder</div>
+                            <div class="info-banner-description">
+                                Convert any prompt into an autonomous loop that iteratively improves. Define what success looks like, how to evaluate progress, and when to stop.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="builder-container">
+                        <div>
+                            <div class="panel-title">
+                                <i class="fas fa-cog"></i> Loop Configuration
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">Starting Prompt</div>
+                                <div class="form-label-hint">Your base debugging prompt</div>
+                                <textarea id="loop-prompt" placeholder="Paste your debugging prompt here or build one in Prompt Builder..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">Goal / Success Criteria</div>
+                                <div class="form-label-hint">What does a "good fix" look like? (e.g., "Error is fixed and code still runs")</div>
+                                <textarea id="loop-goal" placeholder="e.g., Error no longer occurs, performance improves, tests pass..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">Evaluation Method</div>
+                                <div class="form-label-hint">How do we know if progress was made?</div>
+                                <select id="loop-evaluation">
+                                    <option value="">-- Select evaluation --</option>
+                                    <option value="test-pass">Tests pass/fail</option>
+                                    <option value="error-gone">Error message gone</option>
+                                    <option value="performance">Performance improves</option>
+                                    <option value="code-review">Code looks cleaner/simpler</option>
+                                    <option value="manual">Manual inspection</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">Improvement Strategy</div>
+                                <div class="form-label-hint">How should each iteration improve?</div>
+                                <select id="loop-improvement">
+                                    <option value="">-- Select strategy --</option>
+                                    <option value="narrow-down">Narrow down - Eliminate possibilities each time</option>
+                                    <option value="test-hypothesis">Test hypothesis - Try different theories</option>
+                                    <option value="refine-fix">Refine fix - Improve the solution</option>
+                                    <option value="add-safeguards">Add safeguards - Make code more robust</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">Stop Conditions</div>
+                                <div class="form-label-hint">When should the loop stop?</div>
+                                <select id="loop-stop">
+                                    <option value="">-- Select condition --</option>
+                                    <option value="goal-met">When goal is met (success)</option>
+                                    <option value="max-iterations">After max iterations (e.g., 5 tries)</option>
+                                    <option value="no-progress">No progress for 2 iterations</option>
+                                    <option value="timeout">After time limit (e.g., 30 minutes)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">Safety Rules</div>
+                                <div class="form-label-hint">Guardrails to prevent bad iterations (optional)</div>
+                                <textarea id="loop-safety" placeholder="e.g., Never delete code without commenting, always test before moving forward..."></textarea>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="panel-title">
+                                <i class="fas fa-play"></i> Generated Loop
+                            </div>
+                            <div class="form-label">Your autonomous debugging loop (automatically generated)</div>
+                            <div class="preview-box" id="loop-preview">
+                                Fill in the configuration on the left to generate your loop...
+                            </div>
+                            <button class="btn btn-primary copy-button" id="copy-loop-btn">
+                                <i class="fas fa-copy"></i> Copy Loop to Clipboard
+                            </button>
+                            <button class="btn copy-button" id="save-loop-btn">
+                                <i class="fas fa-save"></i> Save as Custom Workflow
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Library Section -->
+                <div class="section" id="library">
+                    <h2 style="font-size: 1.3rem; margin-bottom: 1.5rem;">My Custom Workflows</h2>
+                    <div class="workflow-grid" id="saved-workflows">
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--light-text-secondary);">
+                            <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                            <p>No saved workflows yet. Create one using the Prompt Builder or Loop Builder!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Section -->
+                <div class="section" id="settings">
+                    <h2 style="font-size: 1.3rem; margin-bottom: 2rem;">Settings</h2>
+                    <div class="workflow-card" style="max-width: 600px;">
+                        <div class="form-group">
+                            <div class="form-label">Tech Stack</div>
+                            <div class="form-label-hint">Your primary languages</div>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox" id="tech-js" checked> JavaScript/TypeScript
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox" id="tech-python" checked> Python
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-label">Preferred Output Style</div>
+                            <select id="pref-output">
+                                <option value="brief">Brief & Fast (one-liner explanations)</option>
+                                <option value="balanced">Balanced (explanation + fix)</option>
+                                <option value="detailed">Detailed & Educational (learn as you fix)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-label">Data & Storage</div>
+                            <button class="btn" style="width: 100%;" id="export-data-btn">
+                                <i class="fas fa-download"></i> Export All Data as JSON
+                            </button>
+                        </div>
+
+                        <div class="form-group">
+                            <button class="btn" style="width: 100%;" id="import-data-btn">
+                                <i class="fas fa-upload"></i> Import Data from JSON
+                            </button>
+                            <input type="file" id="import-file" accept=".json" style="display: none;">
+                        </div>
+
+                        <div class="form-group">
+                            <button class="btn" style="width: 100%; background: var(--danger); border-color: var(--danger);" id="reset-btn">
+                                <i class="fas fa-trash"></i> Clear All Data
+                            </button>
+                        </div>
+
+                        <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--dark-border); font-size: 0.85rem; color: var(--light-text-secondary);">
+                            <strong>About this tool:</strong><br>
+                            Personal AI Playbook v1.0 • Fully local • No data sent anywhere • Open source
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal" id="help-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeHelpModal()">✕</button>
+            <div class="modal-title">How to Use Your AI Playbook</div>
+
+            <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.05rem;">📊 Dashboard</h3>
+            <p style="font-size: 0.9rem; color: var(--light-text-secondary); margin-bottom: 1rem;">
+                Your stats and quick access to featured workflows. As you build and save workflows, stats update automatically.
+            </p>
+
+            <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.05rem;">🧰 Prompt Builder</h3>
+            <p style="font-size: 0.9rem; color: var(--light-text-secondary); margin-bottom: 1rem;">
+                Combine building blocks (Role, Objective, Context, etc.) to create powerful debugging prompts. Each block explains what it does. See a live preview on the right—copy it or save it as a workflow.
+            </p>
+
+            <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.05rem;">♻️ Loop Builder</h3>
+            <p style="font-size: 0.9rem; color: var(--light-text-secondary); margin-bottom: 1rem;">
+                Turn any prompt into an iterative debugging loop. Define success criteria, evaluation methods, and stop conditions. AI will refine its answers automatically.
+            </p>
+
+            <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.05rem;">💾 My Workflows</h3>
+            <p style="font-size: 0.9rem; color: var(--light-text-secondary); margin-bottom: 1rem;">
+                Save your best prompts and loops here. Favorite them, duplicate them, edit them. Everything is stored locally on your device.
+            </p>
+
+            <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.05rem;">⌨️ Keyboard Shortcuts</h3>
+            <div style="background: var(--dark-surface-2); padding: 1rem; border-radius: var(--radius); font-size: 0.85rem;">
+                <div style="margin-bottom: 0.5rem;"><strong>Ctrl+B</strong> - Prompt Builder</div>
+                <div style="margin-bottom: 0.5rem;"><strong>Ctrl+L</strong> - Loop Builder</div>
+                <div style="margin-bottom: 0.5rem;"><strong>Ctrl+S</strong> - Save current workflow</div>
+                <div><strong>Ctrl+?</strong> - Help (this modal)</div>
+            </div>
+
+            <p style="margin-top: 1.5rem; font-size: 0.8rem; color: var(--light-text-secondary);">
+                All your data is stored locally. No internet required after initial load. Export anytime to back up your workflows.
+            </p>
+        </div>
+    </div>
+
+    <button class="help-button" id="help-button" title="Show help (Ctrl+?)">
+        <i class="fas fa-question"></i>
+    </button>
+
+    <script>
+        // ====== STORAGE & DATA ======
+        const STORAGE_KEY = 'ai-playbook-data';
+
+        const defaultData = {
+            workflows: [],
+            prompts: [],
+            loops: [],
+            stats: {
+                totalWorkflows: 0,
+                totalPrompts: 0
+            },
+            preferences: {
+                outputStyle: 'balanced',
+                techStack: ['javascript', 'python']
+            }
+        };
+
+        function loadData() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                return stored ? JSON.parse(stored) : defaultData;
+            } catch (e) {
+                console.error('Error loading data:', e);
+                return defaultData;
+            }
+        }
+
+        function saveData(data) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            } catch (e) {
+                console.error('Error saving data:', e);
+                alert('Could not save data. Local storage may be full.');
+            }
+        }
+
+        let appData = loadData();
+
+        // ====== FEATURED WORKFLOWS ======
+        const featuredWorkflows = [
+            {
+                id: 'js-typeerror',
+                title: 'JavaScript TypeError Debugger',
+                description: 'Diagnose "cannot read property" errors and similar type issues in JavaScript/TypeScript.',
+                icon: '⚠️',
+                tags: ['JavaScript', 'Quick', 'Common'],
+                prompt: 'Expert debugger analyzing a TypeError\n\nI got this error: "[ERROR_HERE]"\n\nPlease:\n1. Explain what went wrong (1-2 sentences)\n2. Show the most likely fix (code example)\n3. Suggest how to prevent it\n\nFocus on clarity over detail.'
+            },
+            {
+                id: 'async-await',
+                title: 'Async/Await Issue Resolver',
+                description: 'Debug promises, async/await, and timing issues in JavaScript.',
+                icon: '⏱️',
+                tags: ['JavaScript', 'Async', 'Complex'],
+                prompt: 'Expert debugger specializing in async JavaScript.\n\nProblem: [ERROR_HERE]\n\nAnalyze:\n1. What\'s the execution order?\n2. Where is it breaking?\n3. How to fix it?\n\nProvide code example.'
+            },
+            {
+                id: 'python-traceback',
+                title: 'Python Traceback Decoder',
+                description: 'Quickly understand Python tracebacks and fix the most common issues.',
+                icon: '🐍',
+                tags: ['Python', 'Quick', 'Traceback'],
+                prompt: 'Python expert analyzing a traceback.\n\nTraceback:\n[TRACEBACK_HERE]\n\nTell me:\n1. What broke (plain English)\n2. Why it broke (brief)\n3. How to fix it (code)\n\nBe direct, not verbose.'
+            },
+            {
+                id: 'null-undefined',
+                title: 'Null/Undefined Reference Solver',
+                description: 'Fix "undefined is not a function" and similar null reference errors.',
+                icon: '❌',
+                tags: ['JavaScript', 'Common', 'Quick'],
+                prompt: 'Expert in null/undefined errors.\n\nError: [ERROR_HERE]\n\nQuickly diagnose:\n1. What\'s null/undefined?\n2. Why?\n3. Fix in 1 line of code if possible.'
+            },
+            {
+                id: 'api-response',
+                title: 'API Response Error Debugger',
+                description: 'Debug API calls, responses, and data parsing issues.',
+                icon: '🌐',
+                tags: ['APIs', 'JavaScript', 'Complex'],
+                prompt: 'API debugging expert.\n\nContext:\n[REQUEST_AND_RESPONSE_HERE]\n\nAnalyze:\n1. Is the error on client or server side?\n2. What\'s wrong with the response?\n3. How do I fix my code?\n\nProvide code example.'
+            },
+            {
+                id: 'performance',
+                title: 'Performance Issue Debugger',
+                description: 'Identify and fix slow code, memory leaks, and performance problems.',
+                icon: '🐌',
+                tags: ['Performance', 'Advanced', 'Complex'],
+                prompt: 'Performance optimization expert.\n\nIssue: [PERFORMANCE_ISSUE]\n\nHelp me:\n1. Identify the bottleneck\n2. Why it\'s slow\n3. How to speed it up (with code)\n\nFocus on the biggest win first.'
+            }
+        ];
+
+        // ====== UI INITIALIZATION ======
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeUI();
+            setupEventListeners();
+            updateDashboard();
+            populateWorkflows();
+            setupKeyboardShortcuts();
+        });
+
+        function initializeUI() {
+            // Populate featured workflows
+            const featuredContainer = document.getElementById('featured-workflows');
+            featuredContainer.innerHTML = featuredWorkflows.map(w => createWorkflowCard(w)).join('');
+
+            // Populate all workflows
+            const allContainer = document.getElementById('all-workflows');
+            allContainer.innerHTML = featuredWorkflows.map(w => createWorkflowCard(w)).join('');
+        }
+
+        function createWorkflowCard(workflow) {
+            return `
+                <div class="workflow-card" data-id="${workflow.id}">
+                    <div class="workflow-card-header">
+                        <div class="workflow-icon">${workflow.icon}</div>
+                        <div class="workflow-actions">
+                            <button class="workflow-action-btn" title="Favorite" onclick="toggleFavorite('${workflow.id}')">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            <button class="workflow-action-btn" title="Copy" onclick="copyWorkflow('${workflow.id}')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="workflow-title">${workflow.title}</div>
+                    <div class="workflow-description">${workflow.description}</div>
+                    <div class="workflow-tags">
+                        ${workflow.tags.map(t => `<div class="tag">${t}</div>`).join('')}
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="useWorkflow('${workflow.id}')">
+                        Use This Workflow →
+                    </button>
+                </div>
+            `;
+        }
+
+        function updateDashboard() {
+            document.getElementById('stat-workflows').textContent = appData.workflows.length;
+            document.getElementById('stat-prompts').textContent = appData.prompts.length;
+        }
+
+        function populateWorkflows() {
+            const savedContainer = document.getElementById('saved-workflows');
+            if (appData.workflows.length === 0) {
+                savedContainer.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--light-text-secondary);">
+                        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                        <p>No saved workflows yet. Create one using the Prompt Builder or Loop Builder!</p>
+                    </div>
+                `;
+            } else {
+                savedContainer.innerHTML = appData.workflows.map(w => createWorkflowCard(w)).join('');
+            }
+        }
+
+        // ====== PROMPT BUILDER ======
+        const promptBlocks = {
+            role: {
+                'expert-debugger': 'You are an expert debugger who finds root causes quickly.',
+                'python-expert': 'You are a Python expert. Respond in Python-specific terms.',
+                'js-expert': 'You are a JavaScript/TypeScript expert. Use JS terminology.',
+                'systems-thinker': 'You think holistically about systems and architecture.',
+                'teacher': 'You explain concepts clearly and teach as you help.'
+            },
+            objective: {
+                'find-root-cause': 'Your goal is to find the root cause of this error.',
+                'explain-error': 'Your goal is to explain what went wrong in simple terms.',
+                'suggest-fix': 'Your goal is to suggest the quickest, simplest fix.',
+                'prevent-recurrence': 'Your goal is to prevent this bug from happening again.',
+                'compare-approaches': 'Your goal is to compare different debugging approaches.'
+            },
+            context: {
+                'react-node': 'This is a React frontend with Node.js backend.',
+                'express-api': 'This is an Express.js REST API.',
+                'python-data': 'This is Python data processing code.',
+                'async-code': 'This involves async/await, promises, or callbacks.',
+                'database': 'This involves database queries or an ORM.',
+                'none': 'No specific framework context.'
+            },
+            strategy: {
+                'step-by-step': 'Break down the problem step by step, analyzing what happens at each stage.',
+                'trace-execution': 'Trace the execution flow from start to error.',
+                'hypothesis': 'Form a hypothesis about what\'s wrong, then verify it.',
+                'exclude': 'Identify what definitely is NOT the issue, then focus on remaining possibilities.',
+                'most-likely': 'Start with the most common causes and work down.'
+            },
+            format: {
+                'one-liner': 'Respond with a one-liner explanation only.',
+                'brief': 'Respond with: Problem, Root Cause, Quick Fix (code example).',
+                'detailed': 'Respond with: Problem, Root Cause, Solution (code), Why This Works.',
+                'structured': 'Structure your response: Problem | Root Cause | Solution | Prevention.',
+                'code-only': 'Respond with only code examples, minimal explanation.'
+            },
+            tone: {
+                'casual': 'Be casual and encouraging. Keep me motivated.',
+                'direct': 'Be direct and factual. No fluff.',
+                'educational': 'Explain concepts as you help. I want to learn.'
+            }
+        };
+
+        function generatePrompt() {
+            const role = document.getElementById('block-role').value;
+            const objective = document.getElementById('block-objective').value;
+            const context = document.getElementById('block-context').value;
+            const strategy = document.getElementById('block-strategy').value;
+            const format = document.getElementById('block-format').value;
+            const tone = document.getElementById('block-tone').value;
+
+            let prompt = [];
+
+            if (role) prompt.push(promptBlocks.role[role]);
+            if (objective) prompt.push(promptBlocks.objective[objective]);
+            if (context) prompt.push(promptBlocks.context[context]);
+            if (strategy) prompt.push(`Strategy: ${promptBlocks.strategy[strategy]}`);
+            if (format) prompt.push(`Format: ${promptBlocks.format[format]}`);
+            if (tone) prompt.push(`Tone: ${promptBlocks.tone[tone]}`);
+
+            prompt.push('\n[Paste your error message, code snippet, or traceback below]');
+
+            return prompt.filter(p => p).join('\n\n');
+        }
+
+        function updatePromptPreview() {
+            const preview = generatePrompt();
+            document.getElementById('prompt-preview').textContent = preview;
+        }
+
+        // ====== LOOP BUILDER ======
+        function generateLoop() {
+            const prompt = document.getElementById('loop-prompt').value;
+            const goal = document.getElementById('loop-goal').value;
+            const evaluation = document.getElementById('loop-evaluation').value;
+            const improvement = document.getElementById('loop-improvement').value;
+            const stop = document.getElementById('loop-stop').value;
+            const safety = document.getElementById('loop-safety').value;
+
+            if (!prompt || !goal || !evaluation || !improvement || !stop) {
+                return 'Fill in all required fields to generate your loop...';
+            }
+
+            const loop = `
+AUTONOMOUS DEBUGGING LOOP
+========================
+
+Initial Prompt:
+${prompt}
+
+Goal: ${goal}
+
+Loop Instructions:
+1. Run the initial prompt
+2. Evaluate using: ${evaluation}
+3. If goal not met:
+   - ${improvement}
+   - Run improved version
+   - Go to step 2
+4. Stop when: ${stop}
+
+${safety ? `Safety Rules:\n${safety}` : ''}
+
+Tips:
+- Each iteration should build on the previous one
+- Save working code as you go
+- Stop if you hit the stopping condition
+- Document what worked and why
+            `.trim();
+
+            return loop;
+        }
+
+        function updateLoopPreview() {
+            const preview = generateLoop();
+            document.getElementById('loop-preview').textContent = preview;
+        }
+
+        // ====== EVENT LISTENERS ======
+        function setupEventListeners() {
+            // Navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const section = this.getAttribute('data-section');
+                    navigateToSection(section);
+                });
+            });
+
+            // Prompt Builder
+            ['block-role', 'block-objective', 'block-context', 'block-strategy', 'block-format', 'block-tone'].forEach(id => {
+                document.getElementById(id).addEventListener('change', updatePromptPreview);
+            });
+
+            // Loop Builder
+            ['loop-prompt', 'loop-goal', 'loop-evaluation', 'loop-improvement', 'loop-stop', 'loop-safety'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateLoopPreview);
+            });
+
+            // Buttons
+            document.getElementById('copy-prompt-btn').addEventListener('click', () => {
+                const text = document.getElementById('prompt-preview').textContent;
+                copyToClipboard(text, 'Prompt copied!');
+            });
+
+            document.getElementById('copy-loop-btn').addEventListener('click', () => {
+                const text = document.getElementById('loop-preview').textContent;
+                copyToClipboard(text, 'Loop copied!');
+            });
+
+            document.getElementById('save-prompt-btn').addEventListener('click', savePromptAsWorkflow);
+            document.getElementById('save-loop-btn').addEventListener('click', saveLoopAsWorkflow);
+
+            // Help
+            document.getElementById('help-btn').addEventListener('click', openHelpModal);
+            document.getElementById('help-button').addEventListener('click', openHelpModal);
+
+            // Export
+            document.getElementById('export-btn').addEventListener('click', exportData);
+            document.getElementById('export-data-btn').addEventListener('click', exportData);
+            document.getElementById('import-data-btn').addEventListener('click', () => {
+                document.getElementById('import-file').click();
+            });
+            document.getElementById('import-file').addEventListener('change', importData);
+            document.getElementById('reset-btn').addEventListener('click', resetData);
+        }
+
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    if (e.key === 'b') {
+                        e.preventDefault();
+                        navigateToSection('prompt-builder');
+                    } else if (e.key === 'l') {
+                        e.preventDefault();
+                        navigateToSection('loop-builder');
+                    } else if (e.key === 's') {
+                        e.preventDefault();
+                        // Save current workflow - would need context
+                    } else if (e.key === '?') {
+                        e.preventDefault();
+                        openHelpModal();
+                    }
+                }
+            });
+        }
+
+        function navigateToSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            // Show selected section
+            document.getElementById(section).classList.add('active');
+
+            // Update nav
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-section') === section) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Update header
+            const titles = {
+                'dashboard': 'Dashboard',
+                'workflows': 'Pre-built Workflows',
+                'prompt-builder': 'Prompt Builder',
+                'loop-builder': 'Loop Builder',
+                'library': 'My Custom Workflows',
+                'settings': 'Settings'
+            };
+            document.getElementById('page-title').textContent = titles[section] || 'AI Playbook';
+        }
+
+        function copyToClipboard(text, message) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert(message);
+            }).catch(() => {
+                alert('Failed to copy. Please try manually selecting and copying.');
+            });
+        }
+
+        function useWorkflow(id) {
+            const workflow = featuredWorkflows.find(w => w.id === id);
+            if (workflow) {
+                // Pre-fill prompt builder with this workflow
+                document.getElementById('loop-prompt').value = workflow.prompt;
+                updateLoopPreview();
+                navigateToSection('loop-builder');
+            }
+        }
+
+        function savePromptAsWorkflow() {
+            const name = prompt('Save as (give this workflow a name):');
+            if (!name) return;
+
+            const prompt = document.getElementById('prompt-preview').textContent;
+            const workflow = {
+                id: 'custom-' + Date.now(),
+                title: name,
+                description: prompt.substring(0, 100) + '...',
+                icon: '✨',
+                tags: ['Custom', 'Prompt'],
+                prompt: prompt,
+                saved: new Date().toISOString()
+            };
+
+            appData.workflows.push(workflow);
+            appData.stats.totalPrompts++;
+            saveData(appData);
+            updateDashboard();
+            populateWorkflows();
+            alert('Workflow saved! Check "My Workflows" section.');
+        }
+
+        function saveLoopAsWorkflow() {
+            const name = prompt('Save as (give this workflow a name):');
+            if (!name) return;
+
+            const loop = document.getElementById('loop-preview').textContent;
+            const workflow = {
+                id: 'custom-' + Date.now(),
+                title: name,
+                description: 'Autonomous debugging loop',
+                icon: '♻️',
+                tags: ['Custom', 'Loop'],
+                prompt: loop,
+                saved: new Date().toISOString()
+            };
+
+            appData.workflows.push(workflow);
+            appData.stats.totalPrompts++;
+            saveData(appData);
+            updateDashboard();
+            populateWorkflows();
+            alert('Loop saved! Check "My Workflows" section.');
+        }
+
+        function copyWorkflow(id) {
+            const workflow = featuredWorkflows.find(w => w.id === id) || appData.workflows.find(w => w.id === id);
+            if (workflow) {
+                copyToClipboard(workflow.prompt, 'Workflow prompt copied!');
+            }
+        }
+
+        function toggleFavorite(id) {
+            // Future: implement favoriting
+            alert('Favorite feature coming soon!');
+        }
+
+        function exportData() {
+            const data = {
+                version: '1.0',
+                exportedAt: new Date().toISOString(),
+                ...appData
+            };
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ai-playbook-backup-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    appData = {
+                        ...defaultData,
+                        workflows: imported.workflows || [],
+                        prompts: imported.prompts || [],
+                        loops: imported.loops || [],
+                        stats: imported.stats || defaultData.stats
+                    };
+                    saveData(appData);
+                    updateDashboard();
+                    populateWorkflows();
+                    alert('Data imported successfully!');
+                } catch (err) {
+                    alert('Invalid file format. Please export from this tool.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetData() {
+            if (confirm('Are you sure? This will delete all saved workflows. This cannot be undone.')) {
+                appData = { ...defaultData };
+                saveData(appData);
+                updateDashboard();
+                populateWorkflows();
+                alert('All data cleared.');
+            }
+        }
+
+        function openHelpModal() {
+            document.getElementById('help-modal').classList.add('active');
+        }
+
+        function closeHelpModal() {
+            document.getElementById('help-modal').classList.remove('active');
+        }
+
+        // Close modal on outside click
+        document.getElementById('help-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeHelpModal();
+        });
+    </script>
+</body>
+</html>
