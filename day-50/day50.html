@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defend Your Experience</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-hue: 0;
+            --primary-sat: 0%;
+            --primary-light: 50%;
+            --primary: hsl(var(--primary-hue), var(--primary-sat), var(--primary-light));
+            --secondary: #f5f5f5;
+            --text-dark: #1a1a1a;
+            --text-light: #666;
+            --border: #e0e0e0;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        /* Style variations */
+        body[data-style="modern"] {
+            --primary-hue: 240;
+            --primary-sat: 70%;
+            --primary-light: 50%;
+        }
+
+        body[data-style="warm"] {
+            --primary-hue: 25;
+            --primary-sat: 85%;
+            --primary-light: 50%;
+        }
+
+        body[data-style="minimalist"] {
+            --primary-hue: 0;
+            --primary-sat: 0%;
+            --primary-light: 40%;
+        }
+
+        body[data-style="vibrant"] {
+            --primary-hue: 280;
+            --primary-sat: 100%;
+            --primary-light: 45%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text-dark);
+            background: #fafafa;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 80%, white));
+            color: white;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.95;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            margin-top: var(--spacing-md);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: var(--spacing-lg);
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .panel h2 {
+            font-size: 18px;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .stage-indicator {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Interview stages */
+        .interview-stage {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-card {
+            background: linear-gradient(135deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .question-text {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-dark);
+        }
+
+        .question-label {
+            font-size: 13px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+        }
+
+        .mcq-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-sm);
+        }
+
+        .mcq-option {
+            padding: var(--spacing-md);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .mcq-option:hover {
+            border-color: var(--primary);
+            background: color-mix(in srgb, var(--primary) 5%, white);
+        }
+
+        .mcq-option.selected {
+            border-color: var(--primary);
+            background: color-mix(in srgb, var(--primary) 10%, white);
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+            margin-bottom: var(--spacing-md);
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .upload-zone {
+            border: 3px dashed var(--primary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: color-mix(in srgb, var(--primary) 5%, white);
+        }
+
+        .upload-zone:hover {
+            background: color-mix(in srgb, var(--primary) 10%, white);
+            border-color: color-mix(in srgb, var(--primary) 80%, var(--primary));
+        }
+
+        .upload-zone.dragover {
+            background: color-mix(in srgb, var(--primary) 15%, white);
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .file-preview {
+            background: color-mix(in srgb, var(--success) 10%, white);
+            border-left: 4px solid var(--success);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-top: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .file-preview-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .file-icon {
+            font-size: 24px;
+        }
+
+        .file-details {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2px;
+        }
+
+        .file-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .file-meta {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .btn {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 40%, transparent);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--text-dark);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: color-mix(in srgb, var(--primary) 5%, white);
+        }
+
+        .btn-small {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 13px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+            margin-top: var(--spacing-lg);
+        }
+
+        .btn-group-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .metric {
+            text-align: center;
+            padding: var(--spacing-md);
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: var(--spacing-xs);
+            font-weight: 600;
+        }
+
+        .confidence-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: var(--spacing-md);
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--warning));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .claim-item {
+            padding: var(--spacing-md);
+            background: var(--secondary);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--border);
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+        }
+
+        .claim-status {
+            font-size: 18px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .claim-status.defended {
+            color: var(--success);
+        }
+
+        .claim-status.weak {
+            color: var(--warning);
+        }
+
+        .claim-status.untested {
+            color: #999;
+        }
+
+        .claim-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .claim-text {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .claim-evidence {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: color-mix(in srgb, var(--danger) 10%, white);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .success-message {
+            background: color-mix(in srgb, var(--success) 10%, white);
+            border-left: 4px solid var(--success);
+            color: var(--success);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .section-divider {
+            height: 1px;
+            background: var(--border);
+            margin: var(--spacing-lg) 0;
+        }
+
+        .report-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .report-section h3 {
+            font-size: 16px;
+            color: var(--text-dark);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 10%, white), color-mix(in srgb, var(--primary) 5%, white));
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: var(--spacing-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .export-btn {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .conversation-history {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+            background: var(--secondary);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+        }
+
+        .history-item {
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .history-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .history-text {
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.5;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal h2 {
+            font-size: 20px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .answer-text {
+            background: var(--secondary);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--primary);
+            margin: var(--spacing-md) 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .next-question-preview {
+            background: color-mix(in srgb, var(--primary) 5%, white);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            border: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border));
+            margin-top: var(--spacing-md);
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .assessment-score {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: var(--spacing-sm);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--spacing-md);
+            }
+
+            .header {
+                padding: var(--spacing-lg);
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .main-content {
+                gap: var(--spacing-md);
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .modal {
+                width: 95%;
+                padding: var(--spacing-lg);
+            }
+        }
+    </style>
+</head>
+<body data-style="modern">
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Defend Your Experience</h1>
+            <p>Build confidence by answering tough questions about your own claims</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div id="mainPanel" class="panel">
+                <!-- Interview stages will be rendered here -->
+            </div>
+
+            <div class="sidebar">
+                <div class="panel">
+                    <h2><span class="stage-indicator">📊</span>Session Progress</h2>
+                    <div class="metric">
+                        <div class="metric-value" id="questionCount">0</div>
+                        <div class="metric-label">Questions Asked</div>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="defensibilityScore">0%</div>
+                        <div class="metric-label">Defensibility</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2><span class="stage-indicator">🎯</span>Key Claims</h2>
+                    <div id="claimsList" class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <p>No claims extracted yet</p>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2><span class="stage-indicator">💬</span>Recent Q&A</h2>
+                    <div id="historyPanel" class="empty-state">
+                        <div class="empty-state-icon">📚</div>
+                        <p>Conversation will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ Application State ============
+        const state = {
+            stage: 'welcome',
+            userProfile: {
+                name: '',
+                email: '',
+                role: '',
+                audience: '',
+                style: 'modern'
+            },
+            document: null,
+            documentContent: '',
+            claims: [],
+            conversationHistory: [],
+            questionCount: 0,
+            defensibilityScore: 0,
+            apiKey: '', // Will be handled by artifact environment
+        };
+
+        // ============ UI Rendering ============
+        function renderStage() {
+            const mainPanel = document.getElementById('mainPanel');
+            
+            switch(state.stage) {
+                case 'welcome':
+                    renderWelcomeStage(mainPanel);
+                    break;
+                case 'interview-setup':
+                    renderInterviewSetup(mainPanel);
+                    break;
+                case 'style-selection':
+                    renderStyleSelection(mainPanel);
+                    break;
+                case 'document-upload':
+                    renderDocumentUpload(mainPanel);
+                    break;
+                case 'interview':
+                    renderInterviewStage(mainPanel);
+                    break;
+                case 'report':
+                    renderReportStage(mainPanel);
+                    break;
+            }
+            updateProgressBar();
+        }
+
+        function renderWelcomeStage(panel) {
+            panel.innerHTML = `
+                <div class="interview-stage">
+                    <h2>Welcome to Defend Your Experience</h2>
+                    <p style="color: var(--text-light); margin-bottom: var(--spacing-lg);">
+                        This tool helps you confidently defend every claim you make about yourself. 
+                        Through adaptive questioning, we'll identify weak points in your narrative and help you 
+                        build stronger, more compelling stories.
+                    </p>
+                    
+                    <div style="background: color-mix(in srgb, var(--primary) 5%, white); padding: var(--spacing-lg); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);">
+                        <h3 style="font-size: 16px; margin-bottom: var(--spacing-md);">What you'll get:</h3>
+                        <ul style="list-style: none; display: grid; gap: var(--spacing-sm);">
+                            <li>✓ <strong>Adaptive Questions</strong> — Each question builds on your previous answer</li>
+                            <li>✓ <strong>Weak Claim Detection</strong> — We'll identify vague or unsupported statements</li>
+                            <li>✓ <strong>Defensibility Scoring</strong> — Real-time tracking of how well you're defending each claim</li>
+                            <li>✓ <strong>Final Report</strong> — Detailed analysis of your strengths and improvement areas</li>
+                        </ul>
+                    </div>
+
+                    <div class="btn-group-vertical">
+                        <button class="btn btn-primary" onclick="setState('interview-setup')">
+                            Start Interview →
+                        </button>
+                        <button class="btn btn-secondary" onclick="showQuickTour()">
+                            Learn More
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderInterviewSetup(panel) {
+            panel.innerHTML = `
+                <div class="interview-stage">
+                    <h2><span class="stage-indicator">1</span> Tell Us About You</h2>
+                    
+                    <div class="question-card">
+                        <div class="question-label">What's your name?</div>
+                        <input type="text" id="nameInput" placeholder="e.g., Sarah Chen" value="${state.userProfile.name}">
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-label">What role or experience are you defending?</div>
+                        <input type="text" id="roleInput" placeholder="e.g., Senior Product Manager, Freelance Designer, Startup Founder" value="${state.userProfile.role}">
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-label">Who will be interviewing you?</div>
+                        <div class="mcq-options">
+                            ${['Hiring Manager', 'Investor/VC', 'Interview Panel', 'Client/Customer', 'Other'].map(option => `
+                                <div class="mcq-option ${state.userProfile.audience === option ? 'selected' : ''}" 
+                                     onclick="selectAudience('${option}')">
+                                    ${option}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="completeSetup()">
+                            Continue →
+                        </button>
+                        <button class="btn btn-secondary" onclick="setState('welcome')">
+                            Back
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStyleSelection(panel) {
+            panel.innerHTML = `
+                <div class="interview-stage">
+                    <h2><span class="stage-indicator">2</span> Choose Your Style</h2>
+                    <p style="color: var(--text-light); margin-bottom: var(--spacing-lg);">
+                        How would you like this interface to look?
+                    </p>
+
+                    <div class="mcq-options" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));">
+                        <div class="style-option" onclick="selectStyle('modern')">
+                            <div style="padding: var(--spacing-md); text-align: center; border: 2px solid #007BFF; border-radius: var(--radius-md); cursor: pointer; background: #007BFF20;">
+                                <div style="font-size: 24px; margin-bottom: var(--spacing-sm);">💙</div>
+                                <div style="font-weight: 600; font-size: 14px;">Modern</div>
+                                <div style="font-size: 12px; color: var(--text-light);">Bold & clean</div>
+                            </div>
+                        </div>
+                        <div class="style-option" onclick="selectStyle('warm')">
+                            <div style="padding: var(--spacing-md); text-align: center; border: 2px solid #FF9500; border-radius: var(--radius-md); cursor: pointer; background: #FF950020;">
+                                <div style="font-size: 24px; margin-bottom: var(--spacing-sm);">🧡</div>
+                                <div style="font-weight: 600; font-size: 14px;">Warm</div>
+                                <div style="font-size: 12px; color: var(--text-light);">Friendly & inviting</div>
+                            </div>
+                        </div>
+                        <div class="style-option" onclick="selectStyle('minimalist')">
+                            <div style="padding: var(--spacing-md); text-align: center; border: 2px solid #333; border-radius: var(--radius-md); cursor: pointer; background: #33333320;">
+                                <div style="font-size: 24px; margin-bottom: var(--spacing-sm);">🖤</div>
+                                <div style="font-weight: 600; font-size: 14px;">Minimalist</div>
+                                <div style="font-size: 12px; color: var(--text-light);">Simple & focused</div>
+                            </div>
+                        </div>
+                        <div class="style-option" onclick="selectStyle('vibrant')">
+                            <div style="padding: var(--spacing-md); text-align: center; border: 2px solid #9C27B0; border-radius: var(--radius-md); cursor: pointer; background: #9C27B020;">
+                                <div style="font-size: 24px; margin-bottom: var(--spacing-sm);">💜</div>
+                                <div style="font-weight: 600; font-size: 14px;">Vibrant</div>
+                                <div style="font-size: 12px; color: var(--text-light);">Creative & bold</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group" style="margin-top: var(--spacing-xl);">
+                        <button class="btn btn-primary" onclick="setState('document-upload')">
+                            Next: Upload Documents →
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDocumentUpload(panel) {
+            panel.innerHTML = `
+                <div class="interview-stage">
+                    <h2><span class="stage-indicator">3</span> Upload or Enter Your Experience</h2>
+                    <p style="color: var(--text-light); margin-bottom: var(--spacing-lg);">
+                        Upload your resume, portfolio, LinkedIn profile, or any document describing your experience.
+                    </p>
+
+                    <div class="upload-zone" id="uploadZone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                        <div class="upload-icon">📎</div>
+                        <div class="upload-text">
+                            <strong>Drag files here</strong> or click to browse<br>
+                            <small>Supports: PDF, DOCX, TXT, images</small>
+                        </div>
+                        <input type="file" id="fileInput" style="display: none;" onchange="handleFileSelect(event)">
+                    </div>
+
+                    <div id="filePreview"></div>
+
+                    <div style="margin-top: var(--spacing-lg); border-top: 1px solid var(--border); padding-top: var(--spacing-lg);">
+                        <h3 style="font-size: 14px; font-weight: 600; margin-bottom: var(--spacing-md);">Or paste your experience:</h3>
+                        <textarea id="experienceText" placeholder="Paste your LinkedIn profile, resume text, project description, bio, or any information about your experience..." style="min-height: 150px;">${state.documentContent}</textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="startInterview()">
+                            Start Interview →
+                        </button>
+                        <button class="btn btn-secondary" onclick="setState('style-selection')">
+                            Back
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Make upload zone clickable
+            document.getElementById('uploadZone').addEventListener('click', () => {
+                document.getElementById('fileInput').click();
+            });
+        }
+
+        function renderInterviewStage(panel) {
+            if (state.conversationHistory.length === 0) {
+                panel.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Analyzing your experience and generating first question...
+                    </div>
+                `;
+                generateFirstQuestion();
+            } else {
+                const lastExchange = state.conversationHistory[state.conversationHistory.length - 1];
+                panel.innerHTML = `
+                    <div class="interview-stage">
+                        <div style="margin-bottom: var(--spacing-lg); background: color-mix(in srgb, var(--primary) 5%, white); padding: var(--spacing-md); border-radius: var(--radius-md);">
+                            <h2 style="font-size: 16px; margin-bottom: var(--spacing-sm);">Your Previous Answer</h2>
+                            <p style="color: var(--text-light); font-size: 14px; line-height: 1.6;">${lastExchange.userAnswer}</p>
+                        </div>
+
+                        ${lastExchange.assessment ? `
+                            <div style="margin-bottom: var(--spacing-lg); background: color-mix(in srgb, var(--primary) 5%, white); padding: var(--spacing-md); border-radius: var(--radius-md); border-left: 4px solid var(--primary);">
+                                <h3 style="font-size: 14px; font-weight: 600; margin-bottom: var(--spacing-sm);">
+                                    Assessment <span class="assessment-score">${lastExchange.assessment.defensibility}/10</span>
+                                </h3>
+                                <p style="font-size: 13px; line-height: 1.6; color: var(--text-light);">${lastExchange.assessment.feedback}</p>
+                            </div>
+                        ` : ''}
+
+                        <h2 style="margin-bottom: var(--spacing-md);">Next Question</h2>
+                        <div class="question-card">
+                            <div class="question-text">${lastExchange.nextQuestion}</div>
+                            <textarea id="answerInput" placeholder="Your answer..." style="margin-top: var(--spacing-md);"></textarea>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="submitAnswer()">
+                                Submit Answer
+                            </button>
+                            <button class="btn btn-secondary" onclick="setState('report')">
+                                End Interview & Get Report
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderReportStage(panel) {
+            const defended = state.claims.filter(c => c.status === 'defended').length;
+            const weak = state.claims.filter(c => c.status === 'weak').length;
+            const defensibilityAvg = state.conversationHistory.length > 0 
+                ? Math.round(state.conversationHistory.reduce((sum, ex) => sum + (ex.assessment?.defensibility || 5), 0) / state.conversationHistory.length)
+                : 0;
+
+            panel.innerHTML = `
+                <div class="interview-stage">
+                    <h2 style="margin-bottom: var(--spacing-lg);">📋 Your Defensibility Report</h2>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">${state.conversationHistory.length}</div>
+                            <div class="stat-label">Questions Answered</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${defended}</div>
+                            <div class="stat-label">Well-Defended Claims</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${weak}</div>
+                            <div class="stat-label">Claims Needing Work</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${defensibilityAvg}%</div>
+                            <div class="stat-label">Overall Defensibility</div>
+                        </div>
+                    </div>
+
+                    <div class="section-divider"></div>
+
+                    <div class="report-section">
+                        <h3>🎯 Your Claims Analysis</h3>
+                        ${state.claims.length > 0 ? state.claims.map((claim, idx) => `
+                            <div class="claim-item">
+                                <div class="claim-status ${claim.status}">
+                                    ${claim.status === 'defended' ? '✓' : claim.status === 'weak' ? '⚠' : '?'}
+                                </div>
+                                <div class="claim-content">
+                                    <div class="claim-text">${claim.text}</div>
+                                    <div class="claim-evidence">Status: <strong>${claim.status}</strong></div>
+                                </div>
+                            </div>
+                        `).join('') : '<p style="color: var(--text-light);">No specific claims identified</p>'}
+                    </div>
+
+                    <div class="section-divider"></div>
+
+                    <div class="report-section">
+                        <h3>💡 Key Recommendations</h3>
+                        <ul style="list-style: none; display: grid; gap: var(--spacing-md);">
+                            ${defensibilityAvg < 60 ? `
+                                <li style="padding: var(--spacing-md); background: color-mix(in srgb, var(--warning) 10%, white); border-radius: var(--radius-md); border-left: 4px solid var(--warning);">
+                                    <strong>Strengthen Your Core Claims</strong><br>
+                                    <small>Focus on providing specific examples and quantifiable results for your main achievements.</small>
+                                </li>
+                            ` : ''}
+                            ${weak > 0 ? `
+                                <li style="padding: var(--spacing-md); background: color-mix(in srgb, var(--warning) 10%, white); border-radius: var(--radius-md); border-left: 4px solid var(--warning);">
+                                    <strong>Address Vague Statements</strong><br>
+                                    <small>Replace general claims with specific, measurable achievements and evidence.</small>
+                                </li>
+                            ` : ''}
+                            <li style="padding: var(--spacing-md); background: color-mix(in srgb, var(--success) 10%, white); border-radius: var(--radius-md); border-left: 4px solid var(--success);">
+                                <strong>Practice Your Story</strong><br>
+                                <small>Use this session to refine your talking points. The more you practice, the more confident you'll be.</small>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="section-divider"></div>
+
+                    <div class="report-section">
+                        <h3>📊 Conversation Transcript</h3>
+                        <div style="background: var(--secondary); padding: var(--spacing-lg); border-radius: var(--radius-md); max-height: 400px; overflow-y: auto;">
+                            ${state.conversationHistory.map((ex, idx) => `
+                                <div style="margin-bottom: var(--spacing-lg); ${idx === state.conversationHistory.length - 1 ? '' : 'border-bottom: 1px solid var(--border); padding-bottom: var(--spacing-lg);'}">
+                                    <div style="font-weight: 600; color: var(--primary); font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--spacing-sm);">Question ${idx + 1}</div>
+                                    <div style="background: white; padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-sm); color: var(--text-dark); font-size: 14px;">${ex.question}</div>
+                                    
+                                    <div style="font-weight: 600; color: var(--text-light); font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; margin: var(--spacing-md) 0 var(--spacing-sm) 0;">Your Answer</div>
+                                    <div style="background: white; padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-sm); color: var(--text-dark); font-size: 14px; line-height: 1.6;">${ex.userAnswer}</div>
+                                    
+                                    ${ex.assessment ? `
+                                        <div style="font-weight: 600; color: var(--text-light); font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; margin: var(--spacing-md) 0 var(--spacing-sm) 0;">Assessment (${ex.assessment.defensibility}/10)</div>
+                                        <div style="background: white; padding: var(--spacing-md); border-radius: var(--radius-sm); color: var(--text-dark); font-size: 14px; line-height: 1.6; border-left: 4px solid var(--primary);">${ex.assessment.feedback}</div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="btn-group" style="margin-top: var(--spacing-xl);">
+                        <button class="btn btn-primary" onclick="exportReport()">
+                            📥 Export Report
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetSession()">
+                            🔄 Start New Session
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============ Event Handlers ============
+        function setState(newStage) {
+            state.stage = newStage;
+            renderStage();
+            window.scrollTo(0, 0);
+        }
+
+        function selectAudience(audience) {
+            state.userProfile.audience = audience;
+            document.querySelectorAll('.mcq-option').forEach(el => el.classList.remove('selected'));
+            event.target.closest('.mcq-option').classList.add('selected');
+        }
+
+        function completeSetup() {
+            state.userProfile.name = document.getElementById('nameInput').value || 'Anonymous';
+            state.userProfile.role = document.getElementById('roleInput').value || 'Professional';
+            
+            if (!state.userProfile.audience) {
+                alert('Please select who will be interviewing you');
+                return;
+            }
+            
+            setState('style-selection');
+        }
+
+        function selectStyle(style) {
+            state.userProfile.style = style;
+            document.body.setAttribute('data-style', style);
+            
+            const styleMap = {
+                'modern': { hue: 240, sat: 70, light: 50 },
+                'warm': { hue: 25, sat: 85, light: 50 },
+                'minimalist': { hue: 0, sat: 0, light: 40 },
+                'vibrant': { hue: 280, sat: 100, light: 45 }
+            };
+            
+            const colors = styleMap[style];
+            document.documentElement.style.setProperty('--primary-hue', colors.hue);
+            document.documentElement.style.setProperty('--primary-sat', colors.sat + '%');
+            document.documentElement.style.setProperty('--primary-light', colors.light + '%');
+            
+            // Re-render current stage to see color changes
+            renderStage();
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('uploadZone').classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('uploadZone').classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('uploadZone').classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect({ target: { files } });
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            state.document = file;
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                if (file.type === 'application/pdf') {
+                    extractTextFromPDF(file);
+                } else if (file.type === 'text/plain') {
+                    state.documentContent = e.target.result;
+                    showFilePreview(file);
+                } else if (file.name.endsWith('.docx')) {
+                    // For now, just read as text if possible
+                    state.documentContent = 'Document uploaded (DOCX format requires additional parsing)';
+                    showFilePreview(file);
+                } else {
+                    state.documentContent = e.target.result;
+                    showFilePreview(file);
+                }
+            };
+
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        function showFilePreview(file) {
+            const preview = document.getElementById('filePreview');
+            preview.innerHTML = `
+                <div class="file-preview">
+                    <div class="file-preview-info">
+                        <div class="file-icon">📄</div>
+                        <div class="file-details">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-meta">${(file.size / 1024).toFixed(1)} KB</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-small btn-secondary" onclick="clearFile()">Remove</button>
+                </div>
+            `;
+        }
+
+        function clearFile() {
+            state.document = null;
+            state.documentContent = '';
+            document.getElementById('filePreview').innerHTML = '';
+        }
+
+        async function extractTextFromPDF(file) {
+            // Placeholder for PDF extraction
+            state.documentContent = 'PDF file selected (Full text extraction would require PDF.js library)';
+            showFilePreview(file);
+        }
+
+        async function startInterview() {
+            state.documentContent = document.getElementById('experienceText').value || state.documentContent;
+            
+            if (!state.documentContent.trim()) {
+                alert('Please provide some information about your experience');
+                return;
+            }
+
+            state.claims = await extractClaims();
+            setState('interview');
+        }
+
+        async function extractClaims() {
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'anthropic-version': '2023-06-01'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-6',
+                        max_tokens: 1000,
+                        messages: [{
+                            role: 'user',
+                            content: `Extract 3-5 key claims from this experience text. Format as JSON array with objects having "text" and "type" fields. For example: [{"text": "Led team of 5", "type": "leadership"}]
+
+Experience: ${state.documentContent.substring(0, 2000)}`
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                if (data.content?.[0]?.text) {
+                    try {
+                        const jsonMatch = data.content[0].text.match(/\[[\s\S]*\]/);
+                        if (jsonMatch) {
+                            const claims = JSON.parse(jsonMatch[0]);
+                            return claims.map(c => ({ ...c, status: 'untested' }));
+                        }
+                    } catch (e) {
+                        console.error('Error parsing claims:', e);
+                    }
+                }
+                return [];
+            } catch (error) {
+                console.error('Error extracting claims:', error);
+                return [];
+            }
+        }
+
+        async function generateFirstQuestion() {
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'anthropic-version': '2023-06-01'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-6',
+                        max_tokens: 500,
+                        messages: [{
+                            role: 'user',
+                            content: `You are an expert interviewer. Based on this experience, generate ONE tough but fair follow-up question that challenges the candidate to provide specific evidence for their claims:
+
+Experience: ${state.documentContent.substring(0, 1500)}
+
+Audience: ${state.userProfile.audience}
+
+Generate a single, direct question that:
+1. Is specific to their experience (not generic)
+2. Asks them to back up a claim with evidence
+3. Is challenging but respectful
+
+Question:`
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                if (data.content?.[0]?.text) {
+                    const question = data.content[0].text.trim();
+                    state.conversationHistory.push({
+                        question,
+                        userAnswer: '',
+                        assessment: null,
+                        nextQuestion: ''
+                    });
+                    updateSidebar();
+                    setState('interview');
+                }
+            } catch (error) {
+                console.error('Error generating question:', error);
+                // Fallback question
+                state.conversationHistory.push({
+                    question: "Tell me about your most significant achievement in your " + state.userProfile.role + " role, and how you measured its success.",
+                    userAnswer: '',
+                    assessment: null,
+                    nextQuestion: ''
+                });
+                setState('interview');
+            }
+        }
+
+        async function submitAnswer() {
+            const answer = document.getElementById('answerInput').value.trim();
+            if (!answer) {
+                alert('Please provide an answer');
+                return;
+            }
+
+            const currentIdx = state.conversationHistory.length - 1;
+            if (currentIdx >= 0) {
+                state.conversationHistory[currentIdx].userAnswer = answer;
+            }
+
+            // Show loading state
+            document.getElementById('mainPanel').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Analyzing your answer and generating next question...
+                </div>
+            `;
+
+            try {
+                await assessAndGenerateNext();
+            } catch (error) {
+                console.error('Error:', error);
+                // Fallback
+                state.conversationHistory[currentIdx].nextQuestion = "Can you tell me more about how you measure success in that area?";
+                state.conversationHistory[currentIdx].assessment = {
+                    defensibility: 6,
+                    feedback: "Your answer provides good context. Consider adding more specific metrics or results."
+                };
+                state.questionCount++;
+                updateSidebar();
+                setState('interview');
+            }
+        }
+
+        async function assessAndGenerateNext() {
+            const currentIdx = state.conversationHistory.length - 1;
+            const exchange = state.conversationHistory[currentIdx];
+
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'anthropic-version': '2023-06-01'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-6',
+                        max_tokens: 1000,
+                        messages: [{
+                            role: 'user',
+                            content: `You are a critical but fair interviewer. Assess this answer and generate a tough follow-up question.
+
+Candidate Profile: ${state.userProfile.role} being interviewed by ${state.userProfile.audience}
+
+Original Question: ${exchange.question}
+
+Candidate's Answer: ${exchange.userAnswer}
+
+Please respond in this exact JSON format (no markdown, just raw JSON):
+{
+  "defensibility": <number 1-10>,
+  "feedback": "<your assessment of how well they defended their claim - be specific about gaps>",
+  "nextQuestion": "<a follow-up question that goes deeper, asking for more evidence or specific examples>"
+}
+
+Make the next question challenging - ask for concrete numbers, timelines, or outcomes.`
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                if (data.content?.[0]?.text) {
+                    const text = data.content[0].text.trim();
+                    // Try to parse JSON
+                    try {
+                        const result = JSON.parse(text);
+                        exchange.assessment = {
+                            defensibility: result.defensibility,
+                            feedback: result.feedback
+                        };
+                        exchange.nextQuestion = result.nextQuestion;
+                    } catch (e) {
+                        // Fallback parsing
+                        const lines = text.split('\n');
+                        exchange.assessment = {
+                            defensibility: 6,
+                            feedback: "Good effort. Consider adding more specific metrics."
+                        };
+                        exchange.nextQuestion = "Can you walk me through the specific steps you took and the measurable outcomes?";
+                    }
+                }
+
+                // Create next conversation entry
+                if (exchange.nextQuestion) {
+                    state.conversationHistory.push({
+                        question: exchange.nextQuestion,
+                        userAnswer: '',
+                        assessment: null,
+                        nextQuestion: ''
+                    });
+                }
+
+                state.questionCount++;
+                updateMetrics();
+                updateSidebar();
+                setState('interview');
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        function updateMetrics() {
+            let defensibilitySum = 0;
+            let count = 0;
+
+            state.conversationHistory.forEach(ex => {
+                if (ex.assessment?.defensibility) {
+                    defensibilitySum += ex.assessment.defensibility;
+                    count++;
+                    
+                    // Update claim status based on responses
+                    if (ex.assessment.defensibility >= 7) {
+                        // Mark related claims as defended
+                    }
+                }
+            });
+
+            state.defensibilityScore = count > 0 ? Math.round((defensibilitySum / count) / 10 * 100) : 0;
+            document.getElementById('questionCount').textContent = state.questionCount;
+            document.getElementById('defensibilityScore').textContent = state.defensibilityScore + '%';
+            document.getElementById('confidenceFill').style.width = state.defensibilityScore + '%';
+        }
+
+        function updateProgressBar() {
+            const maxQuestions = 10;
+            const progress = Math.min((state.questionCount / maxQuestions) * 100, 100);
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function updateSidebar() {
+            // Update claims list
+            const claimsList = document.getElementById('claimsList');
+            if (state.claims.length > 0) {
+                claimsList.innerHTML = state.claims.map(claim => `
+                    <div class="claim-item">
+                        <div class="claim-status">📝</div>
+                        <div class="claim-content">
+                            <div class="claim-text">${claim.text}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Update history
+            const historyPanel = document.getElementById('historyPanel');
+            if (state.conversationHistory.length > 0) {
+                const recentExchanges = state.conversationHistory.slice(-2);
+                historyPanel.innerHTML = recentExchanges.map((ex, idx) => `
+                    <div class="history-item">
+                        <div class="history-label">Q${state.conversationHistory.length - recentExchanges.length + idx + 1}</div>
+                        <div class="history-text">${ex.question.substring(0, 100)}${ex.question.length > 100 ? '...' : ''}</div>
+                        ${ex.assessment ? `
+                            <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border);">
+                                <div style="font-size: 12px; color: var(--primary); font-weight: 600;">Score: ${ex.assessment.defensibility}/10</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            }
+        }
+
+        function exportReport() {
+            let reportText = `DEFENSIBILITY REPORT
+Generated: ${new Date().toLocaleString()}
+Candidate: ${state.userProfile.name}
+Role: ${state.userProfile.role}
+Audience: ${state.userProfile.audience}
+
+=====================================
+
+OVERVIEW
+- Questions Answered: ${state.questionCount}
+- Overall Defensibility: ${state.defensibilityScore}%
+
+CONVERSATION TRANSCRIPT
+=====================================
+
+`;
+
+            state.conversationHistory.forEach((ex, idx) => {
+                reportText += `\nQUESTION ${idx + 1}
+${ex.question}
+
+ANSWER
+${ex.userAnswer}
+
+`;
+                if (ex.assessment) {
+                    reportText += `ASSESSMENT (${ex.assessment.defensibility}/10)
+${ex.assessment.feedback}
+
+`;
+                }
+            });
+
+            // Create downloadable file
+            const blob = new Blob([reportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `defensibility-report-${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function resetSession() {
+            state.stage = 'welcome';
+            state.conversationHistory = [];
+            state.questionCount = 0;
+            state.defensibilityScore = 0;
+            state.claims = [];
+            state.documentContent = '';
+            state.document = null;
+            renderStage();
+        }
+
+        function showQuickTour() {
+            alert(`Defend Your Experience helps you prepare for interviews by:
+
+1. Extracting claims from your resume/portfolio
+2. Asking tough follow-up questions
+3. Assessing how well you defend each claim
+4. Providing scores and recommendations
+
+The goal is to identify weak points in your narrative before facing a real interviewer.`);
+        }
+
+        // ============ Initialize ============
+        renderStage();
+    </script>
+</body>
+</html>
